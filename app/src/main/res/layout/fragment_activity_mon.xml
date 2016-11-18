@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_activity_mon"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="id.co.ppu.collfastmon.fragments.FragmentMonitoring"
+    tools:showIn="@layout/activity_mon">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"
+            android:layoutAnimation="@anim/layout_slide_down"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <android.support.design.widget.TextInputLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@android:color/primary_text_dark">
+
+                <EditText
+                    android:id="@+id/etCollectorName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="AR Staff"
+                    android:maxLines="1"
+                    android:textColor="@android:color/primary_text_dark" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@android:color/primary_text_dark">
+
+                <EditText
+                    android:id="@+id/etNoLKP"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="No Tagih"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@android:color/primary_text_dark" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@android:color/primary_text_dark">
+
+                <EditText
+                    android:id="@+id/etTglLKP"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="Tgl Tagih"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@android:color/primary_text_dark" />
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:paddingRight="8dp"
+            android:paddingLeft="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvSeparator"
+                android:layout_weight="0.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:paddingBottom="8dp"
+                android:text="No Collector" />
+
+            <TextView
+                android:id="@+id/tvLastUpdate"
+                android:layout_weight="0.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:gravity="end"
+                android:text="" />
+
+        </LinearLayout>
+
+        <co.moonmonkeylabs.realmrecyclerview.RealmRecyclerView
+            android:id="@+id/realm_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/fab_margin"
+            android:paddingEnd="@dimen/fab_margin"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            app:rrvGridLayoutSpanCount="2"
+            app:rrvIsRefreshable="false"
+            app:rrvLayoutType="LinearLayout" />
+
+    </LinearLayout>
+</RelativeLayout>

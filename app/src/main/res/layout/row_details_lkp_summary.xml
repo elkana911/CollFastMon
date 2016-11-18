@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <TextView
+        android:id="@+id/attrib_no"
+        android:padding="2dp"
+        android:gravity="center"
+        />
+    <TextView
+        android:id="@+id/attrib_no_contract"
+        android:padding="2dp"
+        android:gravity="center"
+        />
+    <TextView
+        android:id="@+id/attrib_is_lkp"
+        android:padding="2dp"
+        android:gravity="center"
+        />
+    <TextView
+        android:id="@+id/attrib_lkp_flag"
+        android:padding="2dp"
+        android:gravity="center"
+        />
+    <TextView
+        android:id="@+id/attrib_penerimaan"
+        android:padding="2dp"
+        android:gravity="center"
+        />
+</TableRow>

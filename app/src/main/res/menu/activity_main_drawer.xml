@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="H O M E" />
+        <item
+            android:visible="false"
+            android:id="@+id/nav_loa"
+            android:icon="@drawable/ic_list_black_24dp"
+            android:title="List Of Assignment" />
+        <item
+            android:visible="false"
+            android:id="@+id/nav_paymentEntry"
+            android:icon="@drawable/ic_payment_black_24dp"
+            android:title="Payment Entry" />
+        <item
+            android:visible="false"
+            android:id="@+id/nav_summaryLKP"
+            android:icon="@drawable/ic_offline_pin_black_24dp"
+            android:title="Summary LKP" />
+        <item
+            android:visible="false"
+            android:id="@+id/nav_closeBatch"
+            android:icon="@drawable/ic_arrow_downward_black_24dp"
+            android:title="Close Batch" />
+        <item
+            android:visible="false"
+            android:id="@+id/nav_manualSync"
+            android:icon="@drawable/ic_sync_black_24dp"
+            android:title="Manual Sync" />
+        <item
+            android:visible="false"
+            android:id="@+id/nav_developer"
+            android:icon="@drawable/ic_payment_black_24dp"
+            android:title="Developer Screen" />
+        <item
+            android:id="@+id/nav_clearSyncTables"
+            android:icon="@drawable/ic_phonelink_erase_black_24dp"
+            android:title="Clear Sync Tables"
+            android:visible="false" />
+
+    </group>
+
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:visible="false"
+                android:id="@+id/nav_chats"
+                android:icon="@drawable/ic_forum_black_24dp"
+                android:title="Chats" />
+            <item
+                android:visible="false"
+                android:id="@+id/nav_reset"
+                android:icon="@drawable/ic_phonelink_erase_black_24dp"
+                android:title="Reset Data" />
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@android:drawable/ic_lock_power_off"
+                android:title="Log Out" />
+        </menu>
+    </item>
+
+</menu>

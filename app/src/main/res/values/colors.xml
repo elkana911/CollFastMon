@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorRadanaBlue">#201A5B</color>
+    <color name="colorRadanaDarkGreen">#188385</color>
+    <color name="colorRadanaLightGreen">#7EC34A</color>
+
+    <color name="colorPrimary">#3d2698</color>
+    <color name="colorPrimaryDark">#28166f</color>
+
+    <color name="colorCancelSyncBG">#96ff40</color>
+    <color name="colorCancelSyncTint">#326905</color>
+    <color name="colorLKPYellow">#fff64a</color>
+    <color name="colorLKPGreen">#89ec89</color>
+    <color name="colorLKPBlue">#8f8fec</color>
+
+    <color name="colorTextReadOnly">#a6a6a6</color>
+    <!--
+        <color name="colorPrimary">#3F51B5</color>
+        <color name="colorPrimaryDark">#303F9F</color>
+    -->
+    <color name="colorAccent">#FF4081</color>
+</resources>
