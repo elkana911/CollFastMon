@@ -495,11 +495,12 @@ public class FragmentMonitoring extends Fragment {
 
                 if (getContext() instanceof OnLKPListListener) {
                     ((OnLKPListListener) getContext()).onEndRefresh();
+
+                    Utility.showDialog(getContext(), "Server Problem", t.getMessage());
                 }
 
                 realm_recycler_view.setRefreshing(false);
 
-                Utility.showDialog(getContext(), "Server Problem", t.getMessage());
             }
         });
 

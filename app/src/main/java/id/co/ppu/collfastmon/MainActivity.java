@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
@@ -57,6 +58,7 @@ import id.co.ppu.collfastmon.login.LoginActivity;
 import id.co.ppu.collfastmon.pojo.CollectorJob;
 import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.master.MstTaskType;
+import id.co.ppu.collfastmon.pojo.trn.TrnCollPos;
 import id.co.ppu.collfastmon.rest.ApiInterface;
 import id.co.ppu.collfastmon.rest.ServiceGenerator;
 import id.co.ppu.collfastmon.rest.request.RequestCollJobByDate;
@@ -77,6 +79,7 @@ import static id.co.ppu.collfastmon.util.DataUtil.resetData;
 public class MainActivity extends BasicActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnCollectorListListener, OnMapReadyCallback {
     public static final String SELECTED_NAV_MENU_KEY = "selected_nav_menu_key";
+    private static final int ACTIVITY_MONITORING = 50;
 
     private boolean viewIsAtHome;
     private Menu menu;
@@ -104,6 +107,18 @@ public class MainActivity extends BasicActivity
     private final CharSequence[] menuItems = {
             "From Camera", "From Gallery", "Delete Photo"
     };
+
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        final Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+
+        if (frag != null && frag instanceof FragmentHomeSpv) {
+            ((FragmentHomeSpv)frag).onClickFab();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -358,6 +373,10 @@ public class MainActivity extends BasicActivity
         Storage.savePreference(getApplicationContext(), Storage.KEY_LOGIN_DATE, null);
         Storage.savePreference(getApplicationContext(), Storage.KEY_LOGOUT_DATE, new Date().toString());
 
+        realm.beginTransaction();
+        realm.delete(TrnCollPos.class);
+        realm.commitTransaction();
+
         startActivity(intent);
 //                moveTaskToBack(true);
         finish();
@@ -477,7 +496,7 @@ public class MainActivity extends BasicActivity
         i.putExtra(ActivityMon.PARAM_COLLNAME, detail.getCollName());
         i.putExtra(ActivityMon.PARAM_LKP_DATE, lkpDate.getTime());
         i.putExtra(ActivityMon.PARAM_LDV_NO, detail.getLdvNo());
-        startActivity(i);
+        startActivityForResult(i, ACTIVITY_MONITORING);
     }
 
     @Override
@@ -591,7 +610,8 @@ public class MainActivity extends BasicActivity
 
         RequestCollJobByDate req = new RequestCollJobByDate();
         req.setSpvCode(currentUser.getUserId());
-        req.setYyyyMMdd(Utility.convertDateToString(lkpDate, "yyyyMMdd"));
+        req.setLdvNo(null); // not mandatory for this service
+        req.setLkpDate(lkpDate);
 
         Call<ResponseGetCollJob> call = fastService.getCollectorsJob(req);
         call.enqueue(new Callback<ResponseGetCollJob>() {
@@ -746,5 +766,34 @@ public class MainActivity extends BasicActivity
             AppIndex.AppIndexApi.end(client, getIndexApiAction());
             client.disconnect();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == ACTIVITY_MONITORING) {
+            if (data == null) {
+                return;
+            }
+
+            String action = data.getStringExtra("ACTION");
+
+            if (!TextUtils.isEmpty(action) && action.equals(Utility.ACTION_RESTART_ACTIVITY)) {
+                final Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+
+                if (frag != null && frag instanceof FragmentHomeSpv) {
+                    ((FragmentHomeSpv)frag).onClickFab();
+                }
+
+//                setResult(RESULT_OK, data);
+//                finish();
+            }
+
+        }
+
     }
 }

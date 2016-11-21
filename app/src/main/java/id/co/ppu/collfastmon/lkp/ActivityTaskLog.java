@@ -1,14 +1,21 @@
 package id.co.ppu.collfastmon.lkp;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -17,17 +24,18 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.component.BasicActivity;
+import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.master.MstTaskType;
+import id.co.ppu.collfastmon.pojo.trn.TrnLDVDetails;
+import id.co.ppu.collfastmon.pojo.trn.TrnLDVHeader;
 import id.co.ppu.collfastmon.pojo.trn.TrnTaskLog;
-import id.co.ppu.collfastmon.rest.ApiInterface;
-import id.co.ppu.collfastmon.rest.ServiceGenerator;
 import id.co.ppu.collfastmon.rest.request.RequestCollJobByDate;
+import id.co.ppu.collfastmon.rest.request.RequestReopenBatch;
 import id.co.ppu.collfastmon.rest.response.ResponseGetTaskLog;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
@@ -99,14 +107,12 @@ public class ActivityTaskLog extends BasicActivity {
         mProgressDialog.setMessage("Getting log from server.\nPlease wait...");
         mProgressDialog.show();
 
-        ApiInterface fastService =
-                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
-
         RequestCollJobByDate req = new RequestCollJobByDate();
         req.setSpvCode(this.collCode);
-        req.setYyyyMMdd(Utility.convertDateToString(this.lkpDate, "yyyyMMdd"));
+        req.setLdvNo(this.ldvNo);
+        req.setLkpDate(this.lkpDate);
 
-        Call<ResponseGetTaskLog> call = fastService.getTaskLog(req);
+        Call<ResponseGetTaskLog> call = getAPIService().getTaskLog(req);
         call.enqueue(new Callback<ResponseGetTaskLog>() {
             @Override
             public void onResponse(Call<ResponseGetTaskLog> call, Response<ResponseGetTaskLog> response) {
@@ -176,6 +182,36 @@ public class ActivityTaskLog extends BasicActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_activity_tasklog, menu);
+
+        Drawable drawable = menu.findItem(R.id.action_reopen_batch).getIcon();
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, ContextCompat.getColor(this, android.R.color.white));
+        menu.findItem(R.id.action_reopen_batch).setIcon(drawable);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_reopen_batch) {
+
+            attemptReopenBatch();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setTableHeader(TextView textView, String text) {
         textView.setText(text);
         if (Build.VERSION.SDK_INT < 23) {
@@ -216,7 +252,7 @@ public class ActivityTaskLog extends BasicActivity {
 
             if (!obj.getPk().getTaskCode().equalsIgnoreCase(lastTaskCode)) {
                 lastTaskCode = obj.getPk().getTaskCode();
-            }else
+            } else
                 continue;
 
             counter += 1;
@@ -257,6 +293,160 @@ public class ActivityTaskLog extends BasicActivity {
 
             tableLayout.addView(row);
         }
+
+    }
+
+    private void doReopenBatch() {
+
+        // call API
+
+        final ProgressDialog mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage("Please wait...");
+        mProgressDialog.show();
+
+        RequestReopenBatch req = new RequestReopenBatch();
+        req.setLdvNo(ldvNo);
+
+        UserData currentUser = (UserData) Storage.getObjPreference(getApplicationContext(), Storage.KEY_USER, UserData.class);
+        req.setSpvCode(currentUser.getUserId());
+
+        req.setYyyyMMdd(Utility.convertDateToString(lkpDate, "yyyyMMdd"));
+
+        Call<ResponseBody> call = getAPIService().reopenBatch(req);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (mProgressDialog.isShowing())
+                    mProgressDialog.dismiss();
+
+                if (!response.isSuccessful()) {
+                    // handle exception from server
+                    int statusCode = response.code();
+
+                    // handle request errors yourself
+                    ResponseBody errorBody = response.errorBody();
+
+                    try {
+                        Utility.showDialog(ActivityTaskLog.this, "Server Problem (" + statusCode + ")", errorBody.string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    return;
+                }
+
+                // harusnya finish sampe home baru refresh lagi
+                new AlertDialog.Builder(ActivityTaskLog.this)
+                        .setTitle("Reopen Close Batch")
+                        .setMessage("Success !")
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent intent = new Intent();
+                                intent.putExtra("ACTION", Utility.ACTION_RESTART_ACTIVITY);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            }
+                        })
+                        .show()
+                ;
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("eric.onFailure", throwable.getMessage(), throwable);
+
+                if (mProgressDialog.isShowing())
+                    mProgressDialog.dismiss();
+
+                Utility.throwableHandler(ActivityTaskLog.this, throwable);
+            }
+        });
+
+    }
+
+    private void attemptReopenBatch() {
+
+        final String createdBy = "JOB" + Utility.convertDateToString(this.lkpDate, "yyyyMMdd");
+
+        // cek dulu apa layak di cancel
+        TrnLDVHeader header = realm.where(TrnLDVHeader.class)
+                .equalTo("collCode", this.collCode)
+                .equalTo("createdBy", createdBy)
+                .findFirst();
+
+        if (header == null || header.getCloseBatch() == null) {
+            Toast.makeText(this, "Cannot Reopen Batch.\nThis LKP is not Closed yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // kalo closed tp ada transaksi ya ga boleh juga
+        // caranya cek semua ldvdetail apakah ada yg workstatusnya V
+        long count = this.realm.where(TrnLDVDetails.class)
+                .equalTo("pk.ldvNo", this.ldvNo)
+                .equalTo("workStatus", "V")
+                .count();
+
+        if (count > 0) {
+            Utility.showDialog(ActivityTaskLog.this, "Reopen Batch Error", "Transaction Found, cannot Reopen Batch.");
+            return;
+        }
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("Reopen Batch");
+        alertDialogBuilder.setMessage("This will cancel the Close Batch of:\n" + etNoLKP.getText().toString() + "\nAre you sure?");
+        //null should be your on click listener
+        alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                View promptsView = LayoutInflater.from(ActivityTaskLog.this).inflate(R.layout.dialog_pwd, null);
+                final EditText input = ButterKnife.findById(promptsView, R.id.password);
+
+                new AlertDialog.Builder(ActivityTaskLog.this)
+                        .setTitle("Type Your Password")
+                        .setView(promptsView)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String value = input.getText().toString();
+
+                                UserData currentUser = (UserData) Storage.getObjPreference(getApplicationContext(), Storage.KEY_USER, UserData.class);
+                                if (!value.equals(currentUser.getUserPwd())) {
+                                    Toast.makeText(ActivityTaskLog.this, "Invalid password !", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+
+                                doReopenBatch();
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        })
+                        .show()
+                ;
+
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alertDialogBuilder.show();
+
 
     }
 }

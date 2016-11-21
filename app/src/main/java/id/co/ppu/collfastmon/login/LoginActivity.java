@@ -30,9 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -90,6 +87,7 @@ public class LoginActivity extends BasicActivity {
     @BindView(R.id.btnGetLKPUser)
     Button btnGetLKPUser;
 
+    @Override
     public ApiInterface getAPIService() {
         return
                 ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Utility.getServerID(spServers.getSelectedItem().toString())));
@@ -222,7 +220,9 @@ public class LoginActivity extends BasicActivity {
         for (int i = 0; i < Utility.servers.length; i++) {
 
             if (!Utility.developerMode) {
-                if (Utility.servers[i][0].startsWith("local"))
+                if (Utility.servers[i][0].startsWith("local")
+                        || Utility.servers[i][0].startsWith("dev-")
+                        )
                     continue;
             }
 
@@ -281,19 +281,7 @@ public class LoginActivity extends BasicActivity {
                     if (mProgressDialog.isShowing())
                         mProgressDialog.dismiss();
 
-                    if (throwable == null)
-                        return;
-
-                    if (throwable instanceof ExpiredException)
-                        Utility.showDialog(LoginActivity.this, "Version Changed", throwable.getMessage());
-                    else if (throwable instanceof UnknownHostException)
-                        Utility.showDialog(LoginActivity.this, getString(R.string.error_server_not_found), "Please try another server.\n" + throwable.getMessage());
-                    else if (throwable instanceof SocketTimeoutException)
-                        Utility.showDialog(LoginActivity.this, getString(R.string.error_server_timeout), "Please check your network.\n" + throwable.getMessage());
-                    else if (throwable instanceof ConnectException)
-                        Utility.showDialog(LoginActivity.this, getString(R.string.error_server_down), "Please contact administrator.\n" + throwable.getMessage());
-                    else
-                        Toast.makeText(LoginActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                    Utility.throwableHandler(LoginActivity.this, throwable);
                 }
 
                 @Override

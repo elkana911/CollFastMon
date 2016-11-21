@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,12 +22,15 @@ import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.fragments.FragmentMonitoring;
 import id.co.ppu.collfastmon.pojo.DisplayLDVDetails;
+import id.co.ppu.collfastmon.util.Utility;
 
 public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnLKPListListener {
     public static final String PARAM_COLLCODE = "collector.code";
     public static final String PARAM_LKP_DATE = "lkpDate";
     public static final String PARAM_LDV_NO = "ldvNo";
     public static final String PARAM_COLLNAME = "collector.name";
+    private static final int ACTIVITY_TASK_LOG = 67;
+    private static final int ACTIVITY_GPS_LOG = 68;
 
     public String collCode = null;
     public String collName = null;
@@ -94,6 +98,11 @@ public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnL
         DrawableCompat.setTint(drawableTaskLog, ContextCompat.getColor(this, android.R.color.white));
         menu.findItem(R.id.action_task_log).setIcon(drawableTaskLog);
 
+        Drawable drawableGpsLog = menu.findItem(R.id.action_gps_log).getIcon();
+        drawableGpsLog = DrawableCompat.wrap(drawableGpsLog);
+        DrawableCompat.setTint(drawableGpsLog, ContextCompat.getColor(this, android.R.color.white));
+        menu.findItem(R.id.action_gps_log).setIcon(drawableGpsLog);
+
         return true;
     }
 
@@ -119,7 +128,16 @@ public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnL
             i.putExtra(ActivityTaskLog.PARAM_COLLNAME, this.collName);
             i.putExtra(ActivityTaskLog.PARAM_LDV_NO, this.ldvNo);
 
-            startActivity(i);
+            startActivityForResult(i, ACTIVITY_TASK_LOG);
+            return true;
+        } else if (id == R.id.action_gps_log) {
+            Intent i = new Intent(this, ActivityGPSLog.class);
+            i.putExtra(ActivityGPSLog.PARAM_COLL_CODE, this.collCode);
+            i.putExtra(ActivityGPSLog.PARAM_LKP_DATE, this.lkpDate.getTime());
+            i.putExtra(ActivityGPSLog.PARAM_COLLNAME, this.collName);
+            i.putExtra(ActivityGPSLog.PARAM_LDV_NO, this.ldvNo);
+
+            startActivityForResult(i, ACTIVITY_GPS_LOG);
             return true;
         }
 
@@ -164,6 +182,30 @@ public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnL
             return;
 
         startActivity(i);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == ACTIVITY_TASK_LOG) {
+            if (data == null) {
+                return;
+            }
+
+            String action = data.getStringExtra("ACTION");
+
+            if (!TextUtils.isEmpty(action) && action.equals(Utility.ACTION_RESTART_ACTIVITY)) {
+                setResult(RESULT_OK, data);
+                finish();
+            }
+
+        } else if (requestCode == ACTIVITY_GPS_LOG) {
+
+        }
     }
 
     @Override

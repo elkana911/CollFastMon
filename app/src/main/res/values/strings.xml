@@ -37,6 +37,8 @@
     <string name="action_settings">Settings</string>
     <string name="action_summary_lkp">Summary LKP</string>
     <string name="action_task_log">Task Log</string>
+    <string name="action_reopen_batch">Reopen Batch</string>
+    <string name="action_gps_log">GPS Log</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -209,7 +211,17 @@
     <string name="title_activity_mon">Monitoring</string>
     <string name="title_activity_summary_lkp">Summary LKP</string>
     <string name="title_activity_task_log">Task Log</string>
+    <string name="title_activity_gps_log">GPS Log</string>
 
     <string name="title_no_connection">No Connection</string>
     <string name="title_activity_map">Map</string>
+
+    <string-array name="hours_working">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+    </string-array>
+
 </resources>

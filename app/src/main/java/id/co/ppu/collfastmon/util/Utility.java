@@ -17,6 +17,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Spinner;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -26,22 +29,23 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import id.co.ppu.collfastmon.R;
+import id.co.ppu.collfastmon.exceptions.ExpiredException;
 import okhttp3.HttpUrl;
 
 public class Utility {
 
     public final static String DATE_EXPIRED_YYYYMMDD = "20161225";
     public final static String[][] servers = {
-            {"local-server", "10.212.4.235", "8090"}
+//            {"local-server", "10.212.0.71", "8090"}
 //            {"local-server", "192.168.10.86", "8090"}   // kelapa gading
 //            {"local-server", "192.168.43.90", "8090"}   // samsung mega
-//            {"local-server", "192.168.1.108", "8090"}
+            {"local-server", "192.168.1.104", "8090"}
 //            {"local-server", "192.168.0.8", "8090"}    // faraday
             ,{"dev-fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}
     };
-    public final static boolean developerMode = false;
+    public final static boolean developerMode = true;
     public final static int NETWORK_TIMEOUT_MINUTES = developerMode ? 1 : 2;
 
 //    public final static String[][] servers = {{"local-server", "10.100.100.77", "8090"}
@@ -56,6 +60,8 @@ public class Utility {
     public final static String LAST_UPDATE_BY = "MOBCOL";
     public final static String INFO = "Info";
     public final static String WARNING = "Warning";
+
+    public final static String ACTION_RESTART_ACTIVITY = "Restart Activity";
 
     public static final int MAX_MONEY_DIGITS = 10;
     public static final int MAX_MONEY_LIMIT = 99999999;
@@ -118,6 +124,23 @@ public class Utility {
                     }
                 })
                 .show();
+
+    }
+
+    public static void throwableHandler(Context ctx, Throwable throwable) {
+        if (throwable == null)
+            return;
+
+        if (throwable instanceof ExpiredException)
+            Utility.showDialog(ctx, "Version Changed", throwable.getMessage());
+        else if (throwable instanceof UnknownHostException)
+            Utility.showDialog(ctx, ctx.getString(R.string.error_server_not_found), "Please try another server.\n" + throwable.getMessage());
+        else if (throwable instanceof SocketTimeoutException)
+            Utility.showDialog(ctx, ctx.getString(R.string.error_server_timeout), "Please check your network.\n" + throwable.getMessage());
+        else if (throwable instanceof ConnectException)
+            Utility.showDialog(ctx, ctx.getString(R.string.error_server_down), "Please contact administrator.\n" + throwable.getMessage());
+        else
+            Utility.showDialog(ctx, "Server Problem", throwable.getMessage());
 
     }
 
@@ -322,6 +345,15 @@ public class Utility {
         return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
     }
 
+    public static long getMinutesDiff(Date date1, Date date2) {
+        long diffInMillies = date2.getTime() - date1.getTime();
+        long diffInSec = diffInMillies / 1000;
+        long min = diffInSec / 60;
+        long sec = diffInSec % 60;
+
+        return min;
+    }
+
     public static boolean isEmailValid(String email) {
         return email.contains("@");
     }
@@ -400,6 +432,11 @@ public class Utility {
 
         }
     }
+
+    public static String extractDigits(String text) {
+        return text.replaceAll("\\D+", "");
+    }
+
 /*
     public static String getAndroidID(Context ctx){
         String _id = Secure.getString(ctx.getContentResolver(), Secure.ANDROID_ID);

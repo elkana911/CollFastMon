@@ -1,12 +1,17 @@
 package id.co.ppu.collfastmon.rest.request;
 
+import java.util.Date;
+
 /**
  * Created by Eric on 03-Nov-16.
  */
 
 public class RequestCollJobByDate {
     private String spvCode;
-    private String yyyyMMdd;
+
+    private Date lkpDate;
+
+    private String ldvNo;
 
     public String getSpvCode() {
         return spvCode;
@@ -16,19 +21,28 @@ public class RequestCollJobByDate {
         this.spvCode = spvCode;
     }
 
-    public String getYyyyMMdd() {
-        return yyyyMMdd;
+    public Date getLkpDate() {
+        return lkpDate;
     }
 
-    public void setYyyyMMdd(String yyyyMMdd) {
-        this.yyyyMMdd = yyyyMMdd;
+    public void setLkpDate(Date lkpDate) {
+        this.lkpDate = lkpDate;
+    }
+
+    public String getLdvNo() {
+        return ldvNo;
+    }
+
+    public void setLdvNo(String ldvNo) {
+        this.ldvNo = ldvNo;
     }
 
     @Override
     public String toString() {
         return "RequestCollJobByDate{" +
                 "spvCode='" + spvCode + '\'' +
-                ", yyyyMMdd='" + yyyyMMdd + '\'' +
+                ", lkpDate=" + lkpDate +
+                ", ldvNo='" + ldvNo + '\'' +
                 '}';
     }
 }

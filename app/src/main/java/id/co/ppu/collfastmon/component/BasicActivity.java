@@ -19,8 +19,16 @@ import java.util.Date;
 
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.pojo.ServerInfo;
+import id.co.ppu.collfastmon.pojo.trn.TrnLDVComments;
+import id.co.ppu.collfastmon.pojo.trn.TrnRVColl;
+import id.co.ppu.collfastmon.pojo.trn.TrnRepo;
+import id.co.ppu.collfastmon.rest.ApiInterface;
+import id.co.ppu.collfastmon.rest.ServiceGenerator;
 import id.co.ppu.collfastmon.settings.SettingsActivity;
+import id.co.ppu.collfastmon.util.Storage;
+import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
+import io.realm.RealmQuery;
 
 /**
  * Created by Eric on 06-Sep-16.
@@ -99,6 +107,34 @@ public class BasicActivity extends AppCompatActivity {
 
         // Finally, set the newly created TextView as ActionBar custom view
         ab.setCustomView(tv);
+    }
+
+    protected RealmQuery<TrnLDVComments> getLDVComments(Realm realm, String ldvNo, String contractNo) {
+        /*
+        dont use global realm due to error: Realm access from incorrect thread. Realm objects can only be accessed on the thread they were created.
+         */
+        return realm.where(TrnLDVComments.class)
+                .equalTo("pk.ldvNo", ldvNo)
+                .equalTo("pk.contractNo", contractNo)
+                .equalTo("createdBy", Utility.LAST_UPDATE_BY);
+    }
+
+    protected RealmQuery<TrnRepo> getRepo(Realm realm, String contractNo) {
+        return realm.where(TrnRepo.class)
+                .equalTo("contractNo", contractNo)
+                .equalTo("createdBy", Utility.LAST_UPDATE_BY);
+
+    }
+
+    protected RealmQuery<TrnRVColl> getRVColl(Realm realm, String contractNo) {
+        return realm.where(TrnRVColl.class)
+                .equalTo("contractNo", contractNo)
+                .equalTo("createdBy", Utility.LAST_UPDATE_BY);
+    }
+
+    protected ApiInterface getAPIService() {
+        return
+                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
     }
 
 }

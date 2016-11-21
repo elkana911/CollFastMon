@@ -21,4 +21,11 @@
         android:title="@string/action_task_log"
         android:icon="@drawable/ic_access_time_black_24dp"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_gps_log"
+        android:orderInCategory="102"
+        android:title="@string/action_gps_log"
+        android:icon="@drawable/ic_person_pin_circle_black_24dp"
+        app:showAsAction="ifRoom" />
 </menu>

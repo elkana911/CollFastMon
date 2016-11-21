@@ -1,13 +1,15 @@
 package id.co.ppu.collfastmon.rest;
 
 import id.co.ppu.collfastmon.rest.request.RequestCollJobByDate;
+import id.co.ppu.collfastmon.rest.request.RequestGetGPSHistory;
 import id.co.ppu.collfastmon.rest.request.RequestLKPByDate;
 import id.co.ppu.collfastmon.rest.request.RequestLogError;
 import id.co.ppu.collfastmon.rest.request.RequestLogin;
+import id.co.ppu.collfastmon.rest.request.RequestReopenBatch;
 import id.co.ppu.collfastmon.rest.request.RequestSyncLocation;
+import id.co.ppu.collfastmon.rest.response.ResponseGetGPSHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJob;
 import id.co.ppu.collfastmon.rest.response.ResponseGetLKPMonitoring;
-import id.co.ppu.collfastmon.rest.response.ResponseGetMasterData;
 import id.co.ppu.collfastmon.rest.response.ResponseGetMasterMonData;
 import id.co.ppu.collfastmon.rest.response.ResponseGetTaskLog;
 import id.co.ppu.collfastmon.rest.response.ResponseLogin;
@@ -45,6 +47,9 @@ public interface ApiInterface {
     @POST("fastmon/masterdata")
     Call<ResponseGetMasterMonData> getMasterMonData();
 
+    @POST("fastmon/reopen_batch")
+    Call<ResponseBody> reopenBatch(@Body RequestReopenBatch req);
+
     ///////////////////////////////  BASIC FAST FUNCTIONS  ////////////////////////////////////////
     @POST("fast/server_info")
     Call<ResponseServerInfo> getServerInfo();
@@ -57,5 +62,8 @@ public interface ApiInterface {
 
     @POST("fast/sync_gps")
     Call<ResponseBody> syncLocation(@Body RequestSyncLocation req);
+
+    @POST("fast/get_gps_hist")
+    Call<ResponseGetGPSHistory> getGPSHistory(@Body RequestGetGPSHistory req);
 
 }
