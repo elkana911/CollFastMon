@@ -19,6 +19,7 @@ import java.util.Date;
 
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.pojo.ServerInfo;
+import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.trn.TrnLDVComments;
 import id.co.ppu.collfastmon.pojo.trn.TrnRVColl;
 import id.co.ppu.collfastmon.pojo.trn.TrnRepo;
@@ -135,6 +136,12 @@ public class BasicActivity extends AppCompatActivity {
     protected ApiInterface getAPIService() {
         return
                 ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
+    }
+
+    protected UserData getCurrentUser() {
+        UserData currentUser = (UserData) Storage.getObjPreference(getApplicationContext(), Storage.KEY_USER, UserData.class);
+
+        return currentUser;
     }
 
 }

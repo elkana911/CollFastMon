@@ -524,8 +524,8 @@ public class LoginActivity extends BasicActivity {
         call.enqueue(new Callback<ResponseServerInfo>() {
             @Override
             public void onResponse(Call<ResponseServerInfo> call, Response<ResponseServerInfo> response) {
+                final ResponseServerInfo responseServerInfo = response.body();
                 if (response.isSuccessful()) {
-                    final ResponseServerInfo responseServerInfo = response.body();
 
                     if (responseServerInfo.getError() == null) {
                         LoginActivity.this.realm.executeTransaction(new Realm.Transaction() {
@@ -542,6 +542,23 @@ public class LoginActivity extends BasicActivity {
 
                     }
 
+                } else {
+                    try {
+                        int statusCode = response.code();
+
+                        // handle request errors yourself
+                        ResponseBody errorBody = response.errorBody();
+
+                        if (listener != null) {
+                            listener.onFailure(new RuntimeException(errorBody.string()));
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        if (listener != null) {
+                            listener.onFailure(e);
+                        }
+                    }
                 }
             }
 

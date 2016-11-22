@@ -24,6 +24,19 @@ public class TrnTaskLog extends RealmObject implements Serializable {
     @SerializedName("serialNo")
     private String serialNo;
 
+    @SerializedName("createdTimestamp")
+    private Date createdTimestamp;
+
+    @SerializedName("createdBy")
+    private String createdBy;
+
+    @SerializedName("lastupdateBy")
+    private String lastupdateBy;
+
+    @SerializedName("lastupdateTimestamp")
+    private Date lastupdateTimestamp;
+
+
     public TrnTaskLogPK getPk() {
         return pk;
     }
@@ -56,6 +69,38 @@ public class TrnTaskLog extends RealmObject implements Serializable {
         this.serialNo = serialNo;
     }
 
+    public Date getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public void setCreatedTimestamp(Date createdTimestamp) {
+        this.createdTimestamp = createdTimestamp;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getLastupdateBy() {
+        return lastupdateBy;
+    }
+
+    public void setLastupdateBy(String lastupdateBy) {
+        this.lastupdateBy = lastupdateBy;
+    }
+
+    public Date getLastupdateTimestamp() {
+        return lastupdateTimestamp;
+    }
+
+    public void setLastupdateTimestamp(Date lastupdateTimestamp) {
+        this.lastupdateTimestamp = lastupdateTimestamp;
+    }
+
     @Override
     public String toString() {
         return "TrnTaskLog{" +
@@ -63,6 +108,10 @@ public class TrnTaskLog extends RealmObject implements Serializable {
                 ", officeCode='" + officeCode + '\'' +
                 ", deviceModel='" + deviceModel + '\'' +
                 ", serialNo='" + serialNo + '\'' +
+                ", createdTimestamp=" + createdTimestamp +
+                ", createdBy='" + createdBy + '\'' +
+                ", lastupdateBy='" + lastupdateBy + '\'' +
+                ", lastupdateTimestamp=" + lastupdateTimestamp +
                 '}';
     }
 }

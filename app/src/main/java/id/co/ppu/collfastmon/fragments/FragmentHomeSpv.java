@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -33,9 +32,7 @@ import co.moonmonkeylabs.realmrecyclerview.RealmRecyclerView;
 import co.moonmonkeylabs.realmsearchview.RealmSearchViewHolder;
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.component.BasicFragment;
-import id.co.ppu.collfastmon.component.DividerItemDecoration;
-import id.co.ppu.collfastmon.listener.OnCollectorListListener;
-import id.co.ppu.collfastmon.pojo.CollectorJob;
+import id.co.ppu.collfastmon.pojo.CollJob;
 import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
@@ -92,8 +89,8 @@ public class FragmentHomeSpv extends BasicFragment {
     }
 
     public void loadCollectorsFromLocal(Date time) {
-        RealmResults<CollectorJob> rows =
-                realm.where(CollectorJob.class).findAllSorted("countVisited", Sort.DESCENDING);
+        RealmResults<CollJob> rows =
+                realm.where(CollJob.class).findAllSorted("countVisited", Sort.DESCENDING);
 
         long count = rows.size();
         String dateLabel = "Today";
@@ -185,13 +182,13 @@ public class FragmentHomeSpv extends BasicFragment {
 
     }
 
-    public class CollListAdapter extends RealmBasedRecyclerViewAdapter<CollectorJob, CollListAdapter.DataViewHolder> {
+    public class CollListAdapter extends RealmBasedRecyclerViewAdapter<CollJob, CollListAdapter.DataViewHolder> {
 
         private int lastPosition = -1;
 
         public CollListAdapter(
                 Context context,
-                RealmResults<CollectorJob> realmResults,
+                RealmResults<CollJob> realmResults,
                 boolean automaticUpdate,
                 boolean animateIdType) {
             super(context, realmResults, automaticUpdate, animateIdType);
@@ -206,7 +203,7 @@ public class FragmentHomeSpv extends BasicFragment {
         @Override
         public void onBindRealmViewHolder(DataViewHolder dataViewHolder, int position) {
 
-            final CollectorJob detail = realmResults.get(position);
+            final CollJob detail = realmResults.get(position);
 
             dataViewHolder.llRowLKP.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -259,11 +256,13 @@ public class FragmentHomeSpv extends BasicFragment {
                 dataViewHolder.btnMap.setVisibility(View.GONE);
             }
 
-            TextView tvTotalVisited = dataViewHolder.tvTotalVisited;
+            TextView tvTotalVisited = dataViewHolder.tvTotVisit;
             if (Build.VERSION.SDK_INT >= 24) {
-                tvTotalVisited.setText(Html.fromHtml("<strong>Total Visited : " + detail.getCountVisited() + "</strong> / " + detail.getCountLKP(), Html.FROM_HTML_MODE_LEGACY));
+                tvTotalVisited.setText(Html.fromHtml("" + detail.getCountVisited() + "/" + detail.getCountLKP(), Html.FROM_HTML_MODE_LEGACY));
+//                tvTotalVisited.setText(Html.fromHtml("<strong>Total Visited : " + detail.getCountVisited() + "</strong> / " + detail.getCountLKP(), Html.FROM_HTML_MODE_LEGACY));
             } else {
-                tvTotalVisited.setText(Html.fromHtml("<strong>Total Visited : " + detail.getCountVisited() + "</strong> / " + detail.getCountLKP()));
+                tvTotalVisited.setText(Html.fromHtml("" + detail.getCountVisited() + "/" + detail.getCountLKP()));
+//                tvTotalVisited.setText(Html.fromHtml("<strong>Total Visited : " + detail.getCountVisited() + "</strong> / " + detail.getCountLKP()));
             }
 
             Animation animation = AnimationUtils.loadAnimation(getContext(),
@@ -287,8 +286,8 @@ public class FragmentHomeSpv extends BasicFragment {
             @BindView(R.id.tvCollCode)
             TextView tvCollCode;
 
-            @BindView(R.id.tvTotalVisited)
-            TextView tvTotalVisited;
+            @BindView(R.id.tvTotVisit)
+            TextView tvTotVisit;
 
             @BindView(R.id.tvLastTask)
             TextView tvLastTask;
@@ -306,9 +305,19 @@ public class FragmentHomeSpv extends BasicFragment {
                 super(container);
 
                 this.container = container;
+
                 ButterKnife.bind(this, container);
             }
         }
+    }
+
+    public interface OnCollectorListListener {
+        void onCollSelected(CollJob detail, Date lkpDate);
+        void onCollLoad(Date lkpDate);
+//        void onStartRefresh();
+//        void onEndRefresh();
+
+        void onCollLocation(CollJob detail, Date lkpDate);
     }
 
 }

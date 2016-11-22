@@ -9,17 +9,19 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Created by Eric on 03-Nov-16.
+ * Created by Eric on 22-Nov-16.
  */
-@Deprecated
-public class CollectorJob extends RealmObject implements Serializable {
 
+public class CollJob extends RealmObject implements Serializable {
     @PrimaryKey
     @SerializedName("collCode")
     private String collCode;
 
     @SerializedName("collName")
     private String collName;
+
+    @SerializedName("collType")
+    private String collType;
 
     @SerializedName("ldvNo")
     private String ldvNo;
@@ -56,6 +58,14 @@ public class CollectorJob extends RealmObject implements Serializable {
         this.collName = collName;
     }
 
+    public String getCollType() {
+        return collType;
+    }
+
+    public void setCollType(String collType) {
+        this.collType = collType;
+    }
+
     public String getLdvNo() {
         return ldvNo;
     }
@@ -80,22 +90,6 @@ public class CollectorJob extends RealmObject implements Serializable {
         this.countLKP = countLKP;
     }
 
-    public String getLastLatitude() {
-        return lastLatitude;
-    }
-
-    public void setLastLatitude(String lastLatitude) {
-        this.lastLatitude = lastLatitude;
-    }
-
-    public String getLastLongitude() {
-        return lastLongitude;
-    }
-
-    public void setLastLongitude(String lastLongitude) {
-        this.lastLongitude = lastLongitude;
-    }
-
     public String getLastTask() {
         return lastTask;
     }
@@ -110,5 +104,21 @@ public class CollectorJob extends RealmObject implements Serializable {
 
     public void setLastTaskTime(Date lastTaskTime) {
         this.lastTaskTime = lastTaskTime;
+    }
+
+    public String getLastLatitude() {
+        return lastLatitude;
+    }
+
+    public void setLastLatitude(String lastLatitude) {
+        this.lastLatitude = lastLatitude;
+    }
+
+    public String getLastLongitude() {
+        return lastLongitude;
+    }
+
+    public void setLastLongitude(String lastLongitude) {
+        this.lastLongitude = lastLongitude;
     }
 }

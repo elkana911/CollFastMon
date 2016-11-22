@@ -29,11 +29,13 @@ public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnL
     public static final String PARAM_LKP_DATE = "lkpDate";
     public static final String PARAM_LDV_NO = "ldvNo";
     public static final String PARAM_COLLNAME = "collector.name";
+    public static final String PARAM_COLLTYPE = "collector.type";
     private static final int ACTIVITY_TASK_LOG = 67;
     private static final int ACTIVITY_GPS_LOG = 68;
 
     public String collCode = null;
     public String collName = null;
+    public String collType = null;
     public String ldvNo = null;
     public Date lkpDate = null;
 
@@ -58,6 +60,7 @@ public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnL
 
         this.collCode = extras.getString(PARAM_COLLCODE);
         this.collName = extras.getString(PARAM_COLLNAME);
+        this.collType = extras.getString(PARAM_COLLTYPE);
         this.ldvNo = extras.getString(PARAM_LDV_NO);
         this.lkpDate = new Date(extras.getLong(PARAM_LKP_DATE));
 
@@ -172,7 +175,12 @@ public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnL
             // doing nothing
         } else {
             // vist result
-            i = new Intent(this, ActivityVisitResult.class);
+
+            if (this.collType.equalsIgnoreCase("RPC")) {
+                i = new Intent(this, ActivityVisitResultRPC.class);
+            }else
+                i = new Intent(this, ActivityVisitResult.class);
+
             i.putExtra(ActivityVisitResult.PARAM_CONTRACT_NO, detail.getContractNo());
             i.putExtra(ActivityVisitResult.PARAM_COLLECTOR_ID, detail.getCollId());
             i.putExtra(ActivityVisitResult.PARAM_LDV_NO, detail.getLdvNo());

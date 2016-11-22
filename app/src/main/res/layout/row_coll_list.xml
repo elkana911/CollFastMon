@@ -2,79 +2,148 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:cardElevation="6dp"
-    app:cardCornerRadius="4dp">
+    android:layout_height="130dp"
+    app:cardUseCompatPadding="true"
+    app:cardPreventCornerOverlap="false"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
         <LinearLayout
-            android:id="@+id/llRowLKP"
-            android:layout_weight="0.8"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp"
             android:paddingLeft="12dp"
-            android:paddingTop="8dp">
+            android:paddingEnd="12dp"
+            android:background="#808080"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvCollName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:shadowRadius="2"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowColor="@android:color/black"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp"
                 android:text="ELKANA"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
-
-            <TextView
-                android:id="@+id/tvCollCode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="ELKANA"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
-
-            <TextView
-                android:id="@+id/tvTotalVisited"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ELKANA"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
-            <TextView
-                android:id="@+id/tvLastTask"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_dark"
-                android:text="ELKANA"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
-            <TextView
-                android:id="@+id/tvLastLat"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_green_dark"
-                android:text="ELKANA"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
-            <TextView
-                android:id="@+id/tvLastLng"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_green_dark"
-                android:text="ELKANA"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
-
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <ImageView
-            android:layout_weight="0.2"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_vertical"
-            android:scaleType="centerInside"
-            android:tint="@color/colorRadanaLightGreen"
-            app:srcCompat="@drawable/ic_person_pin_circle_black_24dp"
-            android:id="@+id/btnMap"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTotVisit"
+                android:background="#808080"
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="8dp"
+                android:textSize="30sp"
+                android:textColor="@android:color/white"
+                android:text="20/20"/>
+
+            <LinearLayout
+                android:id="@+id/llRowLKP"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:orientation="vertical"
+                android:paddingBottom="8dp"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/colorDarkerGray"
+                    android:textColor="@android:color/white"
+                    android:text="ELKANA"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
+
+                <TextView
+                    android:id="@+id/tvCollCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="ELKANA"
+                    android:textStyle="bold"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+
+                <TextView
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ELKANA"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+
+                <TextView
+                    android:id="@+id/tvLastTask"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ELKANA"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                    android:textColor="@android:color/holo_red_dark" />
+
+                <TextView
+                    android:id="@+id/tvLastLat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ELKANA"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvLastLng"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ELKANA"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/btnMap"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.2"
+                android:scaleType="fitXY"
+                android:tint="@color/colorRadanaLightGreen"
+                app:srcCompat="@drawable/ic_person_pin_circle_black_24dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
+            android:paddingEnd="12dp"
+            android:background="@android:color/darker_gray"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="ELKANA"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

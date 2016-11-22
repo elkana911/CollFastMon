@@ -6,17 +6,17 @@ import java.util.Date;
  * Created by Eric on 03-Nov-16.
  */
 
-public class RequestCollJobByDate {
-    private String collCode;
+public class RequestCollJobBySpv {
+    private String spvCode;
 
     private Date lkpDate;
 
-    public String getCollCode() {
-        return collCode;
+    public String getSpvCode() {
+        return spvCode;
     }
 
-    public void setCollCode(String collCode) {
-        this.collCode = collCode;
+    public void setSpvCode(String spvCode) {
+        this.spvCode = spvCode;
     }
 
     public Date getLkpDate() {
@@ -29,8 +29,8 @@ public class RequestCollJobByDate {
 
     @Override
     public String toString() {
-        return "RequestCollJobByDate{" +
-                "collCode='" + collCode + '\'' +
+        return "RequestCollJobBySpv{" +
+                "spvCode='" + spvCode + '\'' +
                 ", lkpDate=" + lkpDate +
                 '}';
     }

@@ -51,18 +51,19 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.fragments.FragmentHomeSpv;
-import id.co.ppu.collfastmon.listener.OnCollectorListListener;
 import id.co.ppu.collfastmon.listener.OnSuccessError;
 import id.co.ppu.collfastmon.lkp.ActivityMon;
 import id.co.ppu.collfastmon.login.LoginActivity;
+import id.co.ppu.collfastmon.pojo.CollJob;
 import id.co.ppu.collfastmon.pojo.CollectorJob;
 import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.master.MstTaskType;
 import id.co.ppu.collfastmon.pojo.trn.TrnCollPos;
 import id.co.ppu.collfastmon.rest.ApiInterface;
 import id.co.ppu.collfastmon.rest.ServiceGenerator;
-import id.co.ppu.collfastmon.rest.request.RequestCollJobByDate;
+import id.co.ppu.collfastmon.rest.request.RequestCollJobBySpv;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJob;
+import id.co.ppu.collfastmon.rest.response.ResponseGetCollJobList;
 import id.co.ppu.collfastmon.settings.SettingsActivity;
 import id.co.ppu.collfastmon.test.ActivityDeveloper;
 import id.co.ppu.collfastmon.util.DataUtil;
@@ -77,7 +78,7 @@ import retrofit2.Response;
 import static id.co.ppu.collfastmon.util.DataUtil.resetData;
 
 public class MainActivity extends BasicActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnCollectorListListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentHomeSpv.OnCollectorListListener, OnMapReadyCallback {
     public static final String SELECTED_NAV_MENU_KEY = "selected_nav_menu_key";
     private static final int ACTIVITY_MONITORING = 50;
 
@@ -490,12 +491,15 @@ public class MainActivity extends BasicActivity
 
 
     @Override
-    public void onCollSelected(CollectorJob detail, Date lkpDate) {
+    public void onCollSelected(CollJob detail, Date lkpDate) {
+
         Intent i = new Intent(this, ActivityMon.class);
+
         i.putExtra(ActivityMon.PARAM_COLLCODE, detail.getCollCode());
         i.putExtra(ActivityMon.PARAM_COLLNAME, detail.getCollName());
         i.putExtra(ActivityMon.PARAM_LKP_DATE, lkpDate.getTime());
         i.putExtra(ActivityMon.PARAM_LDV_NO, detail.getLdvNo());
+
         startActivityForResult(i, ACTIVITY_MONITORING);
     }
 
@@ -525,17 +529,7 @@ public class MainActivity extends BasicActivity
     }
 
     @Override
-    public void onStartRefresh() {
-
-    }
-
-    @Override
-    public void onEndRefresh() {
-
-    }
-
-    @Override
-    public void onCollLocation(CollectorJob detail, Date lkpDate) {
+    public void onCollLocation(CollJob detail, Date lkpDate) {
 //        contentMap.setVisibility(View.VISIBLE);
 
         if (TextUtils.isEmpty(detail.getLastLatitude())
@@ -573,8 +567,6 @@ public class MainActivity extends BasicActivity
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(sydney, 14);
         mMap.moveCamera(cameraUpdate);
 
-
-
         llMap.setVisibility(View.VISIBLE);
 //        map.addMarker(new MarkerOptions()
 //                .position(new LatLng(lat, lng))
@@ -608,20 +600,21 @@ public class MainActivity extends BasicActivity
         ApiInterface fastService =
                 ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
 
-        RequestCollJobByDate req = new RequestCollJobByDate();
+        RequestCollJobBySpv req = new RequestCollJobBySpv();
+
         req.setSpvCode(currentUser.getUserId());
-        req.setLdvNo(null); // not mandatory for this service
+//        req.setLdvNo(null); // not mandatory for this service
         req.setLkpDate(lkpDate);
 
-        Call<ResponseGetCollJob> call = fastService.getCollectorsJob(req);
-        call.enqueue(new Callback<ResponseGetCollJob>() {
+        Call<ResponseGetCollJobList> call = fastService.getCollectorsJob(req);
+        call.enqueue(new Callback<ResponseGetCollJobList>() {
             @Override
-            public void onResponse(Call<ResponseGetCollJob> call, Response<ResponseGetCollJob> response) {
+            public void onResponse(Call<ResponseGetCollJobList> call, Response<ResponseGetCollJobList> response) {
                 if (mProgressDialog.isShowing())
                     mProgressDialog.dismiss();
 
                 if (response.isSuccessful()) {
-                    final ResponseGetCollJob respGetCollJob = response.body();
+                    final ResponseGetCollJobList respGetCollJob = response.body();
 
                     if (respGetCollJob == null) {
                         Utility.showDialog(MainActivity.this, "No Collector found", "You have empty List");
@@ -699,7 +692,7 @@ public class MainActivity extends BasicActivity
             }
 
             @Override
-            public void onFailure(Call<ResponseGetCollJob> call, Throwable t) {
+            public void onFailure(Call<ResponseGetCollJobList> call, Throwable t) {
 
                 if (mProgressDialog.isShowing())
                     mProgressDialog.dismiss();

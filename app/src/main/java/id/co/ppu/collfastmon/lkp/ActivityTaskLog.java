@@ -23,7 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,12 +37,15 @@ import id.co.ppu.collfastmon.pojo.trn.TrnLDVDetails;
 import id.co.ppu.collfastmon.pojo.trn.TrnLDVHeader;
 import id.co.ppu.collfastmon.pojo.trn.TrnTaskLog;
 import id.co.ppu.collfastmon.rest.request.RequestCollJobByDate;
+import id.co.ppu.collfastmon.rest.request.RequestCollJobBySpv;
 import id.co.ppu.collfastmon.rest.request.RequestReopenBatch;
 import id.co.ppu.collfastmon.rest.response.ResponseGetTaskLog;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
+import io.realm.internal.Util;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -108,8 +113,9 @@ public class ActivityTaskLog extends BasicActivity {
         mProgressDialog.show();
 
         RequestCollJobByDate req = new RequestCollJobByDate();
-        req.setSpvCode(this.collCode);
-        req.setLdvNo(this.ldvNo);
+
+        req.setCollCode(this.collCode);
+//        req.setLdvNo(this.ldvNo);
         req.setLkpDate(this.lkpDate);
 
         Call<ResponseGetTaskLog> call = getAPIService().getTaskLog(req);
@@ -124,7 +130,7 @@ public class ActivityTaskLog extends BasicActivity {
 
                     int statusCode = response.code();
 
-                    // handle request errors yourself
+                    // handle EXCEPTION
                     ResponseBody errorBody = response.errorBody();
 
                     try {
@@ -187,10 +193,12 @@ public class ActivityTaskLog extends BasicActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_activity_tasklog, menu);
 
-        Drawable drawable = menu.findItem(R.id.action_reopen_batch).getIcon();
-        drawable = DrawableCompat.wrap(drawable);
-        DrawableCompat.setTint(drawable, ContextCompat.getColor(this, android.R.color.white));
-        menu.findItem(R.id.action_reopen_batch).setIcon(drawable);
+//        Drawable drawable = menu.findItem(R.id.action_reopen_batch).getIcon();
+//        drawable = DrawableCompat.wrap(drawable);
+//        DrawableCompat.setTint(drawable, ContextCompat.getColor(this, android.R.color.white));
+        menu.findItem(R.id.action_reopen_batch)
+//                .setIcon(drawable)
+                .setVisible(Utility.isSameDay(this.lkpDate, new Date() ));
 
         return true;
     }
@@ -240,24 +248,41 @@ public class ActivityTaskLog extends BasicActivity {
 
         RealmResults<TrnTaskLog> list = realm.where(TrnTaskLog.class)
                 .equalTo("pk.userCode", collCode)
-                .findAll();
+                .findAllSorted("createdTimestamp");
+//                .findAllSorted("pk.taskCode", Sort.ASCENDING, "pk.seqNo", Sort.ASCENDING);
 
-        String lastTaskCode = "";
-        int counter = 0;
+        // eliminate duplicate, get the latest timestamp/seqNo
+        List<TrnTaskLog> newList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
 
-            TrnTaskLog obj = realm.copyFromRealm(list.get(i));
+            String _taskCode = list.get(i).getPk().getTaskCode();
+            Long _seqNo = list.get(i).getPk().getSeqNo();
+            int adaDiRowNewList = -1;
+            for (int j = 0; j < newList.size(); j++) {
+                if (_taskCode.equals(newList.get(j).getPk().getTaskCode())) {
+                    adaDiRowNewList = j;
+                    break;
+                }
+            }
+
+            if (adaDiRowNewList > -1) {
+                // cek by seqNo
+                if (list.get(i).getPk().getSeqNo() > newList.get(adaDiRowNewList).getPk().getSeqNo()) {
+                    newList.set(adaDiRowNewList, realm.copyFromRealm(list.get(i)));
+                }
+            } else {
+                newList.add(realm.copyFromRealm(list.get(i)));
+            }
+        }
+
+        // TODO: KHUSUS UTK REOPEN DITAMPILKAN SEBELUM GETSYNC ATAU SESUDAH LOGIN(MASALAHNYA LOGIN BISA BEDA HARI KRN BERHARI2 OFFLINE)
+        for (int i = 0; i < newList.size(); i++) {
+
+            TrnTaskLog obj = newList.get(i);
 
             TableRow row = (TableRow) LayoutInflater.from(ActivityTaskLog.this).inflate(R.layout.row_task_log, null);
 
-            if (!obj.getPk().getTaskCode().equalsIgnoreCase(lastTaskCode)) {
-                lastTaskCode = obj.getPk().getTaskCode();
-            } else
-                continue;
-
-            counter += 1;
-
-            ((TextView) row.findViewById(R.id.attrib_no)).setText(String.valueOf(counter) + ".");
+            ((TextView) row.findViewById(R.id.attrib_no)).setText(String.valueOf(i+1) + ".");
 
             MstTaskType code = realm.where(MstTaskType.class)
                     .equalTo("taskCode", obj.getPk().getTaskCode())
@@ -368,6 +393,17 @@ public class ActivityTaskLog extends BasicActivity {
 
     }
 
+    private boolean anyTransactions(String ldvNo, String createdBy) {
+        long count = this.realm.where(TrnLDVDetails.class)
+                .equalTo("pk.ldvNo", ldvNo)
+                .equalTo("workStatus", "V")
+                .equalTo("createdBy", createdBy)
+                .count();
+
+        return count > 0;
+
+    }
+
     private void attemptReopenBatch() {
 
         final String createdBy = "JOB" + Utility.convertDateToString(this.lkpDate, "yyyyMMdd");
@@ -385,12 +421,8 @@ public class ActivityTaskLog extends BasicActivity {
 
         // kalo closed tp ada transaksi ya ga boleh juga
         // caranya cek semua ldvdetail apakah ada yg workstatusnya V
-        long count = this.realm.where(TrnLDVDetails.class)
-                .equalTo("pk.ldvNo", this.ldvNo)
-                .equalTo("workStatus", "V")
-                .count();
 
-        if (count > 0) {
+        if (anyTransactions(this.ldvNo, createdBy)) {
             Utility.showDialog(ActivityTaskLog.this, "Reopen Batch Error", "Transaction Found, cannot Reopen Batch.");
             return;
         }

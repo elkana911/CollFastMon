@@ -110,7 +110,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         etTglLKP.setText(Utility.convertDateToString(this.lkpDate, Utility.DATE_DISPLAY_PATTERN));
 
         List<String> hoursWorkingList = new ArrayList<>();
-        for (int i = 8; i < 19; i++) {
+        for (int i = 0; i < 24; i++) {
             hoursWorkingList.add("" + i + ":00");
         }
 
@@ -121,7 +121,9 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         changeSpinnerColor(spHourStart);
         changeSpinnerColor(spHourEnd);
 
-        spHourEnd.setSelection(spHourEnd.getAdapter().getCount()-1);
+//        spHourEnd.setSelection(spHourEnd.getAdapter().getCount()-1);
+        spHourStart.setSelection(8);
+        spHourEnd.setSelection(20);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragmentMap);

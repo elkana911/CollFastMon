@@ -14,6 +14,7 @@
     <color name="colorLKPBlue">#8f8fec</color>
 
     <color name="colorTextReadOnly">#a6a6a6</color>
+    <color name="colorDarkerGray">#666666</color>
     <!--
         <color name="colorPrimary">#3F51B5</color>
         <color name="colorPrimaryDark">#303F9F</color>

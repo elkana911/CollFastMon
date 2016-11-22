@@ -1,14 +1,16 @@
 package id.co.ppu.collfastmon.rest;
 
 import id.co.ppu.collfastmon.rest.request.RequestCollJobByDate;
+import id.co.ppu.collfastmon.rest.request.RequestCollJobBySpv;
 import id.co.ppu.collfastmon.rest.request.RequestGetGPSHistory;
 import id.co.ppu.collfastmon.rest.request.RequestLKPByDate;
 import id.co.ppu.collfastmon.rest.request.RequestLogError;
 import id.co.ppu.collfastmon.rest.request.RequestLogin;
 import id.co.ppu.collfastmon.rest.request.RequestReopenBatch;
 import id.co.ppu.collfastmon.rest.request.RequestSyncLocation;
-import id.co.ppu.collfastmon.rest.response.ResponseGetGPSHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJob;
+import id.co.ppu.collfastmon.rest.response.ResponseGetCollJobList;
+import id.co.ppu.collfastmon.rest.response.ResponseGetGPSHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetLKPMonitoring;
 import id.co.ppu.collfastmon.rest.response.ResponseGetMasterMonData;
 import id.co.ppu.collfastmon.rest.response.ResponseGetTaskLog;
@@ -32,8 +34,11 @@ public interface ApiInterface {
     @POST("fastmon/get_any_user")
     Call<ResponseUserPwd> getAnyUser();
 
-    @POST("fastmon/get_colls")
-    Call<ResponseGetCollJob> getCollectorsJob(@Body RequestCollJobByDate req);
+//    @POST("fastmon/get_colls")
+//    Call<ResponseGetCollJob> getCollectorsJob(@Body RequestCollJobBySpv req);
+
+    @POST("fastmon/get_coll_list")
+    Call<ResponseGetCollJobList> getCollectorsJob(@Body RequestCollJobBySpv req);
 
     @POST("fastmon/get_lkp")
     Call<ResponseGetLKPMonitoring> getLKPByDate(@Body RequestLKPByDate req);

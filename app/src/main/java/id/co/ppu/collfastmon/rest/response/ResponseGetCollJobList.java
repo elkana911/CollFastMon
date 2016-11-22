@@ -5,22 +5,21 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.List;
 
-import id.co.ppu.collfastmon.pojo.CollectorJob;
+import id.co.ppu.collfastmon.pojo.CollJob;
 
 /**
  * Created by Eric on 18-Oct-16.
  */
 
-@Deprecated
-public class ResponseGetCollJob extends ResponseBasic implements Serializable {
+public class ResponseGetCollJobList extends ResponseBasic implements Serializable {
     @SerializedName("data")
-    private List<CollectorJob> data;
+    private List<CollJob> data;
 
-    public List<CollectorJob> getData() {
+    public List<CollJob> getData() {
         return data;
     }
 
-    public void setData(List<CollectorJob> data) {
+    public void setData(List<CollJob> data) {
         this.data = data;
     }
 }
