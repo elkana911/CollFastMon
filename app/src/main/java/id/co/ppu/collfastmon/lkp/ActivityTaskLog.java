@@ -114,6 +114,8 @@ public class ActivityTaskLog extends BasicActivity {
 
         RequestCollJobByDate req = new RequestCollJobByDate();
 
+        fillRequest(Utility.ACTION_GET_COLL, req);
+
         req.setCollCode(this.collCode);
 //        req.setLdvNo(this.ldvNo);
         req.setLkpDate(this.lkpDate);
@@ -332,6 +334,9 @@ public class ActivityTaskLog extends BasicActivity {
         mProgressDialog.show();
 
         RequestReopenBatch req = new RequestReopenBatch();
+
+        fillRequest(Utility.ACTION_REOPEN_BATCH, req);
+
         req.setLdvNo(ldvNo);
 
         UserData currentUser = (UserData) Storage.getObjPreference(getApplicationContext(), Storage.KEY_USER, UserData.class);

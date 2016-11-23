@@ -6,7 +6,7 @@ import java.util.Date;
  * Created by Eric on 03-Nov-16.
  */
 
-public class RequestCollJobByDate {
+public class RequestCollJobByDate extends RequestBasic{
     private String collCode;
 
     private Date lkpDate;

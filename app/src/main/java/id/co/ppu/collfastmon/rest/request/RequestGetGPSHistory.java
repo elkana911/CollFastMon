@@ -6,12 +6,14 @@ import java.util.Date;
  * Created by Eric on 23-Nov-16.
  */
 
-public class RequestGetGPSHistory {
+public class RequestGetGPSHistory extends RequestBasic {
     private String collectorCode;
 
     private Date fromDate;
 
     private Date toDate;
+
+    private String business;
 
     public String getCollectorCode() {
         return collectorCode;
@@ -37,12 +39,21 @@ public class RequestGetGPSHistory {
         this.toDate = toDate;
     }
 
+    public String getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(String business) {
+        this.business = business;
+    }
+
     @Override
     public String toString() {
         return "RequestGetGPSHistory{" +
                 "collectorCode='" + collectorCode + '\'' +
                 ", fromDate=" + fromDate +
                 ", toDate=" + toDate +
+                ", business='" + business + '\'' +
                 '}';
     }
 }

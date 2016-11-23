@@ -25,6 +25,7 @@ import id.co.ppu.collfastmon.pojo.trn.TrnRVColl;
 import id.co.ppu.collfastmon.pojo.trn.TrnRepo;
 import id.co.ppu.collfastmon.rest.ApiInterface;
 import id.co.ppu.collfastmon.rest.ServiceGenerator;
+import id.co.ppu.collfastmon.rest.request.RequestBasic;
 import id.co.ppu.collfastmon.settings.SettingsActivity;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
@@ -143,5 +144,35 @@ public class BasicActivity extends AppCompatActivity {
 
         return currentUser;
     }
+
+    protected String getCurrentUserId() {
+        UserData currentUser = (UserData) Storage.getObjPreference(getApplicationContext(), Storage.KEY_USER, UserData.class);
+        if (currentUser == null)
+            return null;
+
+        return currentUser.getUserId();
+    }
+
+    protected void fillRequest(String actionName, RequestBasic req) {
+        try {
+            double[] gps = id.co.ppu.collfastmon.location.Location.getGPS(this);
+            String latitude = String.valueOf(gps[0]);
+            String longitude = String.valueOf(gps[1]);
+            req.setLatitude(latitude);
+            req.setLongitude(longitude);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            req.setLatitude("0.0");
+            req.setLongitude("0.0");
+        }
+
+        req.setActionName(actionName);
+        req.setUserId(getCurrentUserId());
+        req.setSysInfo(Utility.buildSysInfoAsCsv(this));
+
+
+    }
+
 
 }

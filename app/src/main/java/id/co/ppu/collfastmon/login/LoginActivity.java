@@ -593,6 +593,9 @@ public class LoginActivity extends BasicActivity {
                     ApiInterface loginService = getAPIService();
 
                     RequestLogin request = new RequestLogin();
+
+                    fillRequest(Utility.ACTION_LOGIN, request);
+
                     request.setId(username);
                     request.setPwd(password);
 

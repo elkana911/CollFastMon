@@ -4,7 +4,7 @@ package id.co.ppu.collfastmon.rest.request;
  * Created by Eric on 21-Nov-16.
  */
 
-public class RequestReopenBatch {
+public class RequestReopenBatch extends RequestBasic{
 
     private String ldvNo;
     private String spvCode;

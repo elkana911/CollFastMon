@@ -7,7 +7,7 @@ import id.co.ppu.collfastmon.pojo.trn.TrnErrorLog;
 /**
  * Created by Eric on 13-Oct-16.
  */
-public class RequestLogError {
+public class RequestLogError extends RequestBasic{
 
     private List<TrnErrorLog> logs;
 

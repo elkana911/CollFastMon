@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.location.LocationManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -28,7 +29,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import id.co.ppu.collfastmon.BuildConfig;
 import id.co.ppu.collfastmon.R;
+import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.exceptions.ExpiredException;
 import okhttp3.HttpUrl;
 
@@ -62,6 +65,12 @@ public class Utility {
     public final static String WARNING = "Warning";
 
     public final static String ACTION_RESTART_ACTIVITY = "Restart Activity";
+    public static final String ACTION_LOGIN = "LOGIN";
+    public static final String ACTION_GET_LKP = "GETLKP";
+    public static final String ACTION_GET_COLL = "GETCOLL";
+    public static final String ACTION_GET_GPS = "GETGPS";
+    public static final String ACTION_SYNC_LOCATION = "SYNCLOCATION";
+    public static final String ACTION_REOPEN_BATCH = "REOPENBATCH";
 
     public static final int MAX_MONEY_DIGITS = 10;
     public static final int MAX_MONEY_LIMIT = 99999999;
@@ -436,6 +445,52 @@ public class Utility {
 
     public static String extractDigits(String text) {
         return text.replaceAll("\\D+", "");
+    }
+
+
+    public static String buildSysInfoAsCsv(Context ctx) {
+        //date, version app, version os, imei, is location enabled etc in csv format
+        StringBuffer sb = new StringBuffer("date=" + convertDateToString(new Date(), "yyyyMMddHHmmss"));
+
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+
+        sb.append(",").append("dev=").append(developerMode);
+        sb.append(",").append("versionCode=").append(versionCode);
+        sb.append(",").append("versionName=").append(versionName);
+        sb.append(",").append("versionAPI=").append(android.os.Build.VERSION.SDK_INT);
+
+        try {
+            if (ctx != null) {
+                sb.append(",").append("server=").append(Utility.buildUrl(Storage.getPreferenceAsInt(ctx.getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
+
+                // single sim non dual
+                TelephonyManager mngr = (TelephonyManager)ctx.getSystemService(Context.TELEPHONY_SERVICE);
+
+                sb.append(",").append("imei=").append(mngr.getDeviceId());
+
+                LocationManager lm = (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
+                boolean gps_enabled = false;
+                boolean network_enabled = false;
+
+                try {
+                    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                } catch(Exception ex) {}
+
+                try {
+                    network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                } catch(Exception ex) {}
+
+                sb.append(",").append("gpsEnabled=").append(gps_enabled);
+                sb.append(",").append("networkEnabled=").append(network_enabled);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return sb.toString();
     }
 
 /*

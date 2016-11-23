@@ -7,7 +7,7 @@ import id.co.ppu.collfastmon.pojo.trn.TrnCollPos;
 /**
  * Created by Eric on 13-Oct-16.
  */
-public class RequestSyncLocation {
+public class RequestSyncLocation extends RequestBasic{
     private List<TrnCollPos> list;
 
     public List<TrnCollPos> getList() {

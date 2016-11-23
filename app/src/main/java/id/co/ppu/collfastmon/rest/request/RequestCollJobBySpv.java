@@ -6,7 +6,7 @@ import java.util.Date;
  * Created by Eric on 03-Nov-16.
  */
 
-public class RequestCollJobBySpv {
+public class RequestCollJobBySpv extends RequestBasic{
     private String spvCode;
 
     private Date lkpDate;

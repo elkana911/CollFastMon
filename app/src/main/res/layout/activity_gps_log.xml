@@ -1,157 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_gps_log"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:id="@+id/activity_gps_log"
     tools:context="id.co.ppu.collfastmon.lkp.ActivityGPSLog">
 
-    <LinearLayout
-        android:id="@+id/llHeader"
+    <RelativeLayout
+        android:id="@+id/rlHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorRadanaBlue"
-        android:layoutAnimation="@anim/layout_slide_down"
-        android:orientation="vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
-
-        <android.support.design.widget.TextInputLayout
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/llHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="@android:color/primary_text_dark"
-            android:visibility="gone">
+            android:background="@color/colorRadanaBlue"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
 
-            <EditText
-                android:id="@+id/etNoLKP"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:gravity="end"
-                android:hint="No LKP"
-                android:maxLines="1"
-                android:textColor="@android:color/primary_text_dark" />
-        </android.support.design.widget.TextInputLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/tilInterval"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:textColorHint="@android:color/primary_text_dark">
+                android:textColorHint="@android:color/primary_text_dark"
+                android:visibility="gone">
 
                 <EditText
-                    android:id="@+id/etInterval"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:hint="Interval"
-                    android:maxLines="1"
-                    android:text="15 Min"
-                    android:textColor="@android:color/primary_text_dark" />
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:textColorHint="@android:color/primary_text_dark">
-
-                <EditText
-                    android:id="@+id/etTglLKP"
+                    android:id="@+id/etNoLKP"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="end"
-                    android:hint="Tgl LKP"
+                    android:hint="No LKP"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />
             </android.support.design.widget.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/tilInterval"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:textColorHint="@android:color/primary_text_dark">
+
+                    <EditText
+                        android:id="@+id/etInterval"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:hint="Interval"
+                        android:maxLines="1"
+                        android:text="15 Min"
+                        android:textColor="@android:color/primary_text_dark" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:textColorHint="@android:color/primary_text_dark">
+
+                    <EditText
+                        android:id="@+id/etTglLKP"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:gravity="end"
+                        android:hint="Tgl LKP"
+                        android:maxLines="1"
+                        android:textColor="@android:color/primary_text_dark" />
+                </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dari Jam : "
+                    android:textColor="@android:color/primary_text_dark" />
+
+                <Spinner
+                    android:id="@+id/spHourStart"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/hours_working" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="  -  "
+                    android:textColor="@android:color/primary_text_dark" />
+
+                <Spinner
+                    android:id="@+id/spHourEnd"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/hours_working"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Action : "
+                    android:textColor="@android:color/primary_text_dark" />
+
+                <Spinner
+                    android:id="@+id/spAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+
+            </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvBottom"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:gravity="center"
+            android:text="No Pin" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dari Jam : "
-                android:textColor="@android:color/primary_text_dark" />
-
-            <Spinner
-                android:id="@+id/spHourStart"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:entries="@array/hours_working" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="  -  "
-                android:textColor="@android:color/primary_text_dark" />
-
-            <Spinner
-                android:id="@+id/spHourEnd"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:entries="@array/hours_working"
-
-                />
-
-        </LinearLayout>
-        <LinearLayout
+        <fragment
+            android:id="@+id/fragmentMap"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:layout_above="@id/tvBottom"
+            android:layout_below="@id/llHeader" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Interval: "
-                android:textColor="@android:color/primary_text_dark" />
-
-            <Spinner
-                android:id="@+id/spInterval"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:entries="@array/hours_working" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <fragment
-        android:id="@+id/fragmentMap"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/llHeader" />
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/llHeader"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="-50dp"
-        android:layout_marginEnd="4dp"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_anchor="@id/llHeader"
+        app:layout_anchorGravity="bottom|end"
         android:tint="@android:color/white"
         app:backgroundTint="@color/colorRadanaLightGreen"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_person_pin_circle_black_24dp" />
 
-</RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -3,7 +3,7 @@ package id.co.ppu.collfastmon.rest.request;
 /**
  * Created by Eric on 19-Aug-16.
  */
-public class RequestLogin {
+public class RequestLogin extends RequestBasic{
     private String id;
     private String pwd;
 

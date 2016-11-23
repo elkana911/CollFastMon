@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -62,7 +63,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
     public String ldvNo = null;
     public Date lkpDate = null;
 
-    final String[] groupInterval = {"5 Minutes", "10 Minutes", "15 Minutes"};
+    final String[] groupInterval = {"1 Minute", "5 Minutes", "10 Minutes", "15 Minutes"};
     private int selectedInterval = 1;
 //    public int chosenInterval = 10;
 
@@ -74,11 +75,17 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
     @BindView(R.id.spHourEnd)
     Spinner spHourEnd;
 
+    @BindView(R.id.spAction)
+    Spinner spAction;
+
     @BindView(R.id.etInterval)
     EditText etInterval;
 
     @BindView(R.id.etTglLKP)
     EditText etTglLKP;
+
+    @BindView(R.id.tvBottom)
+    TextView tvBottom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +132,30 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         spHourStart.setSelection(8);
         spHourEnd.setSelection(20);
 
+
+        List<String> actionList = new ArrayList<>();
+        actionList.add("ALL");
+        actionList.add("PAYMENT");
+        actionList.add("VISIT");
+
+        ActionAdapter actionAdapter = new ActionAdapter(this, android.R.layout.simple_spinner_item, actionList);
+        spAction.setAdapter(actionAdapter);
+        spAction.setSelection(0);
+        spAction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(ActivityGPSLog.this, "You click", Toast.LENGTH_SHORT).show();
+                onClickFab(view);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        changeSpinnerColor(spAction);
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragmentMap);
         mapFragment.getMapAsync(this);
@@ -164,7 +195,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-//        onClickFab(null); ga tau knp mMap bisa null dibagian sini
+//        onClickFab(null); //ga tau knp mMap bisa null dibagian sini
     }
 
     public Date getSelectedFromDate() {
@@ -195,9 +226,16 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         }
 
         RequestGetGPSHistory req = new RequestGetGPSHistory();
+
+        fillRequest(Utility.ACTION_GET_GPS, req);
+
         req.setCollectorCode(this.collCode);
         req.setFromDate(getSelectedFromDate());
         req.setToDate(getSelectedToDate());
+
+        String business = ((String)spAction.getSelectedItem());
+
+        req.setBusiness(business);
 
         if (req.getToDate().before(req.getFromDate())) {
             Utility.showDialog(this, "Error", "Invalid To Date.");
@@ -288,9 +326,13 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
 
         boolean exist = all.size() > 0;
 
-        mMap.clear();
+        if (mMap != null)
+            mMap.clear();
 
         if (!exist)
+            return false;
+
+        if (mMap == null)
             return false;
 
         // spy tdk usah semuanya tampil, buat range time
@@ -298,6 +340,9 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
 
         Date lastTimestamp = null;
         LatLng lastLatLng = null;
+
+        int counterPin = 0;
+        int counterUnknown = 0;
         // draw markers here
         for (int i = 0; i < all.size(); i++) {
             TrnCollPos pos = all.get(i);
@@ -314,6 +359,14 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
 
             final double lat = Double.parseDouble(pos.getLatitude());
             final double lng = Double.parseDouble(pos.getLongitude());
+
+            if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
+                counterUnknown += 1;
+
+                continue;
+            } else {
+                counterPin += 1;
+            }
 
             LatLng sydney = new LatLng(lat, lng);
 
@@ -332,6 +385,16 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
             mMap.moveCamera(cameraUpdate);
 
+        }
+
+        if (counterPin < 1 && counterUnknown < 1) {
+            tvBottom.setText("No Pin");
+        } else {
+            if (counterUnknown > 0) {
+                tvBottom.setText("" + counterPin + " Pin(s), " + counterUnknown + " Unknown Location");
+            } else {
+                tvBottom.setText("" + counterPin + " Pin(s)");
+            }
         }
 
         return exist;
@@ -365,6 +428,57 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
 
 
         public HoursAdapter(Context context, int resource, List<String> objects) {
+            super(context, resource, objects);
+            this.ctx = context;
+            this.list = objects;
+
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        @Override
+        public String getItem(int position) {
+            return list.get(position);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextView tv = new TextView(this.ctx);
+//            TextView tv = (TextView) convertView.findViewById(R.id.nama);
+            tv.setPadding(10, 20, 10, 20);
+            tv.setTextColor(Color.WHITE);
+//            tv.setText(list.get(position).getRvbNo());
+            tv.setText(list.get(position));
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+
+            return tv;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            TextView label = new TextView(this.ctx);
+            label.setPadding(10, 20, 10, 20);
+            label.setText(list.get(position));
+            label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+
+            return label;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+    }
+
+    public class ActionAdapter extends ArrayAdapter<String> {
+        private Context ctx;
+        private List<String> list;
+
+
+        public ActionAdapter(Context context, int resource, List<String> objects) {
             super(context, resource, objects);
             this.ctx = context;
             this.list = objects;

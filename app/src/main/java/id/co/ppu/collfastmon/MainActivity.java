@@ -602,6 +602,8 @@ public class MainActivity extends BasicActivity
 
         RequestCollJobBySpv req = new RequestCollJobBySpv();
 
+        fillRequest(Utility.ACTION_GET_COLL, req);
+
         req.setSpvCode(currentUser.getUserId());
 //        req.setLdvNo(null); // not mandatory for this service
         req.setLkpDate(lkpDate);

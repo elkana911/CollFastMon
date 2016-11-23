@@ -80,6 +80,12 @@ public class TrnRVColl extends RealmObject implements Serializable {
     @SerializedName("closeBatch")
     private String closeBatch;
 
+    @SerializedName("latitude")
+    private String latitude;
+
+    @SerializedName("longitude")
+    private String longitude;
+
     @SerializedName("createdTimestamp")
     private Date createdTimestamp;
 
@@ -308,6 +314,22 @@ public class TrnRVColl extends RealmObject implements Serializable {
         this.closeBatch = closeBatch;
     }
 
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
     @Override
     public String toString() {
         return "TrnRVColl{" +
@@ -334,6 +356,8 @@ public class TrnRVColl extends RealmObject implements Serializable {
                 ", platform='" + platform + '\'' +
                 ", danaSosial=" + danaSosial +
                 ", closeBatch='" + closeBatch + '\'' +
+                ", latitude='" + latitude + '\'' +
+                ", longitude='" + longitude + '\'' +
                 ", createdTimestamp=" + createdTimestamp +
                 ", createdBy='" + createdBy + '\'' +
                 ", lastupdateBy='" + lastupdateBy + '\'' +
