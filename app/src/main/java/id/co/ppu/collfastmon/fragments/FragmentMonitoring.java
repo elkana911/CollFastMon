@@ -431,7 +431,10 @@ public class FragmentMonitoring extends Fragment {
                     ResponseBody errorBody = response.errorBody();
 
                     try {
-                        Utility.showDialog(getContext(), "Server Problem (" + statusCode + ")", errorBody.string());
+                        if (statusCode == 404)
+                            Utility.showDialog(getContext(), "Server Problem (" + statusCode + ")", "Service not found.\nPlease update app to latest version.");
+                        else
+                            Utility.showDialog(getContext(), "Server Problem (" + statusCode + ")", errorBody.string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

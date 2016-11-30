@@ -24,6 +24,8 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -136,7 +138,10 @@ public class ActivityTaskLog extends BasicActivity {
                     ResponseBody errorBody = response.errorBody();
 
                     try {
-                        Utility.showDialog(ActivityTaskLog.this, "Server Problem (" + statusCode + ")", errorBody.string());
+                        if (statusCode == 404)
+                            Utility.showDialog(ActivityTaskLog.this, "Server Problem (" + statusCode + ")", "Service not found.\nPlease update app to latest version.");
+                        else
+                            Utility.showDialog(ActivityTaskLog.this, "Server Problem (" + statusCode + ")", errorBody.string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -277,6 +282,14 @@ public class ActivityTaskLog extends BasicActivity {
             }
         }
 
+        // sort by task code
+        Collections.sort(newList, new Comparator<TrnTaskLog>() {
+            @Override
+            public int compare(TrnTaskLog t1, TrnTaskLog t2) {
+                return t1.getPk().getTaskCode().compareTo(t2.getPk().getTaskCode());
+            }
+        });
+
         // TODO: KHUSUS UTK REOPEN DITAMPILKAN SEBELUM GETSYNC ATAU SESUDAH LOGIN(MASALAHNYA LOGIN BISA BEDA HARI KRN BERHARI2 OFFLINE)
         for (int i = 0; i < newList.size(); i++) {
 
@@ -359,7 +372,10 @@ public class ActivityTaskLog extends BasicActivity {
                     ResponseBody errorBody = response.errorBody();
 
                     try {
-                        Utility.showDialog(ActivityTaskLog.this, "Server Problem (" + statusCode + ")", errorBody.string());
+                        if (statusCode == 404)
+                            Utility.showDialog(ActivityTaskLog.this, "Server Problem (" + statusCode + ")", "Service not found.\nPlease update app to latest version.");
+                        else
+                            Utility.showDialog(ActivityTaskLog.this, "Server Problem (" + statusCode + ")", errorBody.string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

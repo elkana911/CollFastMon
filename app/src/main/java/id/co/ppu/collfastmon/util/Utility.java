@@ -42,8 +42,8 @@ public class Utility {
 //            {"local-server", "10.212.0.71", "8090"}
 //            {"local-server", "192.168.10.86", "8090"}   // kelapa gading
 //            {"local-server", "192.168.43.90", "8090"}   // samsung mega
-//            {"local-server", "192.168.1.106", "8090"}
-            {"local-server", "192.168.0.8", "8090"}    // faraday
+            {"local-server", "192.168.1.105", "8090"}
+//            {"local-server", "192.168.0.8", "8090"}    // faraday
             ,{"dev-fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}

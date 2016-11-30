@@ -637,7 +637,10 @@ public class LoginActivity extends BasicActivity {
                                 ResponseBody errorBody = response.errorBody();
 
                                 try {
-                                    Utility.showDialog(LoginActivity.this, "Server Problem (" + statusCode + ")", errorBody.string());
+                                    if (statusCode == 404)
+                                        Utility.showDialog(LoginActivity.this, "Server Problem (" + statusCode + ")", "Service not found.\nPlease update app to latest version.");
+                                    else
+                                        Utility.showDialog(LoginActivity.this, "Server Problem (" + statusCode + ")", errorBody.string());
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

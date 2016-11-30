@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.List;
 
-import id.co.ppu.collfastmon.pojo.CollectorJob;
 import id.co.ppu.collfastmon.pojo.trn.TrnTaskLog;
 
 /**

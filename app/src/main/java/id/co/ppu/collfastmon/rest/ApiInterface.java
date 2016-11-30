@@ -8,7 +8,6 @@ import id.co.ppu.collfastmon.rest.request.RequestLogError;
 import id.co.ppu.collfastmon.rest.request.RequestLogin;
 import id.co.ppu.collfastmon.rest.request.RequestReopenBatch;
 import id.co.ppu.collfastmon.rest.request.RequestSyncLocation;
-import id.co.ppu.collfastmon.rest.response.ResponseGetCollJob;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJobList;
 import id.co.ppu.collfastmon.rest.response.ResponseGetGPSHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetLKPMonitoring;

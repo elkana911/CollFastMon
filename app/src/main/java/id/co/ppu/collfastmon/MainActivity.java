@@ -55,14 +55,12 @@ import id.co.ppu.collfastmon.listener.OnSuccessError;
 import id.co.ppu.collfastmon.lkp.ActivityMon;
 import id.co.ppu.collfastmon.login.LoginActivity;
 import id.co.ppu.collfastmon.pojo.CollJob;
-import id.co.ppu.collfastmon.pojo.CollectorJob;
 import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.master.MstTaskType;
 import id.co.ppu.collfastmon.pojo.trn.TrnCollPos;
 import id.co.ppu.collfastmon.rest.ApiInterface;
 import id.co.ppu.collfastmon.rest.ServiceGenerator;
 import id.co.ppu.collfastmon.rest.request.RequestCollJobBySpv;
-import id.co.ppu.collfastmon.rest.response.ResponseGetCollJob;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJobList;
 import id.co.ppu.collfastmon.settings.SettingsActivity;
 import id.co.ppu.collfastmon.test.ActivityDeveloper;
@@ -635,7 +633,7 @@ public class MainActivity extends BasicActivity
                                 @Override
                                 public void execute(Realm bgRealm) {
 
-                                    boolean d = bgRealm.where(CollectorJob.class).findAll().deleteAllFromRealm();
+                                    boolean d = bgRealm.where(CollJob.class).findAll().deleteAllFromRealm();
 
                                     // replace taskcode ke string
                                     for (int i = 0; i < respGetCollJob.getData().size(); i++) {
@@ -680,9 +678,11 @@ public class MainActivity extends BasicActivity
 
                     // handle request errors yourself
                     ResponseBody errorBody = response.errorBody();
-
                     try {
-                        Utility.showDialog(MainActivity.this, "Server Problem (" + statusCode + ")", errorBody.string());
+                        if (statusCode == 404)
+                            Utility.showDialog(MainActivity.this, "Server Problem (" + statusCode + ")", "Service not found.\nPlease update app to latest version.");
+                        else
+                            Utility.showDialog(MainActivity.this, "Server Problem (" + statusCode + ")", errorBody.string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

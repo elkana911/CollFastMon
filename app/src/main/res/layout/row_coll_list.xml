@@ -5,7 +5,7 @@
     android:layout_height="130dp"
     app:cardUseCompatPadding="true"
     app:cardPreventCornerOverlap="false"
-    app:cardCornerRadius="8dp"
+    app:cardCornerRadius="0dp"
     app:cardElevation="4dp">
 
     <LinearLayout
@@ -25,6 +25,7 @@
                 android:id="@+id/tvCollName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="cursive"
                 android:textColor="@android:color/white"
                 android:shadowRadius="2"
                 android:shadowDx="1"
@@ -49,7 +50,8 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:padding="8dp"
-                android:textSize="30sp"
+                android:fontFamily="cursive"
+                android:textSize="28sp"
                 android:textColor="@android:color/white"
                 android:text="20/20"/>
 

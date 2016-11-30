@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -40,6 +42,7 @@ import butterknife.OnClick;
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.pojo.trn.TrnCollPos;
+import id.co.ppu.collfastmon.pojo.trn.TrnRVColl;
 import id.co.ppu.collfastmon.rest.request.RequestGetGPSHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetGPSHistory;
 import id.co.ppu.collfastmon.util.NetUtil;
@@ -77,6 +80,9 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
 
     @BindView(R.id.spAction)
     Spinner spAction;
+
+    @BindView(R.id.tilInterval)
+    View tilInterval;
 
     @BindView(R.id.etInterval)
     EditText etInterval;
@@ -144,7 +150,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         spAction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(ActivityGPSLog.this, "You click", Toast.LENGTH_SHORT).show();
+                tilInterval.setVisibility(i == 0 ? View.VISIBLE : View.INVISIBLE);
                 onClickFab(view);
             }
 
@@ -168,7 +174,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         spinnerDrawable.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             spinner.setBackground(spinnerDrawable);
-        }else{
+        } else {
             spinner.setBackgroundDrawable(spinnerDrawable);
         }
     }
@@ -187,7 +193,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
     @OnClick(R.id.fab)
     public void onClickFab(View view) {
 
-        loadListFromServer(true);
+        loadListFromLocal();
 
     }
 
@@ -195,13 +201,14 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        loadListFromServer(true);
 //        onClickFab(null); //ga tau knp mMap bisa null dibagian sini
     }
 
     public Date getSelectedFromDate() {
         String dateOnly = Utility.convertDateToString(this.lkpDate, "yyyyMMdd");
 
-        String from = ((String)spHourStart.getSelectedItem());
+        String from = ((String) spHourStart.getSelectedItem());
 
         return Utility.convertStringToDate(dateOnly + " " + from, "yyyyMMdd H:mm");
     }
@@ -209,7 +216,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
     public Date getSelectedToDate() {
 
         String dateOnly = Utility.convertDateToString(this.lkpDate, "yyyyMMdd");
-        String to = ((String)spHourEnd.getSelectedItem());
+        String to = ((String) spHourEnd.getSelectedItem());
 
         return Utility.convertStringToDate(dateOnly + " " + to, "yyyyMMdd H:mm");
     }
@@ -221,19 +228,23 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         }
 
         // check cache
-        if (loadListFromLocal()) {
-            return;
-        }
+//        if (loadListFromLocal()) {
+//            return;
+//        }
 
         RequestGetGPSHistory req = new RequestGetGPSHistory();
 
         fillRequest(Utility.ACTION_GET_GPS, req);
 
         req.setCollectorCode(this.collCode);
-        req.setFromDate(getSelectedFromDate());
-        req.setToDate(getSelectedToDate());
+        // ambil semuanya dalam hitungan hari, bukan jam
+        req.setFromDate(this.lkpDate);
+        req.setToDate(this.lkpDate);
+//        req.setFromDate(getSelectedFromDate());
+//        req.setToDate(getSelectedToDate());
 
-        String business = ((String)spAction.getSelectedItem());
+        // ambil semuanya saja
+        String business = "ALL"; //((String)spAction.getSelectedItem());
 
         req.setBusiness(business);
 
@@ -266,7 +277,10 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
                     ResponseBody errorBody = response.errorBody();
 
                     try {
-                        Utility.showDialog(ActivityGPSLog.this, "Server Problem (" + statusCode + ")", errorBody.string());
+                        if (statusCode == 404)
+                            Utility.showDialog(ActivityGPSLog.this, "Server Problem (" + statusCode + ")", "Service not found.\nPlease update app to latest version.");
+                        else
+                            Utility.showDialog(ActivityGPSLog.this, "Server Problem (" + statusCode + ")", errorBody.string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -294,6 +308,11 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
+                        realm.where(TrnCollPos.class)
+                                .equalTo("collectorId", collCode)
+//                                .between("lastupdateTimestamp", getSelectedFromDate(), getSelectedToDate())
+                                .findAll().deleteAllFromRealm();
+
                         realm.copyToRealmOrUpdate(respGetGPSMon.getData());
                     }
                 });
@@ -322,7 +341,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         RealmResults<TrnCollPos> all = realm.where(TrnCollPos.class)
                 .equalTo("collectorId", this.collCode)
                 .between("lastupdateTimestamp", getSelectedFromDate(), getSelectedToDate())
-                .findAll();
+                .findAllSorted("lastupdateTimestamp");
 
         boolean exist = all.size() > 0;
 
@@ -341,24 +360,34 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         Date lastTimestamp = null;
         LatLng lastLatLng = null;
 
+        String business = ((String) spAction.getSelectedItem());
         int counterPin = 0;
         int counterUnknown = 0;
         // draw markers here
         for (int i = 0; i < all.size(); i++) {
             TrnCollPos pos = all.get(i);
 
-            if (lastTimestamp != null) {
-                long diffMin = Utility.getMinutesDiff(pos.getLastupdateTimestamp(), lastTimestamp);
+            String contractNo = "";
 
-                if (diffMin < timeDifference) {
+            // khusus payment dan visit tidak perlu difference
+            if (business.equalsIgnoreCase("PAYMENT")) {
+                if (!pos.getUid().startsWith("~"))
                     continue;
+            } else if (business.equalsIgnoreCase("VISIT")) {
+                if (!pos.getUid().startsWith("!"))
+                    continue;
+            } else {
+                if (lastTimestamp != null) {
+                    long diffMin = Utility.getMinutesDiff(lastTimestamp, pos.getLastupdateTimestamp());
+
+                    if (diffMin < timeDifference) {
+//                        lastTimestamp = pos.getLastupdateTimestamp();
+                        continue;
+                    }
                 }
             }
 
             lastTimestamp = pos.getLastupdateTimestamp();
-
-            final double lat = Double.parseDouble(pos.getLatitude());
-            final double lng = Double.parseDouble(pos.getLongitude());
 
             if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
                 counterUnknown += 1;
@@ -368,15 +397,37 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
                 counterPin += 1;
             }
 
+            final double lat = Double.parseDouble(pos.getLatitude());
+            final double lng = Double.parseDouble(pos.getLongitude());
+
             LatLng sydney = new LatLng(lat, lng);
 
             lastLatLng = sydney;
 
             String time = Utility.convertDateToString(pos.getLastupdateTimestamp(), "HH:mm");
 
-            // bisa ga tampilin yg per-15 menit saja biar usernya ga bingung ?
+            // minta tampilin no contract, masalahnya trncollpos ga ada, jd harus main2 string split
+            if (pos.getUid().startsWith("~")) {
+                contractNo = pos.getUid().split("~")[1];
+            } else if (pos.getUid().startsWith("!")) {
+                contractNo = pos.getUid().split("!")[1];
+            }
 
-            Marker marker = mMap.addMarker(new MarkerOptions().position(sydney).title(time));//.snippet(time));
+                // bisa ga tampilin yg per-15 menit saja biar usernya ga bingung ?
+            MarkerOptions mo = new MarkerOptions().position(sydney).title(time);
+
+            if (!TextUtils.isEmpty(contractNo))
+                mo.snippet(contractNo);
+
+            Marker marker = mMap.addMarker(mo);
+
+            if (pos.getUid().startsWith("~")) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            } else if (pos.getUid().startsWith("!")) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            } else {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            }
 //            marker.showInfoWindow();
 
         }
@@ -511,9 +562,18 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             TextView label = new TextView(this.ctx);
+
+            String text = list.get(position);
+
             label.setPadding(10, 20, 10, 20);
-            label.setText(list.get(position));
+            label.setText(text);
             label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+
+            if (text.equalsIgnoreCase("PAYMENT")) {
+                label.setTextColor(Color.RED);
+            } else if (text.equalsIgnoreCase("VISIT")) {
+                label.setTextColor(Color.GREEN);
+            }
 
             return label;
         }

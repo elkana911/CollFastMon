@@ -90,7 +90,9 @@ public class FragmentHomeSpv extends BasicFragment {
 
     public void loadCollectorsFromLocal(Date time) {
         RealmResults<CollJob> rows =
-                realm.where(CollJob.class).findAllSorted("countVisited", Sort.DESCENDING);
+                realm.where(CollJob.class)
+//                        .greaterThanOrEqualTo("lkpDate", time)
+                        .findAllSorted("countVisited", Sort.DESCENDING);
 
         long count = rows.size();
         String dateLabel = "Today";
