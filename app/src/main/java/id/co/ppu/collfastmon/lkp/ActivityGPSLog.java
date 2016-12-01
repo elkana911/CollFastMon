@@ -6,12 +6,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -167,6 +170,30 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         mapFragment.getMapAsync(this);
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_activity_gps, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_refresh) {
+            loadListFromServer(true);
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void changeSpinnerColor(Spinner spinner) {
@@ -345,13 +372,12 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
 
         boolean exist = all.size() > 0;
 
+        tvBottom.setText("No Pin");
+
         if (mMap != null)
             mMap.clear();
 
-        if (!exist)
-            return false;
-
-        if (mMap == null)
+        if (!exist || mMap == null)
             return false;
 
         // spy tdk usah semuanya tampil, buat range time
@@ -552,6 +578,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
 //            TextView tv = (TextView) convertView.findViewById(R.id.nama);
             tv.setPadding(10, 20, 10, 20);
             tv.setTextColor(Color.WHITE);
+            tv.setTypeface(Typeface.DEFAULT_BOLD);
 //            tv.setText(list.get(position).getRvbNo());
             tv.setText(list.get(position));
             tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
@@ -568,7 +595,7 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
             label.setPadding(10, 20, 10, 20);
             label.setText(text);
             label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
-
+            label.setTypeface(Typeface.DEFAULT_BOLD);
             if (text.equalsIgnoreCase("PAYMENT")) {
                 label.setTextColor(Color.RED);
             } else if (text.equalsIgnoreCase("VISIT")) {

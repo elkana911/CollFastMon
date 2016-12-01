@@ -37,6 +37,7 @@
                     android:focusableInTouchMode="false"
                     android:gravity="end"
                     android:hint="No LKP"
+                    android:fontFamily="monospace"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -62,6 +63,7 @@
                         android:focusableInTouchMode="false"
                         android:hint="Interval"
                         android:maxLines="1"
+                        android:fontFamily="monospace"
                         android:text="15 Min"
                         android:textColor="@android:color/primary_text_dark" />
                 </android.support.design.widget.TextInputLayout>
@@ -81,6 +83,7 @@
                         android:focusableInTouchMode="false"
                         android:gravity="end"
                         android:hint="Tgl LKP"
+                        android:fontFamily="monospace"
                         android:maxLines="1"
                         android:textColor="@android:color/primary_text_dark" />
                 </android.support.design.widget.TextInputLayout>

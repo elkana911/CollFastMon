@@ -3,6 +3,8 @@ apply plugin: 'realm-android'
 apply plugin: 'android-apt'
 
 android {
+    signingConfigs {
+    }
     compileSdkVersion 25
     buildToolsVersion "24.0.2"
     defaultConfig {
@@ -20,21 +22,24 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable true
+        }
+        debug {
+            debuggable false
         }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
     //    compile 'com.google.android.gms:play-services-appindexing:9.6.1'
-//    compile 'com.google.android.gms:play-services-maps:9.6.1'
-//    compile 'com.google.android.gms:play-services-location:9.6.1'
+    //    compile 'com.google.android.gms:play-services-maps:9.6.1'
+    //    compile 'com.google.android.gms:play-services-location:9.6.1'
     //    compile 'com.google.android.gms:play-services-gcm:9.6.1'
-//    compile 'com.google.android.gms:play-services:9.8.0'
+    //    compile 'com.google.android.gms:play-services:9.8.0'
     compile 'com.google.android.gms:play-services-maps:9.8.0'
     compile 'com.google.android.gms:play-services-location:9.8.0'
     compile 'com.android.support:appcompat-v7:25.0.1'

@@ -55,6 +55,7 @@
                     android:focusableInTouchMode="false"
                     android:hint="No Tagih"
                     android:gravity="end"
+                    android:fontFamily="monospace"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -72,6 +73,7 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:hint="Tgl Tagih"
+                    android:fontFamily="monospace"
                     android:gravity="end"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />

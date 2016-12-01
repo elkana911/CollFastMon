@@ -119,6 +119,7 @@ public class FragmentSummaryLKP extends Fragment {
             // based on collectorcode
             long unitTarget = 0;
             RealmResults<TrnLDVDetails> ldvDetailses = realm.where(TrnLDVDetails.class)
+                    .equalTo("createdBy", createdBy)
                     .findAll();
             for (TrnLDVDetails ldvDetails : ldvDetailses) {
                 if (ldvDetails.getPk().getLdvNo().equals(header.getLdvNo())) {
@@ -147,7 +148,8 @@ public class FragmentSummaryLKP extends Fragment {
 
             // TODO: ask pak yoce maksudnya count(mc_trn_rvcoll.ldv_no) yg ldv_no nya null ??
             long unitNonLKP = realm.where(TrnRVColl.class)
-                    .equalTo("collId", collCode)
+                    .equalTo("pk.rvCollNo", rvColl.toString())
+//                    .equalTo("collId", collCode)
                     .isNull("ldvNo")
                     .count();
 
@@ -176,7 +178,8 @@ public class FragmentSummaryLKP extends Fragment {
 
             Number sumReceivedAmount = realm.where(TrnRVColl.class)
                     .equalTo("ldvNo", ldvNo)
-                    .equalTo("collId", collCode)
+                    .equalTo("pk.rvCollNo", rvColl.toString())
+//                    .equalTo("collId", collCode)
                     .sum("receivedAmount");
 
             long tertagihPenerimaan = sumReceivedAmount.longValue(); //header.getPrncAC() + header.getIntrAC();
@@ -186,7 +189,8 @@ public class FragmentSummaryLKP extends Fragment {
 
             long tertagihUnit = realm.where(TrnRVColl.class)
                     .equalTo("ldvNo", ldvNo)
-                    .equalTo("collId", collCode)
+                    .equalTo("pk.rvCollNo", rvColl.toString())
+//                    .equalTo("collId", collCode)
                     .count();
 
 //        long tertagihUnit = header.getUnitTotal();

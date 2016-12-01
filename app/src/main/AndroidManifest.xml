@@ -20,7 +20,8 @@
         android:icon="@mipmap/ic_radana"
         android:label="@string/app_name_short"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        >
         <activity
             android:name=".login.LoginActivity"
             android:label="@string/app_name_short"

@@ -497,6 +497,7 @@ public class MainActivity extends BasicActivity
         i.putExtra(ActivityMon.PARAM_COLLNAME, detail.getCollName());
         i.putExtra(ActivityMon.PARAM_LKP_DATE, lkpDate.getTime());
         i.putExtra(ActivityMon.PARAM_LDV_NO, detail.getLdvNo());
+        i.putExtra(ActivityMon.PARAM_COLLTYPE, detail.getCollType());
 
         startActivityForResult(i, ACTIVITY_MONITORING);
     }
