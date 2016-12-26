@@ -5,9 +5,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.LocationManager;
+import android.os.Build;
+import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -37,21 +41,25 @@ import okhttp3.HttpUrl;
 
 public class Utility {
 
-    public final static String DATE_EXPIRED_YYYYMMDD = "20161225";
+    public final static boolean developerMode = true;
+
+    public final static String DATE_EXPIRED_YYYYMMDD = developerMode ? "20171225" : "20421231"; // 20 years
     public final static String[][] servers = {
 //            {"local-server", "10.212.0.71", "8090"}
 //            {"local-server", "192.168.10.86", "8090"}   // kelapa gading
-//            {"local-server", "192.168.43.90", "8090"}   // samsung mega
-            {"local-server", "192.168.1.108", "8090"}
+//            {"local-server", "192.168.43.125", "8090"}   // samsung mega
+            {"local-server", "192.168.1.105", "8090"}
 //            {"local-server", "192.168.0.9", "8090"}    // faraday
             ,{"dev-fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}
     };
-    public final static boolean developerMode = true;
+
     public final static int NETWORK_TIMEOUT_MINUTES = developerMode ? 1 : 2;
 
-//    public final static String[][] servers = {{"local-server", "10.100.100.77", "8090"}
+    public final static int CYCLE_CHAT_STATUS_MILLISEC = (developerMode ? 3 : 15) * 60 * 1000;
+
+    //    public final static String[][] servers = {{"local-server", "10.100.100.77", "8090"}
 //            ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
 //    };
 //
@@ -483,6 +491,10 @@ public class Utility {
 
                 sb.append(",").append("gpsEnabled=").append(gps_enabled);
                 sb.append(",").append("networkEnabled=").append(network_enabled);
+
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+                String langId = sharedPrefs.getString("language", "x"); //id / en
+                sb.append(",").append("language=").append(langId);
             }
 
 
@@ -505,5 +517,13 @@ public class Utility {
         return _id;
     }
 */
+
+    public static boolean isScreenOff(Context ctx) {
+        PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            return !pm.isInteractive();
+        } else
+            return !pm.isScreenOn();
+    }
 
 }

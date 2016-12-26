@@ -362,8 +362,226 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
         });
 
     }
-
+/*
     private boolean loadListFromLocal() {
+
+        RealmResults<TrnCollPos> all = realm.where(TrnCollPos.class)
+                .equalTo("collectorId", this.collCode)
+                .between("lastupdateTimestamp", getSelectedFromDate(), getSelectedToDate())
+                .findAllSorted("lastupdateTimestamp");
+
+        boolean exist = all.size() > 0;
+
+        tvBottom.setText("No Pin");
+
+        if (mMap != null)
+            mMap.clear();
+
+        if (!exist || mMap == null)
+            return false;
+
+        // spy tdk usah semuanya tampil, buat range time
+        int timeDifference = Integer.parseInt(Utility.extractDigits(groupInterval[selectedInterval]));
+
+        Date lastTimestamp = null;
+        LatLng lastLatLng = null;
+
+        String business = ((String) spAction.getSelectedItem());
+        int counterPin = 0;
+        int counterUnknown = 0;
+
+
+        if (business.equalsIgnoreCase("PAYMENT")) {
+            for (int i = 0; i < all.size(); i++) {
+                TrnCollPos pos = all.get(i);
+
+                if (!pos.getUid().startsWith("~"))
+                    continue;
+
+                if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
+                    counterUnknown += 1;
+
+                    continue;
+                } else {
+                    counterPin += 1;
+                }
+
+                String contractNo = "";
+
+            }
+
+        } else if (business.equalsIgnoreCase("VISIT")) {
+            for (int i = 0; i < all.size(); i++) {
+                TrnCollPos pos = all.get(i);
+
+                if (!pos.getUid().startsWith("!"))
+                    continue;
+
+                if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
+                    counterUnknown += 1;
+
+                    continue;
+                } else {
+                    counterPin += 1;
+                }
+
+                String contractNo = "";
+
+            }
+
+        } else {
+            for (int i = 0; i < all.size(); i++) {
+                TrnCollPos pos = all.get(i);
+
+                if (lastTimestamp != null) {
+                    long diffMin = Utility.getMinutesDiff(lastTimestamp, pos.getLastupdateTimestamp());
+
+                    if (diffMin < timeDifference) {
+//                        lastTimestamp = pos.getLastupdateTimestamp();
+                        continue;
+                    }
+                }
+
+                lastTimestamp = pos.getLastupdateTimestamp();
+
+                if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
+                    counterUnknown += 1;
+
+                    continue;
+                } else {
+                    counterPin += 1;
+                }
+
+                final double lat = Double.parseDouble(pos.getLatitude());
+                final double lng = Double.parseDouble(pos.getLongitude());
+
+                LatLng sydney = new LatLng(lat, lng);
+
+                lastLatLng = sydney;
+
+                String time = Utility.convertDateToString(pos.getLastupdateTimestamp(), "HH:mm");
+
+                // minta tampilin no contract, masalahnya trncollpos ga ada, jd harus main2 string split
+                String contractNo = "";
+
+                if (pos.getUid().startsWith("~")) {
+                    contractNo = pos.getUid().split("~")[1];
+                } else if (pos.getUid().startsWith("!")) {
+                    contractNo = pos.getUid().split("!")[1];
+                }
+
+                // bisa ga tampilin yg per-15 menit saja biar usernya ga bingung ?
+                MarkerOptions mo = new MarkerOptions().position(sydney).title(time);
+
+                if (!TextUtils.isEmpty(contractNo))
+                    mo.snippet(contractNo);
+
+                Marker marker = mMap.addMarker(mo);
+
+                if (pos.getUid().startsWith("~")) {
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                } else if (pos.getUid().startsWith("!")) {
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                } else {
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                }
+
+            }
+
+        }
+
+
+
+        // draw markers here
+        for (int i = 0; i < all.size(); i++) {
+            TrnCollPos pos = all.get(i);
+
+            String contractNo = "";
+
+            // khusus payment dan visit tidak perlu difference
+            if (business.equalsIgnoreCase("PAYMENT")) {
+                if (!pos.getUid().startsWith("~"))
+                    continue;
+            } else if (business.equalsIgnoreCase("VISIT")) {
+                if (!pos.getUid().startsWith("!"))
+                    continue;
+            } else {
+                if (lastTimestamp != null) {
+                    long diffMin = Utility.getMinutesDiff(lastTimestamp, pos.getLastupdateTimestamp());
+
+                    if (diffMin < timeDifference) {
+//                        lastTimestamp = pos.getLastupdateTimestamp();
+                        continue;
+                    }
+                }
+            }
+
+            lastTimestamp = pos.getLastupdateTimestamp();
+
+            if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
+                counterUnknown += 1;
+
+                continue;
+            } else {
+                counterPin += 1;
+            }
+
+            final double lat = Double.parseDouble(pos.getLatitude());
+            final double lng = Double.parseDouble(pos.getLongitude());
+
+            LatLng sydney = new LatLng(lat, lng);
+
+            lastLatLng = sydney;
+
+            String time = Utility.convertDateToString(pos.getLastupdateTimestamp(), "HH:mm");
+
+            // minta tampilin no contract, masalahnya trncollpos ga ada, jd harus main2 string split
+            if (pos.getUid().startsWith("~")) {
+                contractNo = pos.getUid().split("~")[1];
+            } else if (pos.getUid().startsWith("!")) {
+                contractNo = pos.getUid().split("!")[1];
+            }
+
+                // bisa ga tampilin yg per-15 menit saja biar usernya ga bingung ?
+            MarkerOptions mo = new MarkerOptions().position(sydney).title(time);
+
+            if (!TextUtils.isEmpty(contractNo))
+                mo.snippet(contractNo);
+
+            Marker marker = mMap.addMarker(mo);
+
+            if (pos.getUid().startsWith("~")) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            } else if (pos.getUid().startsWith("!")) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            } else {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            }
+//            marker.showInfoWindow();
+
+        }
+
+        if (lastLatLng != null) {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
+            mMap.moveCamera(cameraUpdate);
+
+        }
+
+        if (counterPin < 1 && counterUnknown < 1) {
+            tvBottom.setText("No Pin");
+        } else {
+            if (counterUnknown > 0) {
+                tvBottom.setText("" + counterPin + " Pin(s), " + counterUnknown + " Unknown Location");
+            } else {
+                tvBottom.setText("" + counterPin + " Pin(s)");
+            }
+        }
+
+        return exist;
+    }
+*/
+    @Deprecated
+    private boolean loadListFromLocalOld() {
 
         RealmResults<TrnCollPos> all = realm.where(TrnCollPos.class)
                 .equalTo("collectorId", this.collCode)
@@ -414,6 +632,130 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
             }
 
             lastTimestamp = pos.getLastupdateTimestamp();
+
+            if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
+                counterUnknown += 1;
+
+                continue;
+            } else {
+                counterPin += 1;
+            }
+
+            final double lat = Double.parseDouble(pos.getLatitude());
+            final double lng = Double.parseDouble(pos.getLongitude());
+
+            LatLng sydney = new LatLng(lat, lng);
+
+            lastLatLng = sydney;
+
+            String time = Utility.convertDateToString(pos.getLastupdateTimestamp(), "HH:mm");
+
+            // minta tampilin no contract, masalahnya trncollpos ga ada, jd harus main2 string split
+            if (pos.getUid().startsWith("~")) {
+                contractNo = pos.getUid().split("~")[1];
+            } else if (pos.getUid().startsWith("!")) {
+                contractNo = pos.getUid().split("!")[1];
+            }
+
+                // bisa ga tampilin yg per-15 menit saja biar usernya ga bingung ?
+            MarkerOptions mo = new MarkerOptions().position(sydney).title(time);
+
+            if (!TextUtils.isEmpty(contractNo))
+                mo.snippet(contractNo);
+
+            Marker marker = mMap.addMarker(mo);
+
+            if (pos.getUid().startsWith("~")) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            } else if (pos.getUid().startsWith("!")) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            } else {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            }
+//            marker.showInfoWindow();
+
+        }
+
+        if (lastLatLng != null) {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(lastLatLng, 14);
+            mMap.moveCamera(cameraUpdate);
+
+        }
+
+        if (counterPin < 1 && counterUnknown < 1) {
+            tvBottom.setText("No Pin");
+        } else {
+            if (counterUnknown > 0) {
+                tvBottom.setText("" + counterPin + " Pin(s), " + counterUnknown + " Unknown Location");
+            } else {
+                tvBottom.setText("" + counterPin + " Pin(s)");
+            }
+        }
+
+        return exist;
+    }
+
+    private boolean loadListFromLocal() {
+
+        RealmResults<TrnCollPos> all = realm.where(TrnCollPos.class)
+                .equalTo("collectorId", this.collCode)
+                .between("lastupdateTimestamp", getSelectedFromDate(), getSelectedToDate())
+                .findAllSorted("lastupdateTimestamp");
+
+        boolean exist = all.size() > 0;
+
+        tvBottom.setText("No Pin");
+
+        if (mMap != null)
+            mMap.clear();
+
+        if (!exist || mMap == null)
+            return false;
+
+        // spy tdk usah semuanya tampil, buat range time
+        int timeDifference = Integer.parseInt(Utility.extractDigits(groupInterval[selectedInterval]));
+
+        Date lastTimestamp = null;
+        LatLng lastLatLng = null;
+
+        String business = ((String) spAction.getSelectedItem());
+        int counterPin = 0;
+        int counterUnknown = 0;
+        // draw markers here
+        for (int i = 0; i < all.size(); i++) {
+            TrnCollPos pos = all.get(i);
+
+            String contractNo = "";
+
+            // khusus payment dan visit tidak perlu difference
+            if (business.equalsIgnoreCase("PAYMENT")) {
+                if (!pos.getUid().startsWith("~"))
+                    continue;
+            } else if (business.equalsIgnoreCase("VISIT")) {
+                if (!pos.getUid().startsWith("!"))
+                    continue;
+            } else {
+                if (pos.getUid().startsWith("~") || pos.getUid().startsWith("!")) {
+
+                } else {
+                    if (lastTimestamp != null) {
+                        long diffMin = Utility.getMinutesDiff(lastTimestamp, pos.getLastupdateTimestamp());
+
+                        if (pos.getUid().startsWith("~") || pos.getUid().startsWith("!")) {
+
+                        } else {
+                            if (diffMin < timeDifference) {
+//                        lastTimestamp = pos.getLastupdateTimestamp();
+                                continue;
+                            }
+
+                        }
+                    }
+                    lastTimestamp = pos.getLastupdateTimestamp();
+
+                }
+
+            }
 
             if (pos.getLatitude() == null || pos.getLatitude().equals("0.0") || pos.getLatitude().equals("0")) {
                 counterUnknown += 1;

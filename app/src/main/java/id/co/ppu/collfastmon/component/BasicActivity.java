@@ -1,6 +1,8 @@
 package id.co.ppu.collfastmon.component;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -8,14 +10,19 @@ import android.os.Bundle;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import java.util.Date;
+import java.util.Locale;
 
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.pojo.ServerInfo;
@@ -49,6 +56,7 @@ public class BasicActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+
         super.onDestroy();
 
         if (this.realm != null) {
@@ -135,8 +143,7 @@ public class BasicActivity extends AppCompatActivity {
     }
 
     protected ApiInterface getAPIService() {
-        return
-                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
+        return Storage.getAPIService(this);
     }
 
     protected UserData getCurrentUser() {
@@ -174,5 +181,21 @@ public class BasicActivity extends AppCompatActivity {
 
     }
 
+    protected String getAndroidToken() {
+        return Storage.getAndroidToken(this);
+    }
 
+    protected boolean changeLocale(String language) {
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+
+        Resources resources = getResources();
+
+        Configuration configuration = resources.getConfiguration();
+        configuration.locale = locale;
+
+        resources.updateConfiguration(configuration, resources.getDisplayMetrics());
+
+        return true;
+    }
 }

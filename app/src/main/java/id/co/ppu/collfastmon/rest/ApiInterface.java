@@ -8,6 +8,10 @@ import id.co.ppu.collfastmon.rest.request.RequestLogError;
 import id.co.ppu.collfastmon.rest.request.RequestLogin;
 import id.co.ppu.collfastmon.rest.request.RequestReopenBatch;
 import id.co.ppu.collfastmon.rest.request.RequestSyncLocation;
+import id.co.ppu.collfastmon.rest.request.chat.RequestChatContacts;
+import id.co.ppu.collfastmon.rest.request.chat.RequestChatMsg;
+import id.co.ppu.collfastmon.rest.request.chat.RequestChatStatus;
+import id.co.ppu.collfastmon.rest.request.chat.RequestGetChatHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJobList;
 import id.co.ppu.collfastmon.rest.response.ResponseGetGPSHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetLKPMonitoring;
@@ -16,6 +20,8 @@ import id.co.ppu.collfastmon.rest.response.ResponseGetTaskLog;
 import id.co.ppu.collfastmon.rest.response.ResponseLogin;
 import id.co.ppu.collfastmon.rest.response.ResponseServerInfo;
 import id.co.ppu.collfastmon.rest.response.ResponseUserPwd;
+import id.co.ppu.collfastmon.rest.response.chat.ResponseGetChatHistory;
+import id.co.ppu.collfastmon.rest.response.chat.ResponseGetOnlineContacts;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -39,6 +45,9 @@ public interface ApiInterface {
     @POST("fastmon/get_coll_list")
     Call<ResponseGetCollJobList> getCollectorsJob(@Body RequestCollJobBySpv req);
 
+    @POST("fastmon/get_coll_list_ex")
+    Call<ResponseGetCollJobList> getCollectorsJobEx(@Body RequestCollJobBySpv req);
+
     @POST("fastmon/get_lkp")
     Call<ResponseGetLKPMonitoring> getLKPByDate(@Body RequestLKPByDate req);
 
@@ -53,6 +62,39 @@ public interface ApiInterface {
 
     @POST("fastmon/reopen_batch")
     Call<ResponseBody> reopenBatch(@Body RequestReopenBatch req);
+
+
+    ///////////////////////////////  CHAT FUNCTIONS  ////////////////////////////////////////
+    @POST("fastchat/send")
+    Call<ResponseBody> sendMessage(@Body RequestChatMsg msg);
+
+    @POST("fastchat/status")
+    Call<ResponseBody> sendStatus(@Body RequestChatStatus status);
+
+    @GET("fastchat/update_msg_status")
+    Call<ResponseBody> updateMessageStatus(@Query("uid") String uid, @Query("status") String status);
+
+    @GET("fastchat/get_msg")
+    Call<ResponseGetChatHistory> getMessage(@Query("uid") String uid);
+
+    @POST("fastchat/status_check")
+    Call<ResponseBody> checkStatus(@Body RequestChatStatus req);
+
+//    @POST("fastchat/online_contacts")
+//    Call<ResponseGetOnlineContacts> getGroupContacts();
+
+    @POST("fastchat/online_contacts_by")
+    Call<ResponseGetOnlineContacts> getOnlineContacts(@Body RequestChatStatus req);
+
+    @POST("fastchat/chat_contacts")
+    Call<ResponseGetOnlineContacts> getChatContacts(@Body RequestChatContacts req);
+
+    @POST("fastchat/group_contacts_by")
+    Call<ResponseGetOnlineContacts> getGroupContacts(@Body RequestChatStatus req);
+
+    @POST("fastchat/chat_hist")
+    Call<ResponseGetChatHistory> getChatHistory(@Body RequestGetChatHistory req);
+
 
     ///////////////////////////////  BASIC FAST FUNCTIONS  ////////////////////////////////////////
     @POST("fast/server_info")

@@ -2,20 +2,30 @@ package id.co.ppu.collfastmon;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -43,13 +53,19 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import id.co.ppu.collfastmon.chat.MainChatActivity;
 import id.co.ppu.collfastmon.component.BasicActivity;
+import id.co.ppu.collfastmon.fragments.FragmentChatActiveContacts;
+import id.co.ppu.collfastmon.fragments.FragmentHome;
 import id.co.ppu.collfastmon.fragments.FragmentHomeSpv;
 import id.co.ppu.collfastmon.listener.OnSuccessError;
 import id.co.ppu.collfastmon.lkp.ActivityMon;
@@ -64,7 +80,10 @@ import id.co.ppu.collfastmon.rest.request.RequestCollJobBySpv;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJobList;
 import id.co.ppu.collfastmon.settings.SettingsActivity;
 import id.co.ppu.collfastmon.test.ActivityDeveloper;
+import id.co.ppu.collfastmon.util.ConstChat;
 import id.co.ppu.collfastmon.util.DataUtil;
+import id.co.ppu.collfastmon.util.NetUtil;
+import id.co.ppu.collfastmon.util.NotificationUtils;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
@@ -76,9 +95,16 @@ import retrofit2.Response;
 import static id.co.ppu.collfastmon.util.DataUtil.resetData;
 
 public class MainActivity extends BasicActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FragmentHomeSpv.OnCollectorListListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentHomeSpv.OnCollectorListListener, OnMapReadyCallback
+{
     public static final String SELECTED_NAV_MENU_KEY = "selected_nav_menu_key";
     private static final int ACTIVITY_MONITORING = 50;
+    private static final String TAG = "MainActivity";
+
+    Handler handlerChatStatus = new Handler();
+    private BroadcastReceiver broadcastReceiver;
+
+//    private SectionsPagerAdapter mSectionsPagerAdapter;
 
     private boolean viewIsAtHome;
     private Menu menu;
@@ -97,6 +123,10 @@ public class MainActivity extends BasicActivity
 
     @BindView(R.id.nav_view)
     NavigationView navigationView;
+
+//    @BindView(R.id.container_pager)
+//    ViewPager mViewPager;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -107,6 +137,36 @@ public class MainActivity extends BasicActivity
             "From Camera", "From Gallery", "Delete Photo"
     };
 
+    // Define the code block to be executed
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            Log.d("handlerChatStatus", "Update Chat Log On status");
+
+            NetUtil.chatLogOn(MainActivity.this, getCurrentUserId(), new OnSuccessError() {
+                @Override
+                public void onSuccess(String msg) {
+                    //yg mana offline ?
+                    NetUtil.chatUpdateContacts(MainActivity.this, getCurrentUserId(), null);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+
+                }
+
+                @Override
+                public void onSkip() {
+                    //yg mana offline ?
+                    NetUtil.chatUpdateContacts(MainActivity.this, getCurrentUserId(), null);
+                }
+            });
+
+            // Repeat this the same runnable code block again another 2 seconds
+            handlerChatStatus.postDelayed(runnableCode, Utility.CYCLE_CHAT_STATUS_MILLISEC );
+        }
+    };
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -117,6 +177,71 @@ public class MainActivity extends BasicActivity
         if (frag != null && frag instanceof FragmentHomeSpv) {
             ((FragmentHomeSpv)frag).onClickFab();
         }
+
+        //fLsWT7b3aDQ:APA91bHMAZiTeyT5Wf7Akb9wIr-VA3XzuQ87cdjtdwRNz-0kkkfUgTNnKZMmx4AmYUvk0SrVQiK3wwk-R-nlUEZAT5v6R_0szPwSa6FmNH-77iqYOB_x0WpLaI21smEQD9_G-w9tyfaZ
+        String androidId = Storage.getPreference(getApplicationContext(), Storage.KEY_ANDROID_ID);
+        if (TextUtils.isEmpty(androidId)) {
+            androidId = FirebaseInstanceId.getInstance().getToken();
+        }
+
+//        handleIntent(getIntent());
+
+        NetUtil.chatLogOn(this, getCurrentUserId(), null);
+
+        // Start the initial runnable task by posting through the handler
+        handlerChatStatus.post(runnableCode);
+    }
+
+    /*
+    private void handleIntent(Intent intent) {
+        if (intent == null)
+            return;
+
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            Log.e(TAG, "No extras found");
+            return;
+        }
+
+        String key_from = intent.getStringExtra(ConstChat.KEY_FROM);
+        String key_uid = intent.getStringExtra(ConstChat.KEY_UID);
+        String key_msg = intent.getStringExtra(ConstChat.KEY_MESSAGE);
+        String key_status = intent.getStringExtra(ConstChat.KEY_STATUS);
+        String key_seqno = intent.getStringExtra(ConstChat.KEY_SEQNO);
+        String key_timestamp = intent.getStringExtra(ConstChat.KEY_TIMESTAMP);
+
+        Log.e(TAG, "chatFrom:" + key_from + "\nchatMessage:" + key_msg);
+    }*/
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        // biasa dipanggil saat user click notification bar
+        super.onNewIntent(intent);
+
+//        setIntent(intent);
+
+        // jika user click notificationsnya
+        if (intent.getExtras() != null)
+        {
+            Intent i = new Intent(this, MainChatActivity.class);
+            i.putExtra(MainChatActivity.PARAM_USER_CODE, currentUser.getUserId());
+            i.putExtras(intent);
+//            i.putExtra(ActivitySummaryLKP.PARAM_LKP_DATE, this.lkpDate.getTime());
+            startActivity(i);
+
+        }
+
+        NotificationUtils.clearNotifications(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+
+        // Removes pending code execution
+        handlerChatStatus.removeCallbacks(runnableCode);
     }
 
     @Override
@@ -125,6 +250,69 @@ public class MainActivity extends BasicActivity
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        Bundle extras = getIntent().getExtras();
+
+
+//        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+//        mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // to test push notification via fcm
+                // use https://console.firebase.google.com/project/concise-clock-149708/notification
+
+                // checking for type intent filter
+                /*
+                if (intent.getAction().equals(Config.REGISTRATION_COMPLETE)) {
+                    // gcm successfully registered
+                    // now subscribe to `global` topic to receive app wide notifications
+                    FirebaseMessaging.getInstance().subscribeToTopic(Config.TOPIC_GLOBAL);
+
+                    displayFirebaseRegId();
+
+                } else */
+                if (intent.getAction().equals(ConstChat.PUSH_NOTIFICATION)) {
+                    // new push notification is received
+//                    handleNotification(intent);
+                    Bundle extras = intent.getExtras();
+                    if (extras == null) {
+                        Log.e(TAG, "No extras found");
+                        return;
+                    }
+
+                    String key_from = intent.getStringExtra(ConstChat.KEY_FROM);
+                    String key_uid = intent.getStringExtra(ConstChat.KEY_UID);
+                    String key_msg = intent.getStringExtra(ConstChat.KEY_MESSAGE);
+                    String key_status = intent.getStringExtra(ConstChat.KEY_STATUS);
+                    String key_seqno = intent.getStringExtra(ConstChat.KEY_SEQNO);
+                    String key_timestamp = intent.getStringExtra(ConstChat.KEY_TIMESTAMP);
+
+                    Log.e(TAG, "chatFrom:" + key_from + "\nchatMessage:" + key_msg);
+
+                    boolean appInBg = NotificationUtils.isAppIsInBackground(getApplicationContext());
+
+                    NotificationUtils.showNotificationMessage(MainActivity.this, key_from, key_msg, "", intent);
+
+                    // kalo key_from null, dan body ada isinya brarti cuma pesan aja ga perlu start new intent
+
+                    if (key_uid == null) {
+                        String body = intent.getStringExtra("body");
+                        NotificationUtils.showNotificationMessage(MainActivity.this, key_from, body, "", intent);
+                    } else {
+//                    di MainActivity memang semua broadcast message pasti ditaruh di notificationbar sehingga harus new intent, onCreate tdk akan terbaca melainkan ke onNewIntent
+                        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+                        //must redefine supaya dieksekusi dari notificationbar
+                        resultIntent.putExtras(extras);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        NotificationUtils.showNotificationMessage(MainActivity.this, key_from, key_msg, "", resultIntent);
+                    }
+
+//                    txtMessage.setText(message);
+                }
+            }
+        };
 
         currentUser = (UserData) Storage.getObjPreference(this, Storage.KEY_USER, UserData.class);
 
@@ -227,9 +415,36 @@ public class MainActivity extends BasicActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
 
-        SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentMap);
+//        SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentMap);
 
-        fragment.getMapAsync(this);
+//        fragment.getMapAsync(this);
+
+        // register new push message receiver
+        // by doing this, the activity will be notified each time a new message arrives
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
+                new IntentFilter(ConstChat.PUSH_NOTIFICATION));
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+//        resultIntent.putExtra("message", key_msg);
+
+        // register GCM registration complete receiver
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+//                new IntentFilter(Config.REGISTRATION_COMPLETE));
+
+        // clear the notification area when the app is opened
+        NotificationUtils.clearNotifications(getApplicationContext());
+
     }
 
     @Override
@@ -282,8 +497,10 @@ public class MainActivity extends BasicActivity
             return false;
         } else if (id == R.id.nav_chats) {
 
-//            Intent i = new Intent(this, ActivityChats.class);
-//            startActivity(i);
+            Intent i = new Intent(this, MainChatActivity.class);
+            i.putExtra(MainChatActivity.PARAM_USER_CODE, currentUser.getUserId());
+//            i.putExtra(ActivitySummaryLKP.PARAM_LKP_DATE, this.lkpDate.getTime());
+            startActivity(i);
 
             return false;
         } else if (id == R.id.nav_reset) {
@@ -376,6 +593,8 @@ public class MainActivity extends BasicActivity
         realm.delete(TrnCollPos.class);
         realm.commitTransaction();
 
+        NetUtil.chatLogOff(this, getCurrentUserId(), null);
+
         startActivity(intent);
 //                moveTaskToBack(true);
         finish();
@@ -402,14 +621,8 @@ public class MainActivity extends BasicActivity
 
             viewIsAtHome = true;
 
-        }/* else if (viewId == R.id.nav_loa) {
-            fragment = new FragmentLKPList();
+        }/* else if (viewId == R.id.nav_chats) {
 
-            Bundle bundle = new Bundle();
-            bundle.putString(FragmentLKPList.ARG_PARAM1, currentUser.getUserId());
-            fragment.setArguments(bundle);
-
-            title = "LKP List";
         } else if (viewId == R.id.nav_summaryLKP) {
             fragment = new FragmentSummaryLKP();
 
@@ -487,6 +700,13 @@ public class MainActivity extends BasicActivity
         alertDialogBuilder.show();
     }
 
+
+    private void openChat(String from, String to) {
+        if (TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+            return;
+        }
+
+    }
 
     @Override
     public void onCollSelected(CollJob detail, Date lkpDate) {
@@ -567,19 +787,7 @@ public class MainActivity extends BasicActivity
         mMap.moveCamera(cameraUpdate);
 
         llMap.setVisibility(View.VISIBLE);
-//        map.addMarker(new MarkerOptions()
-//                .position(new LatLng(lat, lng))
-//                .title("Hello world"));
 
-        /*
-        Fragment fragment = new FragmentMap();
-        if (fragment != null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_map, fragment);
-            ft.commit();
-        }
-
-        */
     }
 
     public void getCollectors(final Date lkpDate, boolean useCache, final OnSuccessError listener) {
@@ -607,7 +815,11 @@ public class MainActivity extends BasicActivity
 //        req.setLdvNo(null); // not mandatory for this service
         req.setLkpDate(lkpDate);
 
-        Call<ResponseGetCollJobList> call = fastService.getCollectorsJob(req);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean b1 = sp.getBoolean(Storage.KEY_PREF_GENERAL_SHOWALL_COLL, false);
+
+        Call<ResponseGetCollJobList> call = b1 ? fastService.getCollectorsJobEx(req) : fastService.getCollectorsJob(req);
+
         call.enqueue(new Callback<ResponseGetCollJobList>() {
             @Override
             public void onResponse(Call<ResponseGetCollJobList> call, Response<ResponseGetCollJobList> response) {
@@ -637,7 +849,13 @@ public class MainActivity extends BasicActivity
                                     boolean d = bgRealm.where(CollJob.class).findAll().deleteAllFromRealm();
 
                                     // replace taskcode ke string
+                                    // dimodifikasi spy bisa nampilin header di recycler view
+                                    List<CollJob> cj = new ArrayList<>();
+
+                                    boolean headerCreated = false;
                                     for (int i = 0; i < respGetCollJob.getData().size(); i++) {
+
+                                        CollJob obj = respGetCollJob.getData().get(i);
 
                                         MstTaskType first = bgRealm.where(MstTaskType.class)
                                                 .equalTo("taskCode", respGetCollJob.getData().get(i).getLastTask())
@@ -645,10 +863,52 @@ public class MainActivity extends BasicActivity
 
                                         if (first != null) {
                                             respGetCollJob.getData().get(i).setLastTask(first.getShortDesc());
+                                            obj.setLastTask(first.getShortDesc());
                                         }
+
+                                        if (!headerCreated && obj.getCountLKP() < 1) {
+                                            CollJob header = new CollJob();
+                                            header.setCountVisited(100L);
+
+                                            // hitung brp collector yg countlkp-nya 0
+                                            /*
+                                            long counter = 0;
+                                            for (CollJob _cj : respGetCollJob.getData()) {
+                                                if (_cj.getCountLKP() < 1)
+                                                    counter += 1;
+                                            }
+                                            */
+
+                                            header.setCountLKP(0L);
+                                            header.setCollCode("Z");
+                                            header.setCollName("A");
+
+                                            cj.add(header);
+                                            headerCreated = true;
+                                        }
+
+                                        cj.add(obj);
                                     }
 
-                                    bgRealm.copyToRealmOrUpdate(respGetCollJob.getData());
+                                    // ternyata isinya bisa berkurang karena sebelumnya duplicate
+                                    bgRealm.copyToRealmOrUpdate(cj);
+
+                                    CollJob z = bgRealm.where(CollJob.class).equalTo("collCode", "Z").findFirst();
+                                    if (z != null) {
+
+                                        long count = bgRealm.where(CollJob.class)
+                                                .notEqualTo("collCode", "Z")
+                                                .equalTo("countLKP", 0L)
+                                                .count();
+
+                                        z.setCountLKP(count);
+
+                                        bgRealm.copyToRealmOrUpdate(z);
+                                    }
+
+
+
+//                                    bgRealm.copyToRealmOrUpdate(respGetCollJob.getData());
 
                                 }
                             }, new Realm.Transaction.OnSuccess() {
@@ -779,11 +1039,11 @@ public class MainActivity extends BasicActivity
             String action = data.getStringExtra("ACTION");
 
             if (!TextUtils.isEmpty(action) && action.equals(Utility.ACTION_RESTART_ACTIVITY)) {
-                final Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+//                final Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
-                if (frag != null && frag instanceof FragmentHomeSpv) {
-                    ((FragmentHomeSpv)frag).onClickFab();
-                }
+//                if (frag != null && frag instanceof FragmentHomeSpv) {
+//                    ((FragmentHomeSpv)frag).onClickFab();
+//                }
 
 //                setResult(RESULT_OK, data);
 //                finish();
@@ -792,4 +1052,52 @@ public class MainActivity extends BasicActivity
         }
 
     }
+
+    /*
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Fragment fragment = null;
+            Bundle args = new Bundle();
+            switch (position) {
+                case 0:
+                    fragment = new FragmentHome();
+                    break;
+                case 1:
+                    fragment = new FragmentChatActiveContacts();
+                    break;
+            }
+
+            if (fragment != null) {
+
+                fragment.setArguments(args);
+                return fragment;
+            }
+
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "SECTION 1";
+                case 1:
+                    return "SECTION 2";
+            }
+            return null;
+        }
+
+    }
+*/
 }

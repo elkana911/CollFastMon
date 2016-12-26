@@ -333,7 +333,7 @@ public class LoginActivity extends BasicActivity {
         Date sysDate = new Date();
         if (sysDate.after(Utility.convertStringToDate(Utility.DATE_EXPIRED_YYYYMMDD, "yyyyMMdd"))) {
             Utility.showDialog(this, "Expired App", "This application version is expired. Please update from the latest");
-            return;
+//            return;
         }
 
         // Reset errors.

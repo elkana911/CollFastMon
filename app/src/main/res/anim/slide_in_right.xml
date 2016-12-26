@@ -4,7 +4,7 @@
         android:fromYDelta="0%" android:toYDelta="0%"
         android:duration="@android:integer/config_mediumAnimTime"/>
     <scale
-        android:duration="200"
+        android:duration="800"
         android:fromXScale="0.0"
         android:fromYScale="0.0"
         android:pivotX="50%"

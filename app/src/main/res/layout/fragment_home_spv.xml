@@ -28,8 +28,8 @@
                 android:clickable="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:hint="Cabang"
                 android:fontFamily="monospace"
+                android:hint="Cabang"
                 android:maxLines="1"
                 android:textColor="@android:color/primary_text_dark" />
 
@@ -49,9 +49,9 @@
                 android:clickable="false"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
+                android:fontFamily="monospace"
                 android:gravity="end"
                 android:hint="Tgl Tagih"
-                android:fontFamily="monospace"
                 android:maxLines="1"
                 android:textColor="@android:color/primary_text_dark" />
 
@@ -99,8 +99,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#e4e4e4"
-            android:paddingEnd="@dimen/fab_margin"
+            android:clipToPadding="false"
+            android:paddingBottom="12dp"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
             android:paddingStart="@dimen/activity_horizontal_margin"
+            android:scrollbars="vertical"
             android:visibility="invisible"
             app:rrvGridLayoutSpanCount="2"
             app:rrvIsRefreshable="false"
@@ -112,6 +115,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
             android:tint="@android:color/white"
             app:fabSize="mini"
             app:srcCompat="@drawable/ic_sync_black_24dp" />

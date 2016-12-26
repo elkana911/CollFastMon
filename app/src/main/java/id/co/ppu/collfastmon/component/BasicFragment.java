@@ -15,7 +15,8 @@ public class BasicFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        this.realm = Realm.getDefaultInstance();
+
+        checkRealmInstance();
     }
 
     @Override
@@ -26,6 +27,11 @@ public class BasicFragment extends Fragment {
             this.realm.close();
             this.realm = null;
         }
+    }
+
+    protected void checkRealmInstance() {
+        if (this.realm == null)
+            this.realm = Realm.getDefaultInstance();
     }
 
 }

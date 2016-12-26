@@ -41,8 +41,10 @@ public class CollJob extends RealmObject implements Serializable {
     @SerializedName("lastTaskTime")
     private Date lastTaskTime;
 
+    @SerializedName("lastLatitude")
     private String lastLatitude;
 
+    @SerializedName("lastLongitude")
     private String lastLongitude;
 
     public String getCollCode() {
@@ -132,4 +134,5 @@ public class CollJob extends RealmObject implements Serializable {
     public void setLkpDate(Date lkpDate) {
         this.lkpDate = lkpDate;
     }
+
 }

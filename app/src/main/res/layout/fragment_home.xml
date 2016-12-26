@@ -1,177 +1,206 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    tools:context=".fragments.HomeFragment">
+    android:orientation="vertical"
+    tools:context="id.co.ppu.collfastmon.fragments.FragmentHome">
 
     <LinearLayout
-        android:id="@+id/llFormCollector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:background="@color/colorRadanaBlue"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:textColorHint="@android:color/primary_text_dark">
+
+            <EditText
+                android:id="@+id/etCabang"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:fontFamily="monospace"
+                android:hint="Cabang"
+                android:maxLines="1"
+                android:textColor="@android:color/primary_text_dark" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/tilTglLKP"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:textColorHint="@android:color/primary_text_dark">
+
+            <EditText
+                android:id="@+id/etTglLKP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:fontFamily="monospace"
+                android:gravity="end"
+                android:hint="Tgl Tagih"
+                android:maxLines="1"
+                android:textColor="@android:color/primary_text_dark" />
+
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/container_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!--FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.7">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorRadanaBlue"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawablePadding="4dp"
-                android:paddingTop="16dp"
-                android:text="Collector Name"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorRadanaBlue" />
-
-            <EditText
-                android:id="@+id/etCollectorName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorRadanaBlue"
-                android:gravity="end"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:text="aaaaaaa bbbbb"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-                android:textColor="@android:color/white"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
-            android:text="Jabatan"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:paddingTop="@dimen/activity_vertical_margin">
 
-        <EditText
-            android:id="@+id/etJabatan"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:gravity="end"
-            android:text="Collector C1" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <LinearLayout
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:text="NIK"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textSize="12sp" />
-
-                <EditText
-                    android:id="@+id/etNIKNo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:text="010100101"
-                    android:textColor="@android:color/tertiary_text_dark" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:text="Cabang"
-                    android:gravity="right"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textSize="12sp" />
+                android:textColorHint="@android:color/primary_text_dark">
 
                 <EditText
                     android:id="@+id/etCabang"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:gravity="end"
-                    android:text="Cabang"
-                    android:textColor="@android:color/tertiary_text_dark" />
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:fontFamily="monospace"
+                    android:hint="Cabang"
+                    android:maxLines="1"
+                    android:textColor="@android:color/primary_text_dark" />
 
-            </LinearLayout>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/tilTglLKP"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:textColorHint="@android:color/primary_text_dark">
+
+                <EditText
+                    android:id="@+id/etTglLKP"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:hint="Tgl Tagih"
+                    android:maxLines="1"
+                    android:textColor="@android:color/primary_text_dark" />
+
+            </android.support.design.widget.TextInputLayout>
+
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tvSeparator"
+            style="?android:attr/listSeparatorTextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:text="Address"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:paddingBottom="8dp"
+            android:text="No Collector" />
 
-        <EditText
-            android:id="@+id/etAddress"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:gravity="end"
-            android:inputType="textPostalAddress|textMultiLine|textCapSentences"
-            android:text="Komplek Rukan Artha Gading, Niaga Blok: D No. 19-20"
-            android:textColor="@android:color/tertiary_text_dark" />
+            android:layout_height="wrap_content">
 
-        <TextView
+            <LinearLayout
+                android:id="@+id/noData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="86dp"
+                    android:layout_height="86dp"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="fitCenter"
+                    android:tint="#bebebe"
+                    app:srcCompat="@drawable/ic_event_busy_black_24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No Collector's found on current date\nTry refresh or change Tgl Tagih."
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                    android:textColor="@android:color/tertiary_text_dark" />
+            </LinearLayout>
+
+            <co.moonmonkeylabs.realmrecyclerview.RealmRecyclerView
+                android:id="@+id/realm_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#e4e4e4"
+                android:clipToPadding="false"
+                android:paddingBottom="12dp"
+                android:paddingEnd="@dimen/activity_horizontal_margin"
+                android:paddingStart="@dimen/activity_horizontal_margin"
+                android:scrollbars="vertical"
+                android:visibility="invisible"
+                app:rrvGridLayoutSpanCount="2"
+                app:rrvIsRefreshable="false"
+                app:rrvLayoutType="LinearLayout" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginBottom="@dimen/fab_margin"
+                android:layout_marginEnd="@dimen/fab_margin"
+                android:tint="@android:color/white"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_sync_black_24dp" />
+
+        </RelativeLayout>
+    </FrameLayout-->
+
+    <!--LinearLayout
+        android:id="@+id/llMap"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.3"
+        android:visibility="gone">
+
+        <fragment
+            android:id="@+id/fragmentMap"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:text="Email"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:gravity="end"
-            android:inputType="textEmailAddress"
-            android:text="aaaaaaa@gmail.co"
-            android:textColor="@android:color/tertiary_text_dark" />
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:text="Phone No"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <EditText
-            android:id="@+id/etPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:autoLink="phone"
-            android:inputType="phone"
-            android:linksClickable="true"
-            android:text="081578787878"
-            android:textColor="@android:color/tertiary_text_dark" />
-
-    </LinearLayout>
-</ScrollView>
+            android:layout_height="match_parent" />
+    </LinearLayout-->
+</LinearLayout>

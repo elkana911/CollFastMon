@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -13,6 +15,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import id.co.ppu.collfastmon.rest.ApiInterface;
+import id.co.ppu.collfastmon.rest.ServiceGenerator;
 
 /**
  * Created by Eric on 16-Aug-16.
@@ -30,6 +35,9 @@ public class Storage {
 
     public static final String KEY_LOGIN_DATE = "login.date";
     public static final String KEY_LOGOUT_DATE = "logout.date";
+    public static final String KEY_ANDROID_ID = "android.id";
+
+    public static final String KEY_PREF_GENERAL_SHOWALL_COLL = "collectors.all";
 
     /*
     public static String getPrefAsString(Context ctx, String key) {
@@ -147,4 +155,21 @@ public class Storage {
 
         return outputFile;
     }
+
+    public static String getAndroidToken(Context ctx) {
+        String androidId =  Storage.getPreference(ctx.getApplicationContext(), Storage.KEY_ANDROID_ID);
+        String _androidId = FirebaseInstanceId.getInstance().getToken();
+        if (TextUtils.isEmpty(androidId)) {
+            androidId = FirebaseInstanceId.getInstance().getToken();
+        }
+
+        return androidId;
+    }
+
+    public static ApiInterface getAPIService(Context ctx) {
+        return
+                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(ctx.getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
+    }
+
+
 }

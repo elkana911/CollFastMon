@@ -286,7 +286,7 @@ public class FragmentMonitoring extends Fragment {
 
         d = bgRealm.where(TrnRVColl.class)
                 .equalTo("collId", collCode)
-                .equalTo(Utility.COLUMN_CREATED_BY, createdBy)
+//                .equalTo(Utility.COLUMN_CREATED_BY, createdBy)
                 .findAll()
                 .deleteAllFromRealm();
 
@@ -294,7 +294,7 @@ public class FragmentMonitoring extends Fragment {
 
         d = bgRealm.where(TrnLDVComments.class)
                 .equalTo("pk.ldvNo", trnLDVHeader.getLdvNo())
-                .equalTo(Utility.COLUMN_CREATED_BY, createdBy)
+//                .equalTo(Utility.COLUMN_CREATED_BY, createdBy)
                 .findAll()
                 .deleteAllFromRealm();
 
@@ -309,7 +309,7 @@ public class FragmentMonitoring extends Fragment {
 
             d = bgRealm.where(TrnRepo.class)
                     .in("contractNo", repos)
-                    .equalTo(Utility.COLUMN_CREATED_BY, createdBy)
+//                    .equalTo(Utility.COLUMN_CREATED_BY, createdBy)
                     .findAll()
                     .deleteAllFromRealm();
 

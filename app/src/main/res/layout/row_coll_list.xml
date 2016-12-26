@@ -14,6 +14,7 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/llHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="12dp"
@@ -125,15 +126,31 @@
 
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/btnMap"
+            <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_gravity="center_vertical"
                 android:layout_weight="0.2"
-                android:scaleType="fitXY"
-                android:tint="@color/colorRadanaLightGreen"
-                app:srcCompat="@drawable/ic_person_pin_circle_black_24dp" />
+                android:layout_gravity="center_vertical">
+                <pl.bclogic.pulsator4droid.library.PulsatorLayout
+                    android:id="@+id/pulsator"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:pulse_count="4"
+                    app:pulse_duration="7000"
+                    app:pulse_repeat="0"
+                    app:pulse_color="@color/colorRadanaLightGreen"
+                    app:pulse_startFromScratch="false"
+                    app:pulse_interpolator="Decelerate">
+                </pl.bclogic.pulsator4droid.library.PulsatorLayout>
+
+                <ImageView
+                    android:id="@+id/btnMap"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:tint="@color/colorRadanaLightGreen"
+                    app:srcCompat="@drawable/ic_person_pin_circle_black_24dp" />
+            </RelativeLayout>
         </LinearLayout>
 
         <LinearLayout

@@ -3,11 +3,13 @@ package id.co.ppu.collfastmon.fragments;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -39,6 +41,7 @@ import id.co.ppu.collfastmon.util.Utility;
 import io.realm.RealmBasedRecyclerViewAdapter;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -80,7 +83,6 @@ public class FragmentHomeSpv extends BasicFragment {
             final String createdBy = "JOB" + Utility.convertDateToString(cal.getTime(), "yyyyMMdd");
 
             fab.performClick();
-
         }
     };
 
@@ -89,23 +91,37 @@ public class FragmentHomeSpv extends BasicFragment {
     }
 
     public void loadCollectorsFromLocal(Date time) {
+
+        checkRealmInstance();
+
         RealmResults<CollJob> rows =
                 realm.where(CollJob.class)
 //                        .greaterThanOrEqualTo("lkpDate", time)
-                        .findAllSorted("countVisited", Sort.DESCENDING);
+//                        .findAllSorted("countVisited", Sort.DESCENDING, "collName", Sort.ASCENDING);
+                        .findAllSorted(new String[]{"countLKP", "countVisited", "collName"}, new Sort[]{Sort.DESCENDING, Sort.DESCENDING, Sort.ASCENDING});
 
-        long count = rows.size();
         String dateLabel = "Today";
 
         if (!Utility.isSameDay(new Date(), time)) {
             dateLabel = "";
         }
 
-        tvSeparator.setText(dateLabel + " COLLECTORS: " + count);
+        //antisipasi collCode huruf Z
+//        long count = rows.size();
+        long count =
+                realm.where(CollJob.class)
+                        .notEqualTo("collCode", "Z")
+                        .count();
+
+        long activeColl = realm.where(CollJob.class)
+                .greaterThan("countLKP", 0)
+                .isNotNull("ldvNo")
+                .count();
+
+        tvSeparator.setText(dateLabel + " COLLECTORS: " + count + " (" + activeColl + " Assigned)");
 
         if (count < 1) {
             realm_recycler_view.setVisibility(View.INVISIBLE);
-
             noData.setVisibility(View.VISIBLE);
         } else {
             realm_recycler_view.setVisibility(View.VISIBLE);
@@ -152,6 +168,39 @@ public class FragmentHomeSpv extends BasicFragment {
         });
 
 //        realm_recycler_view.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        /*
+        realm_recycler_view.addItemDecoration(new RecyclerView.ItemDecoration() {
+
+            private int textSize = 50;
+            private int groupSpacing = 100;
+//            private int itemsInGroup = 3;
+
+            private Paint paint = new Paint();
+            {
+                paint.setTextSize(textSize);
+            }
+
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                if (parent.getChildAdapterPosition(view) % itemsInGroup == 0) {
+                    outRect.set(0, groupSpacing, 0, 0);
+                }
+            }
+
+            @Override
+            public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    View view = parent.getChildAt(i);
+                    int position = parent.getChildAdapterPosition(view);
+                    if (position % itemsInGroup == 0) {
+                        c.drawText("Group " + (position / itemsInGroup + 1), view.getLeft(),
+                                view.getTop() - groupSpacing / 2 + textSize / 3, paint);
+                    }
+                }
+            }
+        });
+
+        */
         return view;
     }
 
@@ -184,7 +233,10 @@ public class FragmentHomeSpv extends BasicFragment {
 
     }
 
-    public class CollListAdapter extends RealmBasedRecyclerViewAdapter<CollJob, CollListAdapter.DataViewHolder> {
+    public class CollListAdapter extends RealmBasedRecyclerViewAdapter<CollJob, RealmSearchViewHolder> {
+
+        private static final int TYPE_HEADER = 0;
+        private static final int TYPE_ITEM = 1;
 
         private int lastPosition = -1;
 
@@ -197,81 +249,127 @@ public class FragmentHomeSpv extends BasicFragment {
         }
 
         @Override
-        public DataViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int i) {
-            View v = inflater.inflate(R.layout.row_coll_list, viewGroup, false);
-            return new DataViewHolder((FrameLayout) v);
+        public int getItemViewType(int position) {
+            final CollJob detail = realmResults.get(position);
+
+            String collCode = detail.getCollCode();
+            if (collCode.equalsIgnoreCase("z"))
+                return TYPE_HEADER;
+            else
+//            return super.getItemViewType(position);
+                return TYPE_ITEM;
         }
 
         @Override
-        public void onBindRealmViewHolder(DataViewHolder dataViewHolder, int position) {
+        public RealmSearchViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int viewType) {
+
+            if (viewType == TYPE_HEADER) {
+                View v = inflater.inflate(R.layout.row_coll_header, viewGroup, false);
+                return new VHHeader(v);
+
+            } else if (viewType == TYPE_ITEM) {
+                View v = inflater.inflate(R.layout.row_coll_list, viewGroup, false);
+                return new DataViewHolder((FrameLayout) v);
+
+            }
+            throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
+
+        }
+
+        @Override
+        public void onBindRealmViewHolder(RealmSearchViewHolder dataViewHolder, int position) {
 
             final CollJob detail = realmResults.get(position);
 
-            dataViewHolder.llRowLKP.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (getContext() instanceof OnCollectorListListener) {
-                        Date dateLKP = TextUtils.isEmpty(etTglLKP.getText().toString()) ? new Date() : Utility.convertStringToDate(etTglLKP.getText().toString(), Utility.DATE_DISPLAY_PATTERN);
-                        ((OnCollectorListListener) getContext()).onCollSelected(detail, dateLKP);
+            if (dataViewHolder instanceof VHHeader) {
+
+                VHHeader holder = (VHHeader) dataViewHolder;
+                holder.txtTitle.setText("Unassigned (" + detail.getCountLKP() + ")");
+            } else if (dataViewHolder instanceof DataViewHolder) {
+                DataViewHolder holder = (DataViewHolder) dataViewHolder;
+
+                holder.llRowLKP.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (getContext() instanceof OnCollectorListListener) {
+                            Date dateLKP = TextUtils.isEmpty(etTglLKP.getText().toString()) ? new Date() : Utility.convertStringToDate(etTglLKP.getText().toString(), Utility.DATE_DISPLAY_PATTERN);
+                            ((OnCollectorListListener) getContext()).onCollSelected(detail, dateLKP);
+                        }
+
                     }
+                });
 
-                }
-            });
+                holder.btnMap.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (getContext() instanceof OnCollectorListListener) {
+                            Date dateLKP = TextUtils.isEmpty(etTglLKP.getText().toString()) ? new Date() : Utility.convertStringToDate(etTglLKP.getText().toString(), Utility.DATE_DISPLAY_PATTERN);
+                            ((OnCollectorListListener) getContext()).onCollLocation(detail, dateLKP);
+                        }
 
-            dataViewHolder.btnMap.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (getContext() instanceof OnCollectorListListener) {
-                        Date dateLKP = TextUtils.isEmpty(etTglLKP.getText().toString()) ? new Date() : Utility.convertStringToDate(etTglLKP.getText().toString(), Utility.DATE_DISPLAY_PATTERN);
-                        ((OnCollectorListListener) getContext()).onCollLocation(detail, dateLKP);
                     }
+                });
 
+                boolean isSameDay = Utility.isSameDay(detail.getLkpDate(), new Date());
+
+                if (isSameDay && detail.getCountLKP() > 0) {
+                    holder.llHeader.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorRadanaBlue));
+                    holder.tvTotVisit.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorRadanaBlue));
+                } else {
+                    holder.llHeader.setBackgroundColor(Color.parseColor("#808080"));
+                    holder.tvTotVisit.setBackgroundColor(Color.parseColor("#808080"));
                 }
-            });
 
-            TextView tvCollName = dataViewHolder.tvCollName;
-            if (Build.VERSION.SDK_INT >= 24) {
-                tvCollName.setText(Html.fromHtml("<strong>" + detail.getCollName() + "</strong>", Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                tvCollName.setText(Html.fromHtml("<strong>" + detail.getCollName() + "</strong>"));
-            }
+                TextView tvCollName = holder.tvCollName;
+                if (Build.VERSION.SDK_INT >= 24) {
+                    tvCollName.setText(Html.fromHtml("<strong>" + detail.getCollName() + "</strong>", Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    tvCollName.setText(Html.fromHtml("<strong>" + detail.getCollName() + "</strong>"));
+                }
 
-            TextView tvCollCode = dataViewHolder.tvCollCode;
-            tvCollCode.setText(detail.getCollCode());
+                TextView tvCollCode = holder.tvCollCode;
+                tvCollCode.setText(detail.getCollCode());
 
-            TextView tvLastTask = dataViewHolder.tvLastTask;
-            if (detail.getLastTask() == null) {
-                tvLastTask.setText(null);
-            }else
-                tvLastTask.setText(detail.getLastTask() + " - " + Utility.convertDateToString(detail.getLastTaskTime(), "HH:mm:ss"));
+                TextView tvLastTask = holder.tvLastTask;
+                if (detail.getLastTask() == null) {
+                    tvLastTask.setText(null);
+                } else
+                    tvLastTask.setText(detail.getLastTask() + " - " + Utility.convertDateToString(detail.getLastTaskTime(), "HH:mm:ss"));
 
-            TextView tvLastLat = dataViewHolder.tvLastLat;
-            tvLastLat.setText(detail.getLastLatitude());
+                TextView tvLastLat = holder.tvLastLat;
+                tvLastLat.setText(detail.getLastLatitude());
 
-            TextView tvLastLng = dataViewHolder.tvLastLng;
-            tvLastLng.setText(detail.getLastLongitude());
+                TextView tvLastLng = holder.tvLastLng;
+                tvLastLng.setText(detail.getLastLongitude());
 
-            dataViewHolder.btnMap.setVisibility(View.VISIBLE);
-            if (TextUtils.isEmpty(detail.getLastLatitude())
-                    || TextUtils.isEmpty(detail.getLastLongitude())
-                    ) {
-                dataViewHolder.btnMap.setVisibility(View.GONE);
-            }
+                holder.btnMap.setVisibility(View.VISIBLE);
+                holder.pulsator.stop();
+                if (TextUtils.isEmpty(detail.getLastLatitude())
+                        || TextUtils.isEmpty(detail.getLastLongitude())
+                        ) {
+                    holder.btnMap.setVisibility(View.GONE);
+                } else {
+                    // kalo hari yg sama saja
+                    if (isSameDay)
+                        holder.pulsator.start();
+                }
 
-            TextView tvTotalVisited = dataViewHolder.tvTotVisit;
-            if (Build.VERSION.SDK_INT >= 24) {
-                tvTotalVisited.setText(Html.fromHtml("" + detail.getCountVisited() + "/" + detail.getCountLKP(), Html.FROM_HTML_MODE_LEGACY));
+                TextView tvTotalVisited = holder.tvTotVisit;
+                if (Build.VERSION.SDK_INT >= 24) {
+                    tvTotalVisited.setText(Html.fromHtml("" + detail.getCountVisited() + "/" + detail.getCountLKP(), Html.FROM_HTML_MODE_LEGACY));
 //                tvTotalVisited.setText(Html.fromHtml("<strong>Total Visited : " + detail.getCountVisited() + "</strong> / " + detail.getCountLKP(), Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                tvTotalVisited.setText(Html.fromHtml("" + detail.getCountVisited() + "/" + detail.getCountLKP()));
+                } else {
+                    tvTotalVisited.setText(Html.fromHtml("" + detail.getCountVisited() + "/" + detail.getCountLKP()));
 //                tvTotalVisited.setText(Html.fromHtml("<strong>Total Visited : " + detail.getCountVisited() + "</strong> / " + detail.getCountLKP()));
-            }
+                }
 
-            Animation animation = AnimationUtils.loadAnimation(getContext(),
-                    (position > lastPosition) ? R.anim.up_from_bottom
-                            : R.anim.down_from_top);
-            dataViewHolder.itemView.startAnimation(animation);
-            lastPosition = position;
+                Animation animation = AnimationUtils.loadAnimation(getContext(),
+                        (position > lastPosition) ? R.anim.up_from_bottom
+                                : R.anim.down_from_top);
+                dataViewHolder.itemView.startAnimation(animation);
+                lastPosition = position;
+
+            }
 
         }
 
@@ -281,6 +379,9 @@ public class FragmentHomeSpv extends BasicFragment {
 
             @BindView(R.id.llRowLKP)
             LinearLayout llRowLKP;
+
+            @BindView(R.id.llHeader)
+            LinearLayout llHeader;
 
             @BindView(R.id.tvCollName)
             TextView tvCollName;
@@ -303,6 +404,9 @@ public class FragmentHomeSpv extends BasicFragment {
             @BindView(R.id.btnMap)
             ImageView btnMap;
 
+            @BindView(R.id.pulsator)
+            PulsatorLayout pulsator;
+
             public DataViewHolder(FrameLayout container) {
                 super(container);
 
@@ -311,10 +415,21 @@ public class FragmentHomeSpv extends BasicFragment {
                 ButterKnife.bind(this, container);
             }
         }
+
+
+        class VHHeader extends RealmSearchViewHolder {
+            TextView txtTitle;
+
+            public VHHeader(View itemView) {
+                super(itemView);
+                this.txtTitle = (TextView) itemView.findViewById(R.id.txtHeader);
+            }
+        }
     }
 
     public interface OnCollectorListListener {
         void onCollSelected(CollJob detail, Date lkpDate);
+
         void onCollLoad(Date lkpDate);
 //        void onStartRefresh();
 //        void onEndRefresh();
