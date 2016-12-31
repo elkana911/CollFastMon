@@ -1,5 +1,7 @@
 package id.co.ppu.collfastmon.rest.request.chat;
 
+import java.util.List;
+
 import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
 
 /**
@@ -8,20 +10,13 @@ import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
 
 public class RequestChatMsg {
 
-    private TrnChatMsg msg;
+    private List<TrnChatMsg> msg;
 
-    public TrnChatMsg getMsg() {
+    public List<TrnChatMsg> getMsg() {
         return msg;
     }
 
-    public void setMsg(TrnChatMsg msg) {
+    public void setMsg(List<TrnChatMsg> msg) {
         this.msg = msg;
-    }
-
-    @Override
-    public String toString() {
-        return "RequestChatMsg{" +
-                "msg=" + msg +
-                '}';
     }
 }

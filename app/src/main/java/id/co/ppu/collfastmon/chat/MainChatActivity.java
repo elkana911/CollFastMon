@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,11 +35,12 @@ import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.fragments.FragmentChatActiveContacts;
 import id.co.ppu.collfastmon.fragments.FragmentChatAllContacts;
 import id.co.ppu.collfastmon.fragments.FragmentChatWith;
+import id.co.ppu.collfastmon.listener.OnGetChatContactListener;
 import id.co.ppu.collfastmon.listener.OnSuccessError;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatContact;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
-import id.co.ppu.collfastmon.pojo.trn.TrnCollPos;
 import id.co.ppu.collfastmon.rest.request.chat.RequestChatMsg;
+import id.co.ppu.collfastmon.rest.request.chat.RequestChatMsgStatus;
 import id.co.ppu.collfastmon.rest.request.chat.RequestChatStatus;
 import id.co.ppu.collfastmon.rest.request.chat.RequestGetChatHistory;
 import id.co.ppu.collfastmon.rest.response.chat.ResponseGetChatHistory;
@@ -45,6 +49,7 @@ import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.NotificationUtils;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 import okhttp3.ResponseBody;
@@ -59,14 +64,225 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
     private String TAG = "MainChatActivity";
     private String userCode = "21080093";
 
+    Handler handlerChatStatus = new Handler();
+    Timer timerQueueMessage = new Timer();
+
     private BroadcastReceiver broadcastReceiver;
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
+    // Define the code block to be executed
+    private Runnable runnableChatStatus = new Runnable() {
+        @Override
+        public void run() {
+            if (Utility.isScreenOff(MainChatActivity.this) || !NetUtil.isConnected(MainChatActivity.this)) {
+                return;
+            }
+
+            // Do something here on the main thread
+            Log.d("handlerChatStatus", "Update Chat Log On status");
+
+            NetUtil.chatLogOn(MainChatActivity.this, getCurrentUserId(), new OnSuccessError() {
+                @Override
+                public void onSuccess(String msg) {
+                    //yg mana offline ?
+                    NetUtil.chatUpdateContacts(MainChatActivity.this, getCurrentUserId(), null);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+
+                }
+
+                @Override
+                public void onSkip() {
+                    //yg mana offline ?
+                    NetUtil.chatUpdateContacts(MainChatActivity.this, getCurrentUserId(), null);
+                }
+            });
+
+            // Repeat this the same runnable code block again another 2 seconds
+            handlerChatStatus.postDelayed(runnableChatStatus, Utility.CYCLE_CHAT_STATUS_MILLISEC);
+        }
+    };
+
+    private TimerTask timerTaskQueueMessage = new TimerTask() {
+        @Override
+        public void run() {
+            if (Utility.isScreenOff(MainChatActivity.this) || !NetUtil.isConnected(MainChatActivity.this))
+                return;
+
+            // Do something here on the main thread
+            final Realm r = Realm.getDefaultInstance();
+            try{
+
+                // 1. check transmitting data
+                final RealmResults<TrnChatMsg> anyTransmittingData = r.where(TrnChatMsg.class)
+                        .equalTo("messageStatus", ConstChat.MESSAGE_STATUS_TRANSMITTING)
+                        .findAll();
+
+                if (anyTransmittingData.size() > 0) {
+                    Log.d(TAG, "There are " + anyTransmittingData.size() + " chats transmitting");
+                    // wait until all chats sent to server
+                    // if 5 minutes expired will be reset to unopened or firsttime
+                    r.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            for (TrnChatMsg _obj : anyTransmittingData) {
+                                long minutesAge = Utility.getMinutesDiff(_obj.getCreatedTimestamp(), new Date());
+
+                                if (minutesAge > 5) {
+                                    _obj.setMessageStatus(ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME);
+                                }
+                            }
+                            // no need to do this
+//                            realm.copyToRealmOrUpdate(anyTransmittingData);
+                        }
+                    });
+                    return;
+                }
+
+                // 2. check pending message
+                final RealmResults<TrnChatMsg> pendings = r.where(TrnChatMsg.class)
+                        .equalTo("messageStatus", ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME)
+                        .findAll();
+
+                if (pendings.size() > 0) {
+                    r.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            for (TrnChatMsg _obj : pendings) {
+                                _obj.setMessageStatus(ConstChat.MESSAGE_STATUS_TRANSMITTING);
+                            }
+                        }
+                    });
+
+                    final RequestChatMsg req = new RequestChatMsg();
+                    req.setMsg(r.copyFromRealm(pendings));
+
+                    Call<ResponseBody> call = getAPIService().sendMessages(req);
+                    // ga boleh call.enqueue krn bisa hilang dr memory utk variable2 di atas
+                    try {
+                        Response<ResponseBody> execute = call.execute();
+
+                        if (!execute.isSuccessful()) {
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    for (TrnChatMsg _obj : pendings) {
+                                        _obj.setMessageStatus(ConstChat.MESSAGE_STATUS_FAILED);
+                                    }
+                                }
+                            });
+
+                            return;
+                        }
+
+                        final ResponseBody resp = execute.body();
+
+                        try {
+                            String msgStatus = resp.string();
+
+                            Log.d(TAG, "msgStatus = " + msgStatus);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        r.executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+                                for (TrnChatMsg msg : pendings) {
+                                    msg.setMessageStatus(ConstChat.MESSAGE_STATUS_SERVER_RECEIVED);
+                                }
+
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Utility.throwableHandler(MainChatActivity.this, e, false);
+                    }
+
+                }
+
+                /*
+
+                // 3. check / refresh last MESSAGE_STATUS_SERVER_RECEIVED chats
+                // only executed one time only to avoid infinite loop
+                final RealmResults<TrnChatMsg> legacyChats = r.where(TrnChatMsg.class)
+                        .equalTo("messageStatus", ConstChat.MESSAGE_STATUS_SERVER_RECEIVED)
+                        .findAll();
+
+                if (legacyChats.size() > 0) {
+
+                    List<String> list = new ArrayList<>();
+                    for (TrnChatMsg _obj : legacyChats) {
+                        list.add(_obj.getUid());
+                    }
+
+                    final RequestChatMsgStatus req = new RequestChatMsgStatus();
+                    req.setUid(list);
+
+                    Call<ResponseGetChatHistory> call = getAPIService().checkMessageStatus(req);
+                    // ga boleh enqueue
+                    try {
+                        Response<ResponseGetChatHistory> execute = call.execute();
+
+                        if (execute.isSuccessful()) {
+                            final ResponseGetChatHistory body = execute.body();
+
+                            if (body.getData() != null) {
+
+                                r.executeTransaction(new Realm.Transaction() {
+                                    @Override
+                                    public void execute(Realm realm) {
+                                        for (TrnChatMsg _obj : body.getData()) {
+
+                                            TrnChatMsg first = realm.where(TrnChatMsg.class)
+                                                    .equalTo("uid", _obj.getUid())
+                                                    .findFirst();
+
+                                            first.setMessageStatus(_obj.getMessageStatus());
+                                        }
+                                    }
+                                });
+
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Utility.throwableHandler(MainChatActivity.this, e, false);
+                    }
+
+                }
+*/
+            }finally{
+                if (r != null)
+                    r.close();
+            }
+
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
+        // Start the initial runnable task by posting through the handler
+//        runnableQueueMessage.run();// repeatableia t
+        runnableChatStatus.run();
+//        handlerQueueMessage.post(runnableQueueMessage);
+//        handlerChatStatus.post(runnableChatStatus);
+
+        timerQueueMessage.scheduleAtFixedRate(timerTaskQueueMessage, 5, Utility.CYCLE_CHAT_QUEUE_MILLISEC); // start after 5 seconds
 
         handleNotification(getIntent());
     }
@@ -209,7 +425,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                     @Override
                     public void execute(Realm realm) {
                         trnChatMsg.setMessageStatus(key_status);
-                        realm.copyToRealmOrUpdate(trnChatMsg);
+//                        realm.copyToRealmOrUpdate(trnChatMsg);
                     }
                 });
             } else {
@@ -254,7 +470,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
                     for (TrnChatMsg msg : unreadMessages) {
                         msg.setMessageStatus(ConstChat.MESSAGE_STATUS_READ_AND_OPENED);
-                        realm.copyToRealmOrUpdate(msg);
+//                        realm.copyToRealmOrUpdate(msg);
                     }
 
                 }
@@ -274,9 +490,17 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                 collsCode.add(this.userCode);
                 collsCode.add(key_from);
 
-                NetUtil.chatGetContacts(MainChatActivity.this, collsCode, new OnSuccessError() {
+                NetUtil.chatGetContacts(MainChatActivity.this, collsCode, new OnGetChatContactListener() {
                     @Override
-                    public void onSuccess(String msg) {
+                    public void onSuccess(final List<TrnChatContact> list) {
+
+                        realm.executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+                                realm.copyToRealmOrUpdate(list);
+                            }
+                        });
+
                         TrnChatContact contact = realm.where(TrnChatContact.class)
                                 .equalTo("collCode", key_from)
                                 .findFirst();
@@ -304,7 +528,8 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
             NotificationUtils.clearNotifications(this);
 
-            if (!TextUtils.isEmpty(key_uid))
+            if (!TextUtils.isEmpty(key_uid)) {
+
                 this.realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
@@ -324,12 +549,13 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
                         } else {
                         }
-                    msg.setMessageStatus(ConstChat.MESSAGE_STATUS_READ_AND_OPENED);
-                    realm.copyToRealmOrUpdate(msg);
-                }
-            });
+                        msg.setMessageStatus(ConstChat.MESSAGE_STATUS_READ_AND_OPENED);
+//                        realm.copyToRealmOrUpdate(msg);
+                    }
+                });
+            }
 
-            ((FragmentChatWith) frag).listAdapter.notifyDataSetChanged();
+//            ((FragmentChatWith) frag).listAdapter.notifyDataSetChanged();
             ((FragmentChatWith) frag).scrollToLast();
 //            chats.scrollToPosition(listAdapter.getItemCount());
         }
@@ -372,6 +598,164 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
         return true;
     }
 
+    private void sendMessage(final FragmentChatWith fragment) {
+
+        final EditText etMsg = fragment.etMsg;
+
+        etMsg.setError(null);
+
+        if (TextUtils.isEmpty(etMsg.getText())) {
+            etMsg.setError(getString(R.string.error_field_required));
+            return;
+        }
+
+        if (etMsg.getText().length() >= 256) {
+            etMsg.setError(getString(R.string.error_value_too_long));
+            return;
+        }
+
+        final RequestChatMsg req = new RequestChatMsg();
+
+        final TrnChatMsg msg = new TrnChatMsg();
+        msg.setUid(java.util.UUID.randomUUID().toString());
+
+        Realm r = Realm.getDefaultInstance();
+        try {
+            Number max = r.where(TrnChatMsg.class).max("seqNo");
+
+            long maxL = 0;
+            if (max != null)
+                maxL = max.longValue() + 10L;
+
+            msg.setSeqNo(maxL);
+        } finally {
+            if (r != null)
+                r.close();
+        }
+
+        msg.setFromCollCode(fragment.userCode1);
+        msg.setToCollCode(fragment.userCode2);
+        msg.setMessage(etMsg.getText().toString());
+        msg.setMessageType(ConstChat.MESSAGE_TYPE_COMMON);
+        msg.setMessageStatus(ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME);
+        msg.setCreatedTimestamp(new Date());
+
+        Call<ResponseBody> call = getAPIService().sendMessage(msg);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+
+                final ResponseBody resp = response.body();
+
+                try {
+                    String msgStatus = resp.string();
+
+                    Log.e(TAG, "msgStatus = " + msgStatus);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                Realm r = Realm.getDefaultInstance();
+
+                try {
+
+                    r.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+
+                            if (msg.getFromCollCode().equals(msg.getToCollCode())) {
+                                msg.setMessageStatus(ConstChat.MESSAGE_STATUS_READ_AND_OPENED);
+
+                                // send back to server kalo sudah dibaca
+                                Call<ResponseBody> call2 = getAPIService().sendMessage(msg);
+                                call2.enqueue(new retrofit2.Callback<ResponseBody>() {
+                                    @Override
+                                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                        // ignore
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                        // ignore
+                                    }
+                                });
+
+                            } else {
+                                msg.setMessageStatus(ConstChat.MESSAGE_STATUS_SERVER_RECEIVED);
+                            }
+                            realm.copyToRealm(msg);
+
+                        }
+                    });
+                } finally {
+                    r.close();
+                }
+
+                fragment.afterAddMsg();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void sendMessageQuick(final FragmentChatWith fragment) {
+
+        final EditText etMsg = fragment.etMsg;
+
+        etMsg.setError(null);
+
+        if (TextUtils.isEmpty(etMsg.getText())) {
+            etMsg.setError(getString(R.string.error_field_required));
+            return;
+        }
+
+        if (etMsg.getText().length() >= 256) {
+            etMsg.setError(getString(R.string.error_value_too_long));
+            return;
+        }
+
+        final RequestChatMsg req = new RequestChatMsg();
+
+        final TrnChatMsg msg = new TrnChatMsg();
+        msg.setUid(java.util.UUID.randomUUID().toString());
+        msg.setFromCollCode(fragment.userCode1);
+        msg.setToCollCode(fragment.userCode2);
+        msg.setMessage(etMsg.getText().toString());
+        msg.setMessageType(ConstChat.MESSAGE_TYPE_COMMON);
+        msg.setMessageStatus(ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME);
+        msg.setCreatedTimestamp(new Date());
+
+        Realm r = Realm.getDefaultInstance();
+        try {
+            Number max = r.where(TrnChatMsg.class).max("seqNo");
+
+            long maxL = 0;
+            if (max != null)
+                maxL = max.longValue() + 10L;
+
+            msg.setSeqNo(maxL);
+
+            r.beginTransaction();
+            r.copyToRealm(msg);
+            r.commitTransaction();
+
+        } finally {
+            if (r != null)
+                r.close();
+        }
+
+        // nanti ada job tiap 1 atau 2 detik akan coba kirim ke server. ditangani oleh handlerQueueMessage
+        fragment.afterAddMsg();
+    }
+
     @OnClick(R.id.fab)
     public void onClickFab(View view) {
         final Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
@@ -381,123 +765,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
         if (frag instanceof FragmentChatWith) {
 
-            final EditText etMsg = ((FragmentChatWith) frag).etMsg;
-
-            etMsg.setError(null);
-
-            if (TextUtils.isEmpty(etMsg.getText())) {
-                etMsg.setError(getString(R.string.error_field_required));
-                return;
-            }
-
-            if (etMsg.getText().length() >= 256) {
-                etMsg.setError(getString(R.string.error_value_too_long));
-                return;
-            }
-
-            final RequestChatMsg req = new RequestChatMsg();
-
-            final TrnChatMsg msg = new TrnChatMsg();
-            msg.setUid(java.util.UUID.randomUUID().toString());
-
-            Realm r = Realm.getDefaultInstance();
-            try {
-                Number max = r.where(TrnChatMsg.class).max("seqNo");
-
-                long maxL = 0;
-                if (max != null)
-                    maxL = max.longValue() + 10L;
-
-                msg.setSeqNo(maxL);
-            } finally {
-                if (r != null)
-                    r.close();
-            }
-
-            msg.setFromCollCode(((FragmentChatWith) frag).userCode1);
-            msg.setToCollCode(((FragmentChatWith) frag).userCode2);
-            msg.setMessage(etMsg.getText().toString());
-            msg.setMessageType(ConstChat.MESSAGE_TYPE_COMMON);
-            msg.setMessageStatus(ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME);
-            msg.setCreatedTimestamp(new Date());
-
-            req.setMsg(msg);
-
-            Call<ResponseBody> call = getAPIService().sendMessage(req);
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (!response.isSuccessful()) {
-                        return;
-                    }
-
-                    final ResponseBody resp = response.body();
-
-                    try {
-                        String msgStatus = resp.string();
-
-                        Log.e(TAG, "msgStatus = " + msgStatus);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    Realm r = Realm.getDefaultInstance();
-
-                    try {
-
-                        r.executeTransaction(new Realm.Transaction() {
-                            @Override
-                            public void execute(Realm realm) {
-                                /*
-                                TrnChatMsg msg = new TrnChatMsg();
-
-                                msg.setCreatedTimestamp(req.getTimestamp());
-                                msg.setMessage(req.getMessage());
-                                msg.setToCollCode(req.getToCollCode());
-                                msg.setFromCollCode(req.getFromCollCode());
-                                msg.setUid(req.getUid());
-                                msg.setMessageType("0");*/
-
-                                if (msg.getFromCollCode().equals(msg.getToCollCode())) {
-                                    msg.setMessageStatus(ConstChat.MESSAGE_STATUS_READ_AND_OPENED);
-
-                                    // send back to server kalo sudah dibaca
-                                    RequestChatMsg req2 = new RequestChatMsg();
-                                    req2.setMsg(msg);
-                                    Call<ResponseBody> call2 = getAPIService().sendMessage(req2);
-                                    call2.enqueue(new retrofit2.Callback<ResponseBody>() {
-                                        @Override
-                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                            // ignore
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                                            // ignore
-                                        }
-                                    });
-
-                                } else {
-                                    msg.setMessageStatus(ConstChat.MESSAGE_STATUS_SERVER_RECEIVED);
-                                }
-                                realm.copyToRealm(msg);
-
-                            }
-                        });
-                    } finally {
-                        r.close();
-                    }
-
-                    ((FragmentChatWith) frag).afterAddMsg();
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                }
-            });
-
+            sendMessageQuick((FragmentChatWith) frag);
 
         } else if (frag instanceof FragmentChatActiveContacts) {
 //            Intent i = new Intent(this, ActivityChatRegisteredContacts.class);
@@ -515,12 +783,12 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
     }
 
     @Override
-    public void onGetGroupContacts(OnSuccessError listener) {
+    public void onGetGroupContacts(OnGetChatContactListener listener) {
         NetUtil.chatGetGroupContacts(this, this.userCode, listener);
     }
 
     @Override
-    public void onGetOnlineContacts(final OnSuccessError listener) {
+    public void onGetOnlineContacts(final OnGetChatContactListener listener) {
         NetUtil.chatUpdateContacts(this, this.userCode, listener);
     }
 
@@ -545,6 +813,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
             getSupportActionBar().setSubtitle(contact.getNickName());
         }
 
+        NotificationUtils.clearNotifications(getApplicationContext());
     }
 
     @Override
@@ -644,25 +913,76 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
             return;
         }
 
-        Realm r = Realm.getDefaultInstance();
-        try {
+        RealmQuery<TrnChatMsg> group = this.realm.where(TrnChatMsg.class)
+                .beginGroup()
+                .equalTo("fromCollCode", collCode1)
+                .equalTo("toCollCode", collCode2)
+                .endGroup()
+                .or()
+                .beginGroup()
+                .equalTo("fromCollCode", collCode2)
+                .equalTo("toCollCode", collCode1)
+                .endGroup();
 
-            RealmResults<TrnChatMsg> sorted = r.where(TrnChatMsg.class)
-                    .equalTo("fromCollCode", collCode1)
-                    .equalTo("toCollCode", collCode2)
-                    .findAllSorted("createdTimestamp", Sort.ASCENDING);
-
-            if (sorted.size() > 0) {
-//                return;
+        // 1. check / refresh last MESSAGE_STATUS_SERVER_RECEIVED chats
+        final RealmResults<TrnChatMsg> legacyChats = group.equalTo("messageStatus", ConstChat.MESSAGE_STATUS_SERVER_RECEIVED).findAll();
+        if (legacyChats.size() > 0) {
+            List<String> list = new ArrayList<>();
+            for (TrnChatMsg _obj : legacyChats) {
+                list.add(_obj.getUid());
             }
-        } finally {
-            r.close();
+
+            final RequestChatMsgStatus req = new RequestChatMsgStatus();
+            req.setUid(list);
+
+            Call<ResponseGetChatHistory> call = getAPIService().checkMessageStatus(req);
+            call.enqueue(new Callback<ResponseGetChatHistory>() {
+                @Override
+                public void onResponse(Call<ResponseGetChatHistory> call, Response<ResponseGetChatHistory> response) {
+                    if (response.isSuccessful()) {
+                        final ResponseGetChatHistory body = response.body();
+
+                        if (body.getData() != null) {
+
+                            realm.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    for (TrnChatMsg _obj : body.getData()) {
+
+                                        TrnChatMsg first = realm.where(TrnChatMsg.class)
+                                                .equalTo("uid", _obj.getUid())
+                                                .findFirst();
+
+                                        first.setMessageStatus(_obj.getMessageStatus());
+                                    }
+                                }
+                            });
+
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseGetChatHistory> call, Throwable t) {
+
+                }
+            });
+
         }
 
+
+
+        TrnChatMsg lastMsg = group.findAllSorted("seqNo").last();
+
+        // 2. get last message
         RequestGetChatHistory req = new RequestGetChatHistory();
         req.setFromCollCode(collCode1);
         req.setToCollCode(collCode2);
         req.setYyyyMMdd("");
+
+        if (lastMsg != null)
+            req.setLastUid(lastMsg.getUid());
 
         Call<ResponseGetChatHistory> call = getAPIService().getChatHistory(req);
         call.enqueue(new Callback<ResponseGetChatHistory>() {
@@ -692,10 +1012,6 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                 _r.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
-//                        realm.where(TrnChatMsg.class)
-//                        .equalTo("fromCollCode", collCode1)
-//                        .equalTo("toCollCode", collCode2)
-//                            ;
                         List<TrnChatMsg> list = new ArrayList<TrnChatMsg>();
 
                         Date lastDate = null;
@@ -753,6 +1069,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                 if (frag instanceof FragmentChatWith) {
                     ((FragmentChatWith) frag).listAdapter.notifyDataSetChanged();
                     ((FragmentChatWith) frag).scrollToLast();
+                    ((FragmentChatWith) frag).etMsg.requestFocus();
                 }
 
 

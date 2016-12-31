@@ -415,9 +415,9 @@ public class MainActivity extends BasicActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
 
-//        SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentMap);
+        SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentMap);
 
-//        fragment.getMapAsync(this);
+        fragment.getMapAsync(this);
 
         // register new push message receiver
         // by doing this, the activity will be notified each time a new message arrives
@@ -778,13 +778,17 @@ public class MainActivity extends BasicActivity
             }
         });
         */
-        mMap.clear();
         LatLng sydney = new LatLng(lat, lng);
-        Marker marker = mMap.addMarker(new MarkerOptions().position(sydney).title(collName).snippet(visited));
-        marker.showInfoWindow();
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(sydney, 14);
-        mMap.moveCamera(cameraUpdate);
+        if (mMap != null) {
+
+            mMap.clear();
+            Marker marker = mMap.addMarker(new MarkerOptions().position(sydney).title(collName).snippet(visited));
+            marker.showInfoWindow();
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(sydney, 14);
+            mMap.moveCamera(cameraUpdate);
+        } else Toast.makeText(MainActivity.this, "Sorry, unable to get the location. Try again next time.", Toast.LENGTH_LONG).show();
 
         llMap.setVisibility(View.VISIBLE);
 

@@ -10,6 +10,8 @@ public class RequestGetChatHistory {
     private String toCollCode;
     private String yyyyMMdd;
 
+    private String lastUid;
+
     public String getFromCollCode() {
         return fromCollCode;
     }
@@ -34,12 +36,21 @@ public class RequestGetChatHistory {
         this.yyyyMMdd = yyyyMMdd;
     }
 
+    public String getLastUid() {
+        return lastUid;
+    }
+
+    public void setLastUid(String lastUid) {
+        this.lastUid = lastUid;
+    }
+
     @Override
     public String toString() {
         return "RequestGetChatHistory{" +
                 "fromCollCode='" + fromCollCode + '\'' +
                 ", toCollCode='" + toCollCode + '\'' +
                 ", yyyyMMdd='" + yyyyMMdd + '\'' +
+                ", lastUid='" + lastUid + '\'' +
                 '}';
     }
 }

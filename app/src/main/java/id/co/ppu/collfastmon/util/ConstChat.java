@@ -5,13 +5,21 @@ package id.co.ppu.collfastmon.util;
  */
 
 public class ConstChat {
+    public static final String FLAG_OFFLINE = "0";
+    public static final String FLAG_ONLINE = "1";
+
+    public static final String ONLINE_STATUS_AVAILABLE = "Available";
+    public static final String ONLINE_STATUS_OFFLINE = "Offline";
+
     public static final String MESSAGE_TYPE_COMMON = "0";
     public static final String MESSAGE_TYPE_TIMESTAMP = "1";
 
+    public static final String MESSAGE_STATUS_FAILED = "-1";
     public static final String MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME = "0";
     public static final String MESSAGE_STATUS_SERVER_RECEIVED = "1";
     public static final String MESSAGE_STATUS_DELIVERED = "2";
     public static final String MESSAGE_STATUS_READ_AND_OPENED = "3";
+    public static final String MESSAGE_STATUS_TRANSMITTING = "8";
     public static final String MESSAGE_STATUS_ALL_READ_AND_OPENED = "9";
 
     public static final String KEY_FROM = "key_from";

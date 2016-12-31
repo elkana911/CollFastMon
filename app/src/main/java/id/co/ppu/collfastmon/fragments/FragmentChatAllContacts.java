@@ -140,6 +140,10 @@ public class FragmentChatAllContacts extends DialogFragment {
         public void onBindRealmViewHolder(DataViewHolder dataViewHolder, int position) {
             final TrnChatContact detail = realmResults.get(position);
 
+            if (!detail.isValid()) {
+                return;
+            }
+
             dataViewHolder.llRowContact.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

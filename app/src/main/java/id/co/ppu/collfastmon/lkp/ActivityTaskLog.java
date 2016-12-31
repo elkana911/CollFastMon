@@ -408,7 +408,7 @@ public class ActivityTaskLog extends BasicActivity {
                 if (mProgressDialog.isShowing())
                     mProgressDialog.dismiss();
 
-                Utility.throwableHandler(ActivityTaskLog.this, throwable);
+                Utility.throwableHandler(ActivityTaskLog.this, throwable, true);
             }
         });
 

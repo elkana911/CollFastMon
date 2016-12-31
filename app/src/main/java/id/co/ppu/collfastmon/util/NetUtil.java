@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import id.co.ppu.collfastmon.listener.OnGetChatContactListener;
 import id.co.ppu.collfastmon.listener.OnSuccessError;
 import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatContact;
@@ -206,7 +207,7 @@ public class NetUtil {
         }
 
         String androidId = Storage.getAndroidToken(ctx);
-        String userStatus = ChatStatus.FLAG_ONLINE;
+        String userStatus = ConstChat.FLAG_ONLINE;
         String userMsg = "Available";
 
         RequestChatStatus req = new RequestChatStatus();
@@ -254,7 +255,7 @@ public class NetUtil {
         }
 
         String androidId = Storage.getAndroidToken(ctx);
-        String userStatus = ChatStatus.FLAG_OFFLINE;
+        String userStatus = ConstChat.FLAG_OFFLINE;
         String userMsg = "Offline";
 
         RequestChatStatus req = new RequestChatStatus();
@@ -287,7 +288,7 @@ public class NetUtil {
                 try {
                     r.beginTransaction();
                     r.delete(TrnChatContact.class);
-                    r.delete(TrnChatMsg.class);
+//                    r.delete(TrnChatMsg.class);
                     r.commitTransaction();
                 } finally {
                     if (r != null)
@@ -307,7 +308,7 @@ public class NetUtil {
 
     }
 
-    public static void chatUpdateContacts(Context ctx, String collCode, final OnSuccessError listener) {
+    public static void chatUpdateContacts(Context ctx, String collCode, final OnGetChatContactListener listener) {
 
         if (!isConnected(ctx)) {
             return;
@@ -352,6 +353,8 @@ public class NetUtil {
                     return;
                 }
 
+                /*
+                dangerous coud
                 Realm r = Realm.getDefaultInstance();
 
                 r.executeTransaction(new Realm.Transaction() {
@@ -367,10 +370,10 @@ public class NetUtil {
                 final int size = resp.getData().size();
 
                 r.close();
+                 */
 
                 if (listener != null) {
-
-                    listener.onSuccess("" + size + " CONTACTS");
+                    listener.onSuccess(resp.getData());
                 }
             }
 
@@ -384,7 +387,7 @@ public class NetUtil {
 
     }
 
-    public static void chatGetGroupContacts(Context ctx, String collCode, final OnSuccessError listener) {
+    public static void chatGetGroupContacts(Context ctx, String collCode, final OnGetChatContactListener listener) {
 
         if (!isConnected(ctx)) {
             return;
@@ -428,7 +431,8 @@ public class NetUtil {
 
                     return;
                 }
-
+/*
+dangerous code
                 Realm r = Realm.getDefaultInstance();
 
                 r.executeTransaction(new Realm.Transaction() {
@@ -443,10 +447,11 @@ public class NetUtil {
                 final int size = resp.getData().size();
 
                 r.close();
+ */
 
                 if (listener != null) {
 
-                    listener.onSuccess("" + size + " CONTACTS");
+                    listener.onSuccess(resp.getData());
                 }
             }
 
@@ -460,7 +465,7 @@ public class NetUtil {
 
     }
 
-    public static void chatGetContacts(Context ctx, final List<String> collectorsCode, final OnSuccessError listener) {
+    public static void chatGetContacts(Context ctx, final List<String> collectorsCode, final OnGetChatContactListener listener) {
 
         if (!isConnected(ctx)) {
             return;
@@ -502,7 +507,7 @@ public class NetUtil {
 
                     return;
                 }
-
+/*
                 Realm r = Realm.getDefaultInstance();
 
                 r.executeTransaction(new Realm.Transaction() {
@@ -521,9 +526,9 @@ public class NetUtil {
                 final int size = resp.getData().size();
 
                 r.close();
-
+*/
                 if (listener != null) {
-                    listener.onSuccess("");
+                    listener.onSuccess(resp.getData());
                 }
             }
 

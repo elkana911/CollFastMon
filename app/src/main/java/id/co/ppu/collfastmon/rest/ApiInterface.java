@@ -1,5 +1,6 @@
 package id.co.ppu.collfastmon.rest;
 
+import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
 import id.co.ppu.collfastmon.rest.request.RequestCollJobByDate;
 import id.co.ppu.collfastmon.rest.request.RequestCollJobBySpv;
 import id.co.ppu.collfastmon.rest.request.RequestGetGPSHistory;
@@ -10,6 +11,7 @@ import id.co.ppu.collfastmon.rest.request.RequestReopenBatch;
 import id.co.ppu.collfastmon.rest.request.RequestSyncLocation;
 import id.co.ppu.collfastmon.rest.request.chat.RequestChatContacts;
 import id.co.ppu.collfastmon.rest.request.chat.RequestChatMsg;
+import id.co.ppu.collfastmon.rest.request.chat.RequestChatMsgStatus;
 import id.co.ppu.collfastmon.rest.request.chat.RequestChatStatus;
 import id.co.ppu.collfastmon.rest.request.chat.RequestGetChatHistory;
 import id.co.ppu.collfastmon.rest.response.ResponseGetCollJobList;
@@ -66,7 +68,10 @@ public interface ApiInterface {
 
     ///////////////////////////////  CHAT FUNCTIONS  ////////////////////////////////////////
     @POST("fastchat/send")
-    Call<ResponseBody> sendMessage(@Body RequestChatMsg msg);
+    Call<ResponseBody> sendMessage(@Body TrnChatMsg msg);
+
+    @POST("fastchat/send_messages")
+    Call<ResponseBody> sendMessages(@Body RequestChatMsg msg);
 
     @POST("fastchat/status")
     Call<ResponseBody> sendStatus(@Body RequestChatStatus status);
@@ -76,6 +81,15 @@ public interface ApiInterface {
 
     @GET("fastchat/get_msg")
     Call<ResponseGetChatHistory> getMessage(@Query("uid") String uid);
+
+    /**
+     * When user open app, the previous messages wont update, so this function will check the selected messages.
+     * in return, a message will contain UID and messageStatus only. The remaining fields will be empty to save bandwidth
+     * @param req
+     * @return
+     */
+    @POST("fastchat/get_msg_status")
+    Call<ResponseGetChatHistory> checkMessageStatus(@Body RequestChatMsgStatus req);
 
     @POST("fastchat/status_check")
     Call<ResponseBody> checkStatus(@Body RequestChatStatus req);

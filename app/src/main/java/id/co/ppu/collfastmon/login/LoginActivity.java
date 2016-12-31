@@ -296,7 +296,7 @@ public class LoginActivity extends BasicActivity {
                     if (mProgressDialog.isShowing())
                         mProgressDialog.dismiss();
 
-                    Utility.throwableHandler(LoginActivity.this, throwable);
+                    Utility.throwableHandler(LoginActivity.this, throwable, true);
                 }
 
                 @Override
@@ -330,11 +330,14 @@ public class LoginActivity extends BasicActivity {
     }
 
     private void attemptLogin() throws Exception {
+        /*
+        disabled due to complaints
         Date sysDate = new Date();
         if (sysDate.after(Utility.convertStringToDate(Utility.DATE_EXPIRED_YYYYMMDD, "yyyyMMdd"))) {
             Utility.showDialog(this, "Expired App", "This application version is expired. Please update from the latest");
 //            return;
         }
+        */
 
         // Reset errors.
         mUserNameView.setError(null);

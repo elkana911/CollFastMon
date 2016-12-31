@@ -47,7 +47,6 @@
     <item android:title="Communicate">
         <menu>
             <item
-                android:visible="false"
                 android:id="@+id/nav_chats"
                 android:icon="@drawable/ic_forum_black_24dp"
                 android:title="Chats" />
