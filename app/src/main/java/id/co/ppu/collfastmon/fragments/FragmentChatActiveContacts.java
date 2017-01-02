@@ -87,7 +87,7 @@ public class FragmentChatActiveContacts extends Fragment {
             @Override
             public void onSuccess(final List<TrnChatContact> list) {
 
-                if (list != null) {
+                if (list != null && realm != null) {
                     realm.executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
@@ -98,8 +98,9 @@ public class FragmentChatActiveContacts extends Fragment {
                     });
 
                     tvSeparator.setText(list.size() + " CONTACTS");
-                } else
-                    tvSeparator.setText("NO CONTACTS");
+                }
+//                else
+//                    tvSeparator.setText("NO CONTACTS");
 
             }
 
@@ -128,8 +129,8 @@ public class FragmentChatActiveContacts extends Fragment {
         caller.isOffline(etChatCollCode.getText().toString(), new OnSuccessError() {
             @Override
             public void onSuccess(String msg) {
-                if (listAdapter != null)
-                    listAdapter.notifyDataSetChanged();
+//                if (listAdapter != null)
+//                    listAdapter.notifyDataSetChanged();
 
             }
 
@@ -157,7 +158,7 @@ public class FragmentChatActiveContacts extends Fragment {
         caller.onLogoff(etChatCollCode.getText().toString(), new OnSuccessError() {
             @Override
             public void onSuccess(String msg) {
-                listAdapter.notifyDataSetChanged();
+//                listAdapter.notifyDataSetChanged();
 
                 isOnline = false;
             }

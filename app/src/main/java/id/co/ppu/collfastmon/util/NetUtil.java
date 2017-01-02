@@ -2,6 +2,7 @@ package id.co.ppu.collfastmon.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import id.co.ppu.collfastmon.rest.ServiceGenerator;
 import id.co.ppu.collfastmon.rest.request.RequestLogError;
 import id.co.ppu.collfastmon.rest.request.RequestSyncLocation;
 import id.co.ppu.collfastmon.rest.request.chat.RequestChatContacts;
+import id.co.ppu.collfastmon.rest.request.chat.RequestChatMsg;
 import id.co.ppu.collfastmon.rest.request.chat.RequestChatStatus;
 import id.co.ppu.collfastmon.rest.response.chat.ResponseGetOnlineContacts;
 import io.realm.Realm;
@@ -540,6 +542,115 @@ dangerous code
             }
         });
 
+    }
+
+    public static void chatSendQueueMessage(final Context ctx) {
+        if (Utility.isScreenOff(ctx) || !NetUtil.isConnected(ctx))
+            return;
+
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                // Do something here on the main thread
+                final Realm r = Realm.getDefaultInstance();
+                try{
+
+                    // 1. check transmitting data
+                    final RealmResults<TrnChatMsg> anyTransmittingData = r.where(TrnChatMsg.class)
+                            .equalTo("messageStatus", ConstChat.MESSAGE_STATUS_TRANSMITTING)
+                            .findAll();
+
+                    if (anyTransmittingData.size() > 0) {
+//                Log.d(TAG, "There are " + anyTransmittingData.size() + " chats transmitting");
+                        // wait until all chats sent to server
+                        // if 5 minutes expired will be reset to unopened or firsttime
+                        r.executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+                                for (TrnChatMsg _obj : anyTransmittingData) {
+                                    long minutesAge = Utility.getMinutesDiff(_obj.getCreatedTimestamp(), new Date());
+
+                                    if (minutesAge > 5) {
+                                        _obj.setMessageStatus(ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME);
+                                    }
+                                }
+                                // no need to do this
+//                            realm.copyToRealmOrUpdate(anyTransmittingData);
+                            }
+                        });
+                        return;
+                    }
+
+                    // 2. check pending message
+                    final RealmResults<TrnChatMsg> pendings = r.where(TrnChatMsg.class)
+                            .equalTo("messageStatus", ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME)
+                            .findAll();
+
+                    if (pendings.size() > 0) {
+                        r.executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+                                for (TrnChatMsg _obj : pendings) {
+                                    _obj.setMessageStatus(ConstChat.MESSAGE_STATUS_TRANSMITTING);
+                                }
+                            }
+                        });
+
+                        final RequestChatMsg req = new RequestChatMsg();
+                        req.setMsg(r.copyFromRealm(pendings));
+
+                        Call<ResponseBody> call = Storage.getAPIService(ctx).sendMessages(req);
+                        // ga boleh call.enqueue krn bisa hilang dr memory utk variable2 di atas
+                        try {
+                            Response<ResponseBody> execute = call.execute();
+
+                            if (!execute.isSuccessful()) {
+                                r.executeTransaction(new Realm.Transaction() {
+                                    @Override
+                                    public void execute(Realm realm) {
+                                        for (TrnChatMsg _obj : pendings) {
+                                            _obj.setMessageStatus(ConstChat.MESSAGE_STATUS_FAILED);
+                                        }
+                                    }
+                                });
+
+                                return;
+                            }
+
+                            final ResponseBody resp = execute.body();
+
+                            try {
+                                String msgStatus = resp.string();
+
+//                        Log.d(TAG, "msgStatus = " + msgStatus);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    for (TrnChatMsg msg : pendings) {
+                                        msg.setMessageStatus(ConstChat.MESSAGE_STATUS_SERVER_RECEIVED);
+                                    }
+
+                                }
+                            });
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Utility.throwableHandler(ctx, e, false);
+                        }
+
+                    }
+
+                }finally{
+                    if (r != null)
+                        r.close();
+                }
+
+            }
+        });
     }
 
 }

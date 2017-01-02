@@ -1,12 +1,14 @@
 package id.co.ppu.collfastmon.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import co.moonmonkeylabs.realmrecyclerview.RealmRecyclerView;
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
 import id.co.ppu.collfastmon.util.ConstChat;
+import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
 import io.realm.RealmBasedRecyclerViewAdapter;
@@ -152,8 +155,11 @@ public class FragmentChatWith extends Fragment {
 //        int lastRow = listAdapter.getItemCount();
 //        chats.scrollToPosition(lastRow);
 //        chats.scrollToPosition(listAdapter.getItemCount());
+        scrollToLast();
 
         etMsg.requestFocus();
+
+        NetUtil.chatSendQueueMessage(getActivity());
     }
 
     @Override
@@ -204,6 +210,34 @@ public class FragmentChatWith extends Fragment {
 //                chats.scrollToPosition(chats.getAdapter().getItemCount() - 1);
 //            }
 //        }, 1000);
+
+    }
+
+    public void clearChat() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setTitle("Clear Chats");
+        alertDialogBuilder.setMessage("Are you sure?");
+        //null should be your on click listener
+        alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (caller == null)
+                    return;
+
+                caller.onClearChatHistory(userCode1, userCode2);
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alertDialogBuilder.show();
 
     }
 
@@ -348,6 +382,7 @@ public class FragmentChatWith extends Fragment {
     }
 
     public interface OnChatWithListener {
+        int onClearChatHistory(String collCode1, String collCode2);
         void onGetChatHistory(String collCode1, String collCode2);
     }
 

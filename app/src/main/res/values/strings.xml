@@ -39,6 +39,7 @@
     <string name="action_task_log">Task Log</string>
     <string name="action_reopen_batch">Reopen Batch</string>
     <string name="action_gps_log">GPS Log</string>
+    <string name="action_clear_chats">Clear Chats</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
