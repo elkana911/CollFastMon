@@ -639,7 +639,7 @@ dangerous code
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Utility.throwableHandler(ctx, e, false);
+//                            Utility.throwableHandler(ctx, e, false);
                         }
 
                     }

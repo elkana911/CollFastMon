@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -11,7 +12,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -370,7 +373,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
         final String key_uid = intent.getStringExtra(ConstChat.KEY_UID);
         final String key_msg = intent.getStringExtra(ConstChat.KEY_MESSAGE);
         final String key_status = intent.getStringExtra(ConstChat.KEY_STATUS);
-        final String key_seqno = intent.getStringExtra(ConstChat.KEY_SEQNO);
+//        final String key_seqno = intent.getStringExtra(ConstChat.KEY_SEQNO);
         final String key_timestamp = intent.getStringExtra(ConstChat.KEY_TIMESTAMP);
 
         Log.e(TAG, "chatFrom:" + key_from + "\nchatMessage:" + key_msg + "\nchatUid: " + key_uid);
@@ -394,7 +397,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                         if (msg == null) {
                             msg = new TrnChatMsg();
                             msg.setUid(key_uid);
-                            msg.setSeqNo(Long.parseLong(key_seqno));
+//                            msg.setSeqNo(Long.parseLong(key_seqno));
 
                             msg.setFromCollCode(key_from);
                             msg.setToCollCode(userCode);
@@ -536,6 +539,11 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
                     }
                 });
+            } else {
+                String val1 = userCode;
+                String val2 = contact.getCollCode();
+
+                onContactSelected(contact);
             }
 
         } else if (frag instanceof FragmentChatWith) {
@@ -577,6 +585,12 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_chat, menu);
+
+        Drawable drawableTaskLog = menu.findItem(R.id.action_clear_chat).getIcon();
+        drawableTaskLog = DrawableCompat.wrap(drawableTaskLog);
+        DrawableCompat.setTint(drawableTaskLog, ContextCompat.getColor(this, android.R.color.white));
+        menu.findItem(R.id.action_clear_chat).setIcon(drawableTaskLog);
+
         return true;
     }
 
@@ -739,14 +753,25 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
         Realm r = Realm.getDefaultInstance();
         try {
-            Number max = r.where(TrnChatMsg.class).max("seqNo");
+            RealmQuery<TrnChatMsg> group = r.where(TrnChatMsg.class)
+                    .beginGroup()
+                    .equalTo("fromCollCode", fragment.userCode1)
+                    .equalTo("toCollCode", fragment.userCode2)
+                    .endGroup()
+                    .or()
+                    .beginGroup()
+                    .equalTo("fromCollCode", fragment.userCode2)
+                    .equalTo("toCollCode", fragment.userCode1)
+                    .endGroup();
+/*
+            Number max = group.max("seqNo");
 
             long maxL = 0;
             if (max != null)
                 maxL = max.longValue() + 10L;
 
             msg.setSeqNo(maxL);
-
+*/
             r.beginTransaction();
             r.copyToRealm(msg);
             r.commitTransaction();
@@ -998,9 +1023,11 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
         }
 
+        TrnChatMsg lastMsg = null;
 
-
-        TrnChatMsg lastMsg = group.findAllSorted("seqNo").last();
+        if (group.findAll().size() > 0) {
+            lastMsg = group.findAllSorted("createdTimestamp").last();
+        }
 
         // 2. get last message
         RequestGetChatHistory req = new RequestGetChatHistory();
@@ -1056,7 +1083,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                                 header.setMessageType(ConstChat.MESSAGE_TYPE_TIMESTAMP);
                                 header.setMessageStatus(ConstChat.MESSAGE_STATUS_READ_AND_OPENED);
 
-                                header.setSeqNo(obj.getSeqNo() - 5L);
+//                                header.setSeqNo(obj.getSeqNo() - 5L);
                                 header.setMessage(Utility.convertDateToString(lastDate, "EEE, d MMM yyyy"));
 
                                 list.add(header);
@@ -1076,7 +1103,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                                 header.setMessageType(ConstChat.MESSAGE_TYPE_TIMESTAMP);
                                 header.setMessageStatus(ConstChat.MESSAGE_STATUS_READ_AND_OPENED);
 
-                                header.setSeqNo(obj.getSeqNo() - 5L);
+//                                header.setSeqNo(obj.getSeqNo() - 5L);
                                 header.setMessage(Utility.convertDateToString(lastDate, "EEE, d MMM yyyy"));
 
                                 list.add(header);

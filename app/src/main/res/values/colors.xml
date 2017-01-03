@@ -20,4 +20,20 @@
         <color name="colorPrimaryDark">#303F9F</color>
     -->
     <color name="colorAccent">#FF4081</color>
+
+    <color name="chatContact1">#303291</color>
+    <color name="chatContact2">#73233e</color>
+    <color name="chatContact3">#277283</color>
+    <color name="chatContact4">#a63e61</color>
+    <color name="chatContact5">#93303d</color>
+    <color name="chatContact6">#913428</color>
+    <color name="chatContact7">#945022</color>
+    <color name="chatContact8">#795e23</color>
+    <color name="chatContact9">#83802b</color>
+    <color name="chatContact10">#668637</color>
+    <color name="chatContact11">#457e2b</color>
+    <color name="chatContact12">#418122</color>
+    <color name="chatContact13">#1c6b33</color>
+    <color name="chatContact14">#0e742b</color>
+    <color name="chatContact15">#0f6b34</color>
 </resources>

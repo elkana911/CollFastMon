@@ -2,12 +2,16 @@ package id.co.ppu.collfastmon.fragments;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +33,7 @@ import id.co.ppu.collfastmon.component.RealmSearchView;
 import id.co.ppu.collfastmon.listener.OnGetChatContactListener;
 import id.co.ppu.collfastmon.listener.OnSuccessError;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatContact;
+import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 
@@ -117,8 +122,12 @@ public class FragmentChatActiveContacts extends Fragment {
     }
 
     private void showSnackbar(String msg) {
-        Snackbar.make(getActivity().findViewById(android.R.id.content),
-                msg, Snackbar.LENGTH_LONG).show();
+        try {
+            Snackbar.make(getActivity().findViewById(android.R.id.content),
+                    msg, Snackbar.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @OnClick(R.id.btnIsOffline)
@@ -323,6 +332,52 @@ public class FragmentChatActiveContacts extends Fragment {
 
             TextView tvStatus = dataViewHolder.tvStatus;
             tvStatus.setText(detail.getStatusMsg());
+
+            TextView tvContactShortName = dataViewHolder.tvContactShortName;
+            tvContactShortName.setText(Utility.getFirstTwoChars(detail.getNickName()));
+
+            // http://stackoverflow.com/questions/17823451/set-android-shape-color-programmatically
+            Drawable background = tvContactShortName.getBackground();
+            if (background instanceof GradientDrawable) {
+                // cast to 'ShapeDrawable'
+                GradientDrawable shapeDrawable = (GradientDrawable) background;
+
+                position %= 15;
+
+                int resColor = R.color.chatContact1;
+
+                if (position == 1)
+                    resColor = R.color.chatContact2;
+                else if (position == 2)
+                    resColor = R.color.chatContact3;
+                else if (position == 3)
+                    resColor = R.color.chatContact4;
+                else if (position == 4)
+                    resColor = R.color.chatContact5;
+                else if (position == 5)
+                    resColor = R.color.chatContact6;
+                else if (position == 6)
+                    resColor = R.color.chatContact7;
+                else if (position == 7)
+                    resColor = R.color.chatContact8;
+                else if (position == 8)
+                    resColor = R.color.chatContact9;
+                else if (position == 9)
+                    resColor = R.color.chatContact10;
+                else if (position == 10)
+                    resColor = R.color.chatContact11;
+                else if (position == 11)
+                    resColor = R.color.chatContact12;
+                else if (position == 12)
+                    resColor = R.color.chatContact13;
+                else if (position == 13)
+                    resColor = R.color.chatContact14;
+                else if (position == 14)
+                    resColor = R.color.chatContact15;
+
+                shapeDrawable.setColor(ContextCompat.getColor(getContext(), resColor));
+            }
+
         }
 
         public class DataViewHolder extends RealmSearchViewHolder {
@@ -340,6 +395,9 @@ public class FragmentChatActiveContacts extends Fragment {
 
             @BindView(R.id.tvStatus)
             TextView tvStatus;
+
+            @BindView(R.id.tvContactShortName)
+            TextView tvContactShortName;
 
             public DataViewHolder(FrameLayout container) {
                 super(container);

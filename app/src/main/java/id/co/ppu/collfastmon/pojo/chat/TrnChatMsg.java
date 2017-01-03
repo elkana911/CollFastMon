@@ -20,8 +20,8 @@ public class TrnChatMsg extends RealmObject implements Serializable {
 
     // increment by 10, so someone may insert between it
     // maybe duplicates. be careful
-    @SerializedName("seqNo")
-    private Long seqNo;
+//    @SerializedName("seqNo")
+//    private Long seqNo;
 
     @SerializedName("fromCollCode")
     private String fromCollCode;
@@ -51,12 +51,17 @@ public class TrnChatMsg extends RealmObject implements Serializable {
         this.uid = uid;
     }
 
-    public Long getSeqNo() {
-        return seqNo;
-    }
-
-    public void setSeqNo(Long seqNo) {
-        this.seqNo = seqNo;
+    @Override
+    public String toString() {
+        return "TrnChatMsg{" +
+                "uid='" + uid + '\'' +
+                ", fromCollCode='" + fromCollCode + '\'' +
+                ", toCollCode='" + toCollCode + '\'' +
+                ", message='" + message + '\'' +
+                ", messageType='" + messageType + '\'' +
+                ", messageStatus='" + messageStatus + '\'' +
+                ", createdTimestamp=" + createdTimestamp +
+                '}';
     }
 
     public String getFromCollCode() {
@@ -107,18 +112,5 @@ public class TrnChatMsg extends RealmObject implements Serializable {
         this.messageStatus = messageStatus;
     }
 
-    @Override
-    public String toString() {
-        return "TrnChatMsg{" +
-                "uid='" + uid + '\'' +
-                ", seqNo=" + seqNo +
-                ", fromCollCode='" + fromCollCode + '\'' +
-                ", toCollCode='" + toCollCode + '\'' +
-                ", message='" + message + '\'' +
-                ", messageType='" + messageType + '\'' +
-                ", messageStatus='" + messageStatus + '\'' +
-                ", createdTimestamp=" + createdTimestamp +
-                '}';
-    }
 }
 

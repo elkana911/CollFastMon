@@ -25,7 +25,7 @@ public class ConstChat {
     public static final String KEY_FROM = "key_from";
     public static final String KEY_UID = "key_uid";
     public static final String KEY_STATUS = "key_status";
-    public static final String KEY_SEQNO = "key_seqno";
+//    public static final String KEY_SEQNO = "key_seqno";
     public static final String KEY_TIMESTAMP = "key_timestamp";
     public static final String KEY_MESSAGE = "key_message";
 

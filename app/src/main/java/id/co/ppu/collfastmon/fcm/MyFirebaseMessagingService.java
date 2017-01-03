@@ -43,7 +43,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 String key_uid = remoteMessage.getData().get(ConstChat.KEY_UID);
                 String key_msg = remoteMessage.getData().get(ConstChat.KEY_MESSAGE);
                 String key_status = remoteMessage.getData().get(ConstChat.KEY_STATUS);
-                String key_seqno = remoteMessage.getData().get(ConstChat.KEY_SEQNO);
+//                String key_seqno = remoteMessage.getData().get(ConstChat.KEY_SEQNO);
                 String key_timestamp = remoteMessage.getData().get(ConstChat.KEY_TIMESTAMP);
 
                 pushNotification.putExtra(ConstChat.KEY_FROM, key_from);
@@ -53,7 +53,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 pushNotification.putExtra(ConstChat.KEY_MESSAGE, key_msg);
                 pushNotification.putExtra(ConstChat.KEY_STATUS, key_status);
-                pushNotification.putExtra(ConstChat.KEY_SEQNO, key_seqno);
+//                pushNotification.putExtra(ConstChat.KEY_SEQNO, key_seqno);
                 pushNotification.putExtra(ConstChat.KEY_TIMESTAMP, key_timestamp);
 
             }

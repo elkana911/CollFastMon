@@ -82,6 +82,9 @@ public interface ApiInterface {
     @GET("fastchat/get_msg")
     Call<ResponseGetChatHistory> getMessage(@Query("uid") String uid);
 
+    @GET("fastchat/get_latest_msg")
+    Call<ResponseGetChatHistory> getLatestMessage(@Query("user1") String user1, @Query("user2") String user2);
+
     /**
      * When user open app, the previous messages wont update, so this function will check the selected messages.
      * in return, a message will contain UID and messageStatus only. The remaining fields will be empty to save bandwidth

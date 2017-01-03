@@ -286,7 +286,7 @@ public class MainActivity extends BasicActivity
                     String key_uid = intent.getStringExtra(ConstChat.KEY_UID);
                     String key_msg = intent.getStringExtra(ConstChat.KEY_MESSAGE);
                     String key_status = intent.getStringExtra(ConstChat.KEY_STATUS);
-                    String key_seqno = intent.getStringExtra(ConstChat.KEY_SEQNO);
+//                    String key_seqno = intent.getStringExtra(ConstChat.KEY_SEQNO);
                     String key_timestamp = intent.getStringExtra(ConstChat.KEY_TIMESTAMP);
 
                     Log.e(TAG, "chatFrom:" + key_from + "\nchatMessage:" + key_msg);

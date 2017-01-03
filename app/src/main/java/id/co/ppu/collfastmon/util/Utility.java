@@ -544,4 +544,33 @@ public class Utility {
             return !pm.isScreenOn();
     }
 
+    public static boolean isAlpha(String name) {
+        return name.matches("[a-zA-Z]+");
+    }
+
+    public static String getFirstTwoChars(String fullName){
+
+        if (TextUtils.isEmpty(fullName))
+            return "?";
+
+        String firstTwoChars = fullName.substring(0, 1);
+
+        String words[] = fullName.split(" ", -1);
+        for (String word : words){
+            if (word.length() > 1){
+
+                if (!isAlpha(word)){
+                    continue;
+
+                } else {
+                    firstTwoChars = word.substring(0,  2);
+                    break;
+
+                }
+            }
+        }
+
+        return firstTwoChars;
+
+    }
 }
