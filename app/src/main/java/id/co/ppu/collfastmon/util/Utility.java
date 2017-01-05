@@ -390,6 +390,21 @@ public class Utility {
         return min;
     }
 
+    public static Date addDays(Date startFrom, int days) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startFrom);
+        cal.add(Calendar.DAY_OF_YEAR, days); // <--
+        return cal.getTime();
+    }
+
+    public static Date addMilliseconds(Date startFrom, int ms) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startFrom);
+        cal.add(Calendar.MILLISECOND, ms); // <--
+        return cal.getTime();
+    }
+
+
     public static boolean isEmailValid(String email) {
         return email.contains("@");
     }
@@ -510,9 +525,7 @@ public class Utility {
                 sb.append(",").append("gpsEnabled=").append(gps_enabled);
                 sb.append(",").append("networkEnabled=").append(network_enabled);
 
-                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-                String langId = sharedPrefs.getString("language", "x"); //id / en
-                sb.append(",").append("language=").append(langId);
+                sb.append(",").append("language=").append(Storage.getLanguageId(ctx));
             }
 
 

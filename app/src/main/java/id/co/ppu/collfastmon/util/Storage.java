@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -169,6 +170,14 @@ public class Storage {
     public static ApiInterface getAPIService(Context ctx) {
         return
                 ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(ctx.getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
+    }
+
+    public static String getLanguageId(Context ctx) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        String langId = sharedPrefs.getString("language", "x"); //id / en
+
+        return langId;
+
     }
 
 

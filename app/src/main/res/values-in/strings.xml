@@ -2,7 +2,12 @@
     <string name="app_name">Radana Collection Monitoring</string>
     <string name="app_name_short">RCM</string>
 
+    <string name="prompt_quit">Yakin keluar dari aplikasi ?</string>
+
     <!-- Strings related to login -->
     <string name="prompt_password">Kata Kunci</string>
+    <string name="action_sign_in_short">Masuk</string>
+
+    <string name="language">Bahasa</string>
 
 </resources>

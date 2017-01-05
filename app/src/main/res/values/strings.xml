@@ -5,6 +5,8 @@
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_quit">Are you sure to quit ?</string>
+
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -45,7 +47,17 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
+    <!-- Strings related to Settings -->
+    <string name="language">Language</string>
     <string name="pref_header_general">General</string>
+    <string-array name="pref_language_list">
+        <item>English</item>
+        <item>Bahasa Indonesia</item>
+    </string-array>
+    <string-array name="pref_language_values">
+        <item>en</item>
+        <item>id</item>
+    </string-array>
 
     <string name="pref_title_show_unassigned">Show Unassigned</string>
     <string name="pref_description_show_unassigned">Display all collectors

@@ -19,6 +19,8 @@ public class ConstChat {
     public static final String MESSAGE_STATUS_SERVER_RECEIVED = "1";
     public static final String MESSAGE_STATUS_DELIVERED = "2";
     public static final String MESSAGE_STATUS_READ_AND_OPENED = "3";
+    // lbh tepatnya di censor oleh server. bukan berarti user bisa menghapus
+    public static final String MESSAGE_STATUS_DELETED = "4";
     public static final String MESSAGE_STATUS_TRANSMITTING = "8";
     public static final String MESSAGE_STATUS_ALL_READ_AND_OPENED = "9";
 

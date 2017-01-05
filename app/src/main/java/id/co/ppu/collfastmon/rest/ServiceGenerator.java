@@ -48,6 +48,10 @@ public class ServiceGenerator {
             final String basic =
                     "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
 
+            // fix stackoverflowerror
+            if (!httpClient.interceptors().isEmpty())
+                httpClient.interceptors().clear();
+
             httpClient.addInterceptor(new Interceptor() {
                 @Override
                 public Response intercept(Chain chain) throws IOException {

@@ -52,6 +52,8 @@ public class BasicActivity extends AppCompatActivity {
 
         this.realm = Realm.getDefaultInstance();
 
+        changeLocale(Storage.getLanguageId(this));
+
     }
 
     @Override
@@ -185,6 +187,7 @@ public class BasicActivity extends AppCompatActivity {
         return Storage.getAndroidToken(this);
     }
 
+    //http://www.sureshjoshi.com/mobile/changing-android-locale-programmatically/
     protected boolean changeLocale(String language) {
         Locale locale = new Locale(language);
         Locale.setDefault(locale);
