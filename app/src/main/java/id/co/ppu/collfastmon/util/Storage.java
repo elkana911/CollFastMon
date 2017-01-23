@@ -37,6 +37,8 @@ public class Storage {
     public static final String KEY_LOGIN_DATE = "login.date";
     public static final String KEY_LOGOUT_DATE = "logout.date";
     public static final String KEY_ANDROID_ID = "android.id";
+    public static final String KEY_SERVER_DEV_IP = "server.dev.ip";
+    public static final String KEY_SERVER_DEV_PORT = "server.dev.port";
 
     public static final String KEY_PREF_GENERAL_SHOWALL_COLL = "collectors.all";
 

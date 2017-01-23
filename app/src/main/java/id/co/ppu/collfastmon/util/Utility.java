@@ -45,13 +45,17 @@ public class Utility {
     public final static boolean developerMode = true;
 
     public final static String DATE_EXPIRED_YYYYMMDD = developerMode ? "20171225" : "20421231"; // 20 years
-    public final static String[][] servers = {
+    public final static String SERVER_DEV_NAME = "dev-fast-mobile";
+    public final static String SERVER_DEV_IP = "202.51.118.70";
+    public final static String SERVER_DEV_PORT = "7002";
+
+    public static String[][] servers = {
 //            {"local-server", "10.212.0.71", "8090"}
 //            {"local-server", "192.168.10.109", "8090"}   // kelapa gading
 //            {"local-server", "192.168.43.125", "8090"}   // samsung mega
             {"local-server", "192.168.1.107", "8090"}
 //            {"local-server", "192.168.0.8", "8090"}    // faraday
-            ,{"dev-fast-mobile", "cmobile.radanafinance.co.id", "7001"}
+            ,{SERVER_DEV_NAME, SERVER_DEV_IP, SERVER_DEV_PORT}
             ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}
     };
@@ -150,6 +154,8 @@ public class Utility {
     public static void throwableHandler(Context ctx, Throwable throwable, boolean dialog) {
         if (throwable == null)
             return;
+
+        throwable.printStackTrace();
 
         if (throwable instanceof ExpiredException) {
             if (dialog)

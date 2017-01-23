@@ -36,21 +36,24 @@ public class ServiceGenerator {
 //    public static final String API_BASE_URL = "http://3r1c-e3e6e83ce9:8090/"; ga bisa ga tau knp
 //    public static final String API_BASE_URL = "http://192.168.0.5:8090/";
 
-    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+    // probably stackoverflowerror. moved to local
+//    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
     public static <S> S createService(Class<S> serviceClass, HttpUrl host) {
         return createService(serviceClass, host, SERVER_USERNAME, SERVER_PWD);
     }
 
     public static <S> S createService(Class<S> serviceClass, HttpUrl host, String username, String password) {
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
         if (username != null && password != null) {
             String credentials = username + ":" + password;
             final String basic =
                     "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
 
             // fix stackoverflowerror
-            if (!httpClient.interceptors().isEmpty())
-                httpClient.interceptors().clear();
+//            if (!httpClient.interceptors().isEmpty())
+//                httpClient.interceptors().clear();
 
             httpClient.addInterceptor(new Interceptor() {
                 @Override

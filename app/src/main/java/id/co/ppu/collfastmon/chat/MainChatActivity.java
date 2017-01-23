@@ -48,6 +48,7 @@ import id.co.ppu.collfastmon.rest.request.chat.RequestChatStatus;
 import id.co.ppu.collfastmon.rest.request.chat.RequestGetChatHistory;
 import id.co.ppu.collfastmon.rest.response.chat.ResponseGetChatHistory;
 import id.co.ppu.collfastmon.util.ConstChat;
+import id.co.ppu.collfastmon.util.DataUtil;
 import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.NotificationUtils;
 import id.co.ppu.collfastmon.util.Utility;
@@ -349,12 +350,27 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
         ft.replace(R.id.content_frame, fr);
         ft.commit();
 
-        this.realm.addChangeListener(new RealmChangeListener<Realm>() {
-            @Override
-            public void onChange(Realm element) {
-                NetUtil.chatSendQueueMessage(MainChatActivity.this);
-            }
-        });
+//        this.realm.addChangeListener(new RealmChangeListener<Realm>() {
+//            @Override
+//            public void onChange(Realm element) {
+//                NetUtil.chatSendQueueMessage(MainChatActivity.this);
+//            }
+//        });
+
+    }
+
+    @Override
+    protected void onRealmChangeListener() {
+        super.onRealmChangeListener();
+
+        final Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+
+        if (frag == null)
+            return;
+
+        if (frag instanceof FragmentChatWith) {
+            NetUtil.chatSendQueueMessage(this);
+        }
 
     }
 
@@ -753,16 +769,8 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
         Realm r = Realm.getDefaultInstance();
         try {
-            RealmQuery<TrnChatMsg> group = r.where(TrnChatMsg.class)
-                    .beginGroup()
-                    .equalTo("fromCollCode", fragment.userCode1)
-                    .equalTo("toCollCode", fragment.userCode2)
-                    .endGroup()
-                    .or()
-                    .beginGroup()
-                    .equalTo("fromCollCode", fragment.userCode2)
-                    .equalTo("toCollCode", fragment.userCode1)
-                    .endGroup();
+            RealmQuery<TrnChatMsg> group = DataUtil.queryChatMsg(r, fragment.userCode1, fragment.userCode2);
+
 /*
             Number max = group.max("seqNo");
 
@@ -938,17 +946,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
     @Override
     public int onClearChatHistory(String collCode1, String collCode2) {
-        RealmResults<TrnChatMsg> all = this.realm.where(TrnChatMsg.class)
-                .beginGroup()
-                .equalTo("fromCollCode", collCode1)
-                .equalTo("toCollCode", collCode2)
-                .endGroup()
-                .or()
-                .beginGroup()
-                .equalTo("fromCollCode", collCode2)
-                .equalTo("toCollCode", collCode1)
-                .endGroup()
-                .findAll();
+        RealmResults<TrnChatMsg> all = DataUtil.queryChatMsg(this.realm, collCode1, collCode2).findAll();
 
         int rows = all.size();
 
@@ -965,16 +963,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
             return;
         }
 
-        RealmQuery<TrnChatMsg> group = this.realm.where(TrnChatMsg.class)
-                .beginGroup()
-                .equalTo("fromCollCode", collCode1)
-                .equalTo("toCollCode", collCode2)
-                .endGroup()
-                .or()
-                .beginGroup()
-                .equalTo("fromCollCode", collCode2)
-                .equalTo("toCollCode", collCode1)
-                .endGroup();
+        RealmQuery<TrnChatMsg> group = DataUtil.queryChatMsg(this.realm, collCode1, collCode2);
 
         // 1. check / refresh last MESSAGE_STATUS_SERVER_RECEIVED chats
         final RealmResults<TrnChatMsg> legacyChats = group.equalTo("messageStatus", ConstChat.MESSAGE_STATUS_SERVER_RECEIVED).findAll();
@@ -1114,6 +1103,8 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
                             } else
                                 list.add(obj);
                         }
+
+                        DataUtil.queryChatMsg(realm, collCode1, collCode2).findAll().deleteAllFromRealm();
 
                         realm.copyToRealmOrUpdate(list);
                     }

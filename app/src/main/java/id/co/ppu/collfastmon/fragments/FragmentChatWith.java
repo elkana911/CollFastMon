@@ -25,6 +25,7 @@ import co.moonmonkeylabs.realmrecyclerview.RealmRecyclerView;
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
 import id.co.ppu.collfastmon.util.ConstChat;
+import id.co.ppu.collfastmon.util.DataUtil;
 import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
@@ -119,17 +120,7 @@ public class FragmentChatWith extends Fragment {
 
         if (listAdapter == null) {
 
-            RealmResults<TrnChatMsg> realmResults =
-                    realm.where(TrnChatMsg.class)
-                            .beginGroup()
-                            .equalTo("fromCollCode", this.userCode1)
-                            .equalTo("toCollCode", this.userCode2)
-                            .endGroup()
-                            .or()
-                            .beginGroup()
-                            .equalTo("fromCollCode", this.userCode2)
-                            .equalTo("toCollCode", this.userCode1)
-                            .endGroup()
+            RealmResults<TrnChatMsg> realmResults = DataUtil.queryChatMsg(realm, this.userCode1, this.userCode2)
                             .findAllSorted("createdTimestamp");
 
             // dibutuhkan listener ini spy kalo sudah terkirim ke server langsung update tampilan
@@ -184,17 +175,7 @@ public class FragmentChatWith extends Fragment {
 
     public void scrollToLast() {
 
-        RealmResults<TrnChatMsg> realmResults =
-                realm.where(TrnChatMsg.class)
-                        .beginGroup()
-                        .equalTo("fromCollCode", this.userCode1)
-                        .equalTo("toCollCode", this.userCode2)
-                        .endGroup()
-                        .or()
-                        .beginGroup()
-                        .equalTo("fromCollCode", this.userCode2)
-                        .equalTo("toCollCode", this.userCode1)
-                        .endGroup()
+        RealmResults<TrnChatMsg> realmResults = DataUtil.queryChatMsg(realm, this.userCode1, this.userCode2)
                         .findAllSorted("createdTimestamp");
 
         int rows = realmResults.size() - 1;

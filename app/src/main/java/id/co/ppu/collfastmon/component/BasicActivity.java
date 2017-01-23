@@ -37,6 +37,7 @@ import id.co.ppu.collfastmon.settings.SettingsActivity;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 
 /**
@@ -46,11 +47,22 @@ public class BasicActivity extends AppCompatActivity {
 
     protected Realm realm;
 
+    protected void onRealmChangeListener() {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.realm = Realm.getDefaultInstance();
+
+        this.realm.addChangeListener(new RealmChangeListener<Realm>() {
+            @Override
+            public void onChange(Realm element) {
+                onRealmChangeListener();
+            }
+        });
 
         changeLocale(Storage.getLanguageId(this));
 

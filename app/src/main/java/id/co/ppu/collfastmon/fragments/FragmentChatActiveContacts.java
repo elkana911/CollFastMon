@@ -140,7 +140,7 @@ public class FragmentChatActiveContacts extends Fragment {
             public void onSuccess(String msg) {
 //                if (listAdapter != null)
 //                    listAdapter.notifyDataSetChanged();
-
+//                    getGroupContacts();
             }
 
             @Override

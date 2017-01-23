@@ -42,7 +42,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_username"
-                    android:maxLines="1"/>
+                    android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -61,8 +61,7 @@
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
-                    android:maxLines="1"
-                    />
+                    android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -86,6 +85,7 @@
                     android:layout_weight="0.5"
                     android:text="@string/action_register"
                     android:visibility="gone" />
+
                 <Button
                     android:id="@+id/btnGetLKPUser"
                     style="@style/Widget.AppCompat.Button.Borderless"
@@ -108,8 +108,44 @@
             <Spinner
                 android:id="@+id/spServers"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/llServerDev"
+                android:visibility="gone"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etServerDevIP"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7"
+                    android:hint="@string/prompt_server_ip"
+                    android:maxLines="1">
+
+                </EditText>
+
+                <EditText
+                    android:id="@+id/etServerDevPort"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:hint="@string/prompt_server_port"
+                    android:maxLines="1">
+
+                </EditText>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="end"
+                android:text="v1.1"
+                android:id="@+id/tvVersion"/>
 
         </LinearLayout>
     </ScrollView>

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 
+import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
 import id.co.ppu.collfastmon.pojo.master.MstDelqReasons;
 import id.co.ppu.collfastmon.pojo.master.MstLDVClassifications;
 import id.co.ppu.collfastmon.pojo.master.MstLDVParameters;
@@ -24,6 +25,7 @@ import id.co.ppu.collfastmon.rest.response.ResponseGetMasterData;
 import id.co.ppu.collfastmon.rest.response.ResponseGetMasterMonData;
 import io.realm.Realm;
 import io.realm.RealmModel;
+import io.realm.RealmQuery;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -240,5 +242,23 @@ public class DataUtil {
         });
 
     }
+
+    public static RealmQuery<TrnChatMsg> queryChatMsg(Realm r, String user1, String user2) {
+
+        RealmQuery<TrnChatMsg> group = r.where(TrnChatMsg.class)
+                .beginGroup()
+                .equalTo("fromCollCode", user1)
+                .equalTo("toCollCode", user2)
+                .endGroup()
+                .or()
+                .beginGroup()
+                .equalTo("fromCollCode", user2)
+                .equalTo("toCollCode", user1)
+                .endGroup();
+
+        return group;
+
+    }
+
 
 }

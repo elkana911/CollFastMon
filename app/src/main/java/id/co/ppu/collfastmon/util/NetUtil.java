@@ -35,6 +35,8 @@ import retrofit2.Response;
  * Created by Eric on 30-Aug-16.
  */
 public class NetUtil {
+
+
     public static boolean isConnected(Context ctx) {
         ConnectivityManager connec = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
 

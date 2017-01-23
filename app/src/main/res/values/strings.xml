@@ -22,6 +22,8 @@
         completions."
     </string>
     <string name="prompt_username">User ID</string>
+    <string name="prompt_server_ip">IP</string>
+    <string name="prompt_server_port">Port</string>
     <string name="remember_pwd">Remember Password</string>
     <string name="action_register">Register</string>
     <string name="error_online_required">This task require internet connection\nMake sure Flight mode is off.</string>
