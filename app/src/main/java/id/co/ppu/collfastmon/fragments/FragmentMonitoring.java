@@ -5,18 +5,13 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -31,7 +26,6 @@ import butterknife.ButterKnife;
 import co.moonmonkeylabs.realmrecyclerview.RealmRecyclerView;
 import co.moonmonkeylabs.realmsearchview.RealmSearchViewHolder;
 import id.co.ppu.collfastmon.R;
-import id.co.ppu.collfastmon.component.DividerItemDecoration;
 import id.co.ppu.collfastmon.pojo.DisplayLDVDetails;
 import id.co.ppu.collfastmon.pojo.LKPDataMonitoring;
 import id.co.ppu.collfastmon.pojo.trn.TrnContractBuckets;
@@ -45,6 +39,7 @@ import id.co.ppu.collfastmon.rest.ServiceGenerator;
 import id.co.ppu.collfastmon.rest.request.RequestLKPByDate;
 import id.co.ppu.collfastmon.rest.response.ResponseGetLKPMonitoring;
 import id.co.ppu.collfastmon.util.DataUtil;
+import id.co.ppu.collfastmon.util.DemoUtil;
 import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
@@ -55,8 +50,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.R.attr.data;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -111,15 +104,13 @@ public class FragmentMonitoring extends Fragment {
         View view = inflater.inflate(R.layout.fragment_activity_mon, container, false);
 
         ButterKnife.bind(this, view);
-
+        
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        realm_recycler_view.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
 
         realm_recycler_view.setOnRefreshListener(
                 new RealmRecyclerView.OnRefreshListener() {
@@ -185,6 +176,7 @@ public class FragmentMonitoring extends Fragment {
                     }
                 }
         );
+
     }
 
     @Override
@@ -239,7 +231,7 @@ public class FragmentMonitoring extends Fragment {
                 .deleteAllFromRealm();
 
         TrnLDVHeader trnLDVHeader = data.getHeader();
-        bgRealm.copyToRealm(trnLDVHeader);
+        bgRealm.copyToRealmOrUpdate(trnLDVHeader);
 
         d = bgRealm.where(TrnLDVDetails.class)
                 .equalTo("pk.ldvNo", trnLDVHeader.getLdvNo())
@@ -378,11 +370,6 @@ public class FragmentMonitoring extends Fragment {
 
     public synchronized void loadListFromServer(final boolean showProgress) {
 
-        if (!NetUtil.isConnected(getActivity())) {
-            loadListFromLocal();
-            return;
-        }
-
         // get value from activity. jgn di onCreateView krn blm
         Bundle extras = getActivity().getIntent().getExtras();
 
@@ -390,26 +377,77 @@ public class FragmentMonitoring extends Fragment {
             return;
         }
 
-        if (showProgress) {
-            realm_recycler_view.setRefreshing(true);
-        }
-
         if (!(getContext() instanceof OnLKPListListener)) {
             return;
         }
 
-        ((OnLKPListListener) getContext()).onStartRefresh();
+        if (showProgress) {
+            realm_recycler_view.setRefreshing(true);
+        }
+
+//        ((OnLKPListListener) getContext()).onStartRefresh();
         final String collCode = ((OnLKPListListener) getContext()).getCollCode();
         final Date lkpDate = ((OnLKPListListener) getContext()).getLKPDate();
 
         tvSeparator.setText("Please Wait...");
 
-        ApiInterface fastService =
-                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getContext(), Storage.KEY_SERVER_ID, 0)));
-
         RequestLKPByDate req = new RequestLKPByDate();
         req.setCollectorCode(collCode);
         req.setYyyyMMdd(Utility.convertDateToString(lkpDate, "yyyyMMdd"));
+
+        if (!NetUtil.isConnected(getActivity())) {
+
+            if (DemoUtil.isDemo(getActivity())) {
+
+                setListVisibility(true);
+
+                if (getContext() instanceof OnLKPListListener) {
+//                    ((OnLKPListListener) getContext()).onEndRefresh();
+                }
+
+                final String createdBy = "JOB" + Utility.convertDateToString(lkpDate, "yyyyMMdd");
+//                final LKPData lkpData = DemoUtil.buildLKP(new Date(), currentUser.getUserId(), currentUser.getBranchId(), createdBy);
+                final LKPDataMonitoring data = DemoUtil.buildLKPData(req.getCollectorCode(),"26160192", "6200020170223026160192", lkpDate, createdBy);
+
+                final Realm r = Realm.getDefaultInstance();
+                r.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm bgRealm) {
+                        dumpData(collCode, lkpDate, bgRealm, data);
+
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+
+                        listAdapter.notifyDataSetChanged();
+
+                        tvLastUpdate.setText("Last Update: " + Utility.convertDateToString(new Date(), "HH:mm"));
+
+                        tvSeparator.setText("" + listAdapter.getItemCount() + " CONTRACTS");
+
+                        r.close();
+
+                    }
+                }, new Realm.Transaction.OnError() {
+                    @Override
+                    public void onError(Throwable error) {
+                        Toast.makeText(getActivity(), "Database Error", Toast.LENGTH_LONG).show();
+                        error.printStackTrace();
+
+                        r.close();
+                    }
+                });
+
+
+            }else
+                loadListFromLocal();
+
+            return;
+        }
+
+        ApiInterface fastService =
+                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getContext(), Storage.KEY_SERVER_ID, 0)));
 
         Call<ResponseGetLKPMonitoring> call = fastService.getLKPByDate(req);
         call.enqueue(new Callback<ResponseGetLKPMonitoring>() {
@@ -419,7 +457,7 @@ public class FragmentMonitoring extends Fragment {
                 setListVisibility(true);
 
                 if (getContext() instanceof OnLKPListListener) {
-                    ((OnLKPListListener) getContext()).onEndRefresh();
+//                    ((OnLKPListListener) getContext()).onEndRefresh();
                 }
 
                 realm_recycler_view.setRefreshing(false);
@@ -497,7 +535,7 @@ public class FragmentMonitoring extends Fragment {
                 tvSeparator.setText("NO COLLECTOR");
 
                 if (getContext() instanceof OnLKPListListener) {
-                    ((OnLKPListListener) getContext()).onEndRefresh();
+//                    ((OnLKPListListener) getContext()).onEndRefresh();
 
                     Utility.showDialog(getContext(), "Server Problem", t.getMessage());
                 }
@@ -527,8 +565,9 @@ public class FragmentMonitoring extends Fragment {
         }
 
         @Override
-        public LKPListAdapter.DataViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int i) {
+        public LKPListAdapter.DataViewHolder onCreateRealmViewHolder(ViewGroup viewGroup, int position) {
             View v = inflater.inflate(R.layout.row_lkp_list, viewGroup, false);
+
             return new LKPListAdapter.DataViewHolder((FrameLayout) v);
         }
 
@@ -537,7 +576,6 @@ public class FragmentMonitoring extends Fragment {
 
             final DisplayLDVDetails detail = realmResults.get(position);
 
-            /*
             dataViewHolder.llRowLKP.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -547,7 +585,6 @@ public class FragmentMonitoring extends Fragment {
                     }
                 }
             });
-            */
 
             dataViewHolder.llRowLKP.setBackgroundColor(Color.WHITE);    // must
             if (detail.getWorkStatus() == null || detail.getWorkStatus().equalsIgnoreCase("V")) {
@@ -556,6 +593,7 @@ public class FragmentMonitoring extends Fragment {
                 dataViewHolder.llRowLKP.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorLKPBlue));
             }
 
+            /*
             Button btnDetails = dataViewHolder.btnDetails;
             btnDetails.setVisibility(detail.getWorkStatus().equals("V") || detail.getWorkStatus() == null ? View.VISIBLE : View.INVISIBLE);
             btnDetails.setOnClickListener(new View.OnClickListener() {
@@ -567,6 +605,7 @@ public class FragmentMonitoring extends Fragment {
                     }
                 }
             });
+            */
 
             TextView tvCustName = dataViewHolder.tvCustName;
             if (Build.VERSION.SDK_INT >= 24) {
@@ -588,10 +627,10 @@ public class FragmentMonitoring extends Fragment {
             TextView tvLKPFlag = dataViewHolder.tvLKPFlag;
             tvLKPFlag.setText("LKP Flag : " + detail.getLdvFlag());
 
-            Animation animation = AnimationUtils.loadAnimation(getContext(),
-                    (position > lastPosition) ? R.anim.up_from_bottom
-                            : R.anim.down_from_top);
-            dataViewHolder.itemView.startAnimation(animation);
+//            Animation animation = AnimationUtils.loadAnimation(getContext(),
+//                    (position > lastPosition) ? R.anim.up_from_bottom
+//                            : R.anim.down_from_top);
+//            dataViewHolder.itemView.startAnimation(animation);
             lastPosition = position;
 
         }
@@ -615,22 +654,23 @@ public class FragmentMonitoring extends Fragment {
             @BindView(R.id.tvLKPFlag)
             TextView tvLKPFlag;
 
-            @BindView(R.id.btnDetails)
-            Button btnDetails;
+//            @BindView(R.id.btnDetails)
+//            Button btnDetails;
 
             public DataViewHolder(FrameLayout container) {
                 super(container);
 
                 this.container = container;
                 ButterKnife.bind(this, container);
+
             }
         }
     }
 
     public interface OnLKPListListener {
         void onLKPSelected(DisplayLDVDetails detail);
-        void onStartRefresh();
-        void onEndRefresh();
+//        void onStartRefresh();
+//        void onEndRefresh();
 
         String getCollCode();
         String getCollName();

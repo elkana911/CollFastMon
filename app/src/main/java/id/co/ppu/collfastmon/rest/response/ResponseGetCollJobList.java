@@ -10,7 +10,6 @@ import id.co.ppu.collfastmon.pojo.CollJob;
 /**
  * Created by Eric on 18-Oct-16.
  */
-
 public class ResponseGetCollJobList extends ResponseBasic implements Serializable {
     @SerializedName("data")
     private List<CollJob> data;

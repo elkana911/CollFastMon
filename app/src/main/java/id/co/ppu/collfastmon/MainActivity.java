@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -82,6 +83,7 @@ import id.co.ppu.collfastmon.settings.SettingsActivity;
 import id.co.ppu.collfastmon.test.ActivityDeveloper;
 import id.co.ppu.collfastmon.util.ConstChat;
 import id.co.ppu.collfastmon.util.DataUtil;
+import id.co.ppu.collfastmon.util.DemoUtil;
 import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.NotificationUtils;
 import id.co.ppu.collfastmon.util.Storage;
@@ -95,8 +97,7 @@ import retrofit2.Response;
 import static id.co.ppu.collfastmon.util.DataUtil.resetData;
 
 public class MainActivity extends BasicActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FragmentHomeSpv.OnCollectorListListener, OnMapReadyCallback
-{
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentHomeSpv.OnCollectorListListener, OnMapReadyCallback {
     public static final String SELECTED_NAV_MENU_KEY = "selected_nav_menu_key";
     private static final int ACTIVITY_MONITORING = 50;
     private static final String TAG = "MainActivity";
@@ -114,6 +115,9 @@ public class MainActivity extends BasicActivity
     private UserData currentUser;
 
     private GoogleMap mMap;
+
+    @BindView(R.id.coordinatorLayout)
+    public View coordinatorLayout;
 
     @BindView(R.id.llMap)
     LinearLayout llMap;
@@ -164,7 +168,7 @@ public class MainActivity extends BasicActivity
             });
 
             // Repeat this the same runnable code block again another 2 seconds
-            handlerChatStatus.postDelayed(runnableCode, Utility.CYCLE_CHAT_STATUS_MILLISEC );
+            handlerChatStatus.postDelayed(runnableCode, Utility.CYCLE_CHAT_STATUS_MILLISEC);
         }
     };
 
@@ -172,10 +176,14 @@ public class MainActivity extends BasicActivity
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        if (DemoUtil.isDemo(this)) {
+            promptSnackBar("WARNING! You're currently signed in as DEMO. Make sure you're OFFLINE");
+        }
+
         final Fragment frag = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
         if (frag != null && frag instanceof FragmentHomeSpv) {
-            ((FragmentHomeSpv)frag).onClickFab();
+            ((FragmentHomeSpv) frag).onClickFab();
         }
 
         //fLsWT7b3aDQ:APA91bHMAZiTeyT5Wf7Akb9wIr-VA3XzuQ87cdjtdwRNz-0kkkfUgTNnKZMmx4AmYUvk0SrVQiK3wwk-R-nlUEZAT5v6R_0szPwSa6FmNH-77iqYOB_x0WpLaI21smEQD9_G-w9tyfaZ
@@ -221,8 +229,7 @@ public class MainActivity extends BasicActivity
 //        setIntent(intent);
 
         // jika user click notificationsnya
-        if (intent.getExtras() != null)
-        {
+        if (intent.getExtras() != null) {
             Intent i = new Intent(this, MainChatActivity.class);
             i.putExtra(MainChatActivity.PARAM_USER_CODE, currentUser.getUserId());
             i.putExtras(intent);
@@ -306,7 +313,7 @@ public class MainActivity extends BasicActivity
                         Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
                         //must redefine supaya dieksekusi dari notificationbar
                         resultIntent.putExtras(extras);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         NotificationUtils.showNotificationMessage(MainActivity.this, key_from, key_msg, "", resultIntent);
                     }
 
@@ -452,8 +459,7 @@ public class MainActivity extends BasicActivity
     public void onBackPressed() {
         if (llMap.isShown()) {
             llMap.setVisibility(View.GONE);
-        }else
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        } else if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
 //            super.onBackPressed();
@@ -789,7 +795,8 @@ public class MainActivity extends BasicActivity
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(sydney, 14);
             mMap.moveCamera(cameraUpdate);
-        } else Toast.makeText(MainActivity.this, "Sorry, unable to get the location. Try again next time.", Toast.LENGTH_LONG).show();
+        } else
+            Toast.makeText(MainActivity.this, "Sorry, unable to get the location. Try again next time.", Toast.LENGTH_LONG).show();
 
         llMap.setVisibility(View.VISIBLE);
 
@@ -801,16 +808,9 @@ public class MainActivity extends BasicActivity
 
         // should check apakah ada data lkp yg masih kecantol di hari kemarin
 
-        final ProgressDialog mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setMessage("Getting Collectors data from server.\nPlease wait...");
-        mProgressDialog.show();
+        final ProgressDialog mProgressDialog = Utility.createAndShowProgressDialog(this, "Getting Collectors data from server.\nPlease wait...");
 
         boolean b = DataUtil.isMasterDataDownloaded(this, realm, true);
-
-        ApiInterface fastService =
-                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
 
         RequestCollJobBySpv req = new RequestCollJobBySpv();
 
@@ -823,13 +823,37 @@ public class MainActivity extends BasicActivity
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         boolean b1 = sp.getBoolean(Storage.KEY_PREF_GENERAL_SHOWALL_COLL, false);
 
+        if (!NetUtil.isConnected(this)
+                && DemoUtil.isDemo(this)) {
+
+            final List<CollJob> data = DemoUtil.buildCollectors();
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    DataUtil.saveCollectorsToDB(realm, data);
+                }
+            });
+
+            Utility.dismissDialog(mProgressDialog);
+
+            if (listener != null)
+                listener.onSuccess(null);
+
+            return;
+        }
+
+        ApiInterface fastService =
+                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
+
         Call<ResponseGetCollJobList> call = b1 ? fastService.getCollectorsJobEx(req) : fastService.getCollectorsJob(req);
 
         call.enqueue(new Callback<ResponseGetCollJobList>() {
             @Override
             public void onResponse(Call<ResponseGetCollJobList> call, Response<ResponseGetCollJobList> response) {
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
+
+                Utility.dismissDialog(mProgressDialog);
 
                 if (response.isSuccessful()) {
                     final ResponseGetCollJobList respGetCollJob = response.body();
@@ -841,103 +865,40 @@ public class MainActivity extends BasicActivity
 
                     if (respGetCollJob.getError() != null) {
                         Utility.showDialog(MainActivity.this, "Error (" + respGetCollJob.getError().getErrorCode() + ")", respGetCollJob.getError().getErrorDesc());
-                    } else {
 
-                        if (respGetCollJob.getData() == null) {
+                        return;
+                    }
 
-                        } else {
-                            // save db here
-                            realm.executeTransactionAsync(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm bgRealm) {
+                    if (respGetCollJob.getData() != null) {
+                        // save db here
+                        realm.executeTransactionAsync(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm bgRealm) {
 
-                                    boolean d = bgRealm.where(CollJob.class).findAll().deleteAllFromRealm();
+                                DataUtil.saveCollectorsToDB(bgRealm, respGetCollJob.getData());
 
-                                    // replace taskcode ke string
-                                    // dimodifikasi spy bisa nampilin header di recycler view
-                                    List<CollJob> cj = new ArrayList<>();
-
-                                    boolean headerCreated = false;
-                                    for (int i = 0; i < respGetCollJob.getData().size(); i++) {
-
-                                        CollJob obj = respGetCollJob.getData().get(i);
-
-                                        MstTaskType first = bgRealm.where(MstTaskType.class)
-                                                .equalTo("taskCode", respGetCollJob.getData().get(i).getLastTask())
-                                                .findFirst();
-
-                                        if (first != null) {
-                                            respGetCollJob.getData().get(i).setLastTask(first.getShortDesc());
-                                            obj.setLastTask(first.getShortDesc());
-                                        }
-
-                                        if (!headerCreated && obj.getCountLKP() < 1) {
-                                            CollJob header = new CollJob();
-                                            header.setCountVisited(100L);
-
-                                            // hitung brp collector yg countlkp-nya 0
-                                            /*
-                                            long counter = 0;
-                                            for (CollJob _cj : respGetCollJob.getData()) {
-                                                if (_cj.getCountLKP() < 1)
-                                                    counter += 1;
-                                            }
-                                            */
-
-                                            header.setCountLKP(0L);
-                                            header.setCollCode("Z");
-                                            header.setCollName("A");
-
-                                            cj.add(header);
-                                            headerCreated = true;
-                                        }
-
-                                        cj.add(obj);
-                                    }
-
-                                    // ternyata isinya bisa berkurang karena sebelumnya duplicate
-                                    bgRealm.copyToRealmOrUpdate(cj);
-
-                                    CollJob z = bgRealm.where(CollJob.class).equalTo("collCode", "Z").findFirst();
-                                    if (z != null) {
-
-                                        long count = bgRealm.where(CollJob.class)
-                                                .notEqualTo("collCode", "Z")
-                                                .equalTo("countLKP", 0L)
-                                                .count();
-
-                                        z.setCountLKP(count);
-
-                                        bgRealm.copyToRealmOrUpdate(z);
-                                    }
+                            }
+                        }, new Realm.Transaction.OnSuccess() {
+                            @Override
+                            public void onSuccess() {
+                                if (listener != null)
+                                    listener.onSuccess(null);
 
 
+                            }
+                        }, new Realm.Transaction.OnError() {
+                            @Override
+                            public void onError(Throwable error) {
+                                // Transaction failed and was automatically canceled.
+                                Toast.makeText(MainActivity.this, "Error while getting Collectors", Toast.LENGTH_LONG).show();
+                                error.printStackTrace();
 
-//                                    bgRealm.copyToRealmOrUpdate(respGetCollJob.getData());
-
-                                }
-                            }, new Realm.Transaction.OnSuccess() {
-                                @Override
-                                public void onSuccess() {
-                                    if (listener != null)
-                                        listener.onSuccess(null);
-
-
-                                }
-                            }, new Realm.Transaction.OnError() {
-                                @Override
-                                public void onError(Throwable error) {
-                                    // Transaction failed and was automatically canceled.
-                                    Toast.makeText(MainActivity.this, "Error while getting Collectors", Toast.LENGTH_LONG).show();
-                                    error.printStackTrace();
-
-                                    if (listener != null)
-                                        listener.onFailure(error);
-                                }
-                            });
+                                if (listener != null)
+                                    listener.onFailure(error);
+                            }
+                        });
 
 
-                        }
                     }
                 } else {
                     int statusCode = response.code();
@@ -962,8 +923,7 @@ public class MainActivity extends BasicActivity
             @Override
             public void onFailure(Call<ResponseGetCollJobList> call, Throwable t) {
 
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
+                Utility.dismissDialog(mProgressDialog);
 
                 Log.e("eric.onFailure", t.getMessage(), t);
 
@@ -1056,6 +1016,30 @@ public class MainActivity extends BasicActivity
 
         }
 
+    }
+
+    public void showSnackBar(String message) {
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    public void showSnackBar(String message, int duration) {
+        Snackbar.make(coordinatorLayout, message, duration).show();
+    }
+
+    public void promptSnackBar(String message) {
+        final Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+
+        View snackbarView = snackbar.getView();
+        TextView textView = (TextView) snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setMaxLines(5);
+
+        snackbar.show();
     }
 
     /*

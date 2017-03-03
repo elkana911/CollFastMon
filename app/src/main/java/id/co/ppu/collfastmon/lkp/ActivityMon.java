@@ -216,15 +216,15 @@ public class ActivityMon extends BasicActivity implements FragmentMonitoring.OnL
         }
     }
 
-    @Override
-    public void onStartRefresh() {
-        fab.hide();
-    }
+//    @Override
+//    public void onStartRefresh() {
+//        fab.hide();
+//    }
 
-    @Override
-    public void onEndRefresh() {
-        fab.show();
-    }
+//    @Override
+//    public void onEndRefresh() {
+//        fab.show();
+//    }
 
     @Override
     public String getCollCode() {

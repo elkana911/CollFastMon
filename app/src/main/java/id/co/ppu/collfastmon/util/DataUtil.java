@@ -7,10 +7,15 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
+import id.co.ppu.collfastmon.pojo.CollJob;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
+import id.co.ppu.collfastmon.pojo.master.MasterData;
+import id.co.ppu.collfastmon.pojo.master.MasterMonData;
 import id.co.ppu.collfastmon.pojo.master.MstDelqReasons;
 import id.co.ppu.collfastmon.pojo.master.MstLDVClassifications;
 import id.co.ppu.collfastmon.pojo.master.MstLDVParameters;
@@ -19,9 +24,10 @@ import id.co.ppu.collfastmon.pojo.master.MstOffices;
 import id.co.ppu.collfastmon.pojo.master.MstParam;
 import id.co.ppu.collfastmon.pojo.master.MstPotensi;
 import id.co.ppu.collfastmon.pojo.master.MstTaskType;
+import id.co.ppu.collfastmon.pojo.trn.TrnRVColl;
+import id.co.ppu.collfastmon.pojo.trn.TrnRVCollPK;
 import id.co.ppu.collfastmon.rest.ApiInterface;
 import id.co.ppu.collfastmon.rest.ServiceGenerator;
-import id.co.ppu.collfastmon.rest.response.ResponseGetMasterData;
 import id.co.ppu.collfastmon.rest.response.ResponseGetMasterMonData;
 import io.realm.Realm;
 import io.realm.RealmModel;
@@ -39,6 +45,18 @@ public class DataUtil {
     public static final int SYNC_AS_PAYMENT = 1;
     public static final int SYNC_AS_VISIT = 2;
     public static final int SYNC_AS_REPO = 3;
+
+    public static String generateRunningNumber(Date date, String collCode) {
+        //yyyyMMdd-runnningnumber2digit
+        StringBuilder sb = new StringBuilder();
+        sb.append(Utility.convertDateToString(date, "dd"))
+                .append(Utility.convertDateToString(date, "MM"))
+                .append(Utility.convertDateToString(date, "yyyy"))
+//                            .append(Utility.leftPad(runningNumber, 3));
+                .append(collCode);
+
+        return sb.toString();
+    }
 
     public static String getRealPathFromUri(Context context, Uri contentUri) {
         Cursor cursor = null;
@@ -122,8 +140,23 @@ public class DataUtil {
             return true;
         }
 
-        if (!NetUtil.isConnected(ctx))
-            return false;
+        if (!NetUtil.isConnected(ctx)) {
+            if (DemoUtil.isDemo(ctx)) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        MasterMonData data = DemoUtil.buildMasterData();
+
+                        saveMastersToDB(realm, data);
+                    }
+                });
+
+                return true;
+            }else
+                return false;
+        }
 
         try {
             retrieveMasterFromServerBackground(realm, ctx);
@@ -135,6 +168,132 @@ public class DataUtil {
             return false;
         }
     }
+
+    public static void saveCollectorsToDB(Realm bgRealm, List<CollJob> data) {
+
+        boolean d = bgRealm.where(CollJob.class).findAll().deleteAllFromRealm();
+
+        // replace taskcode ke string
+        // dimodifikasi spy bisa nampilin header di recycler view
+        List<CollJob> cj = new ArrayList<>();
+
+        boolean headerCreated = false;
+
+        for (int i = 0; i < data.size(); i++) {
+
+            CollJob obj = data.get(i);
+
+            MstTaskType first = bgRealm.where(MstTaskType.class)
+                    .equalTo("taskCode", data.get(i).getLastTask())
+                    .findFirst();
+
+            if (first != null) {
+                data.get(i).setLastTask(first.getShortDesc());
+                obj.setLastTask(first.getShortDesc());
+            }
+
+            if (!headerCreated && obj.getCountLKP() < 1) {
+                CollJob header = new CollJob();
+                header.setCountVisited(100L);
+
+                // hitung brp collector yg countlkp-nya 0
+                                            /*
+                                            long counter = 0;
+                                            for (CollJob _cj : respGetCollJob.getData()) {
+                                                if (_cj.getCountLKP() < 1)
+                                                    counter += 1;
+                                            }
+                                            */
+
+                header.setCountLKP(0L);
+                header.setCollCode("Z");
+                header.setCollName("A");
+
+                cj.add(header);
+                headerCreated = true;
+            }
+
+            cj.add(obj);
+        }
+
+        // ternyata isinya bisa berkurang karena sebelumnya duplicate
+        bgRealm.copyToRealmOrUpdate(cj);
+
+        CollJob z = bgRealm.where(CollJob.class).equalTo("collCode", "Z").findFirst();
+        if (z != null) {
+
+            long count = bgRealm.where(CollJob.class)
+                    .notEqualTo("collCode", "Z")
+                    .equalTo("countLKP", 0L)
+                    .count();
+
+            z.setCountLKP(count);
+
+            bgRealm.copyToRealmOrUpdate(z);
+        }
+
+    }
+
+    // store db without commit/rollback. you need to prepare it first
+    public static void saveMastersToDB(Realm bgRealm, MasterMonData data) {
+        // insert ldp classifications
+        long count = bgRealm.where(MstLDVClassifications.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstLDVClassifications.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getLdpClassifications());
+
+        // insert param
+        count = bgRealm.where(MstParam.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstParam.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getParams());
+
+        // insert ldp status
+        count = bgRealm.where(MstLDVStatus.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstLDVStatus.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getLdpStatus());
+
+        // insert ldp parameter
+        count = bgRealm.where(MstLDVParameters.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstLDVParameters.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getLdpParameters());
+
+        // insert delq reasons
+        count = bgRealm.where(MstDelqReasons.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstDelqReasons.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getDelqReasons());
+
+        // insert office
+        count = bgRealm.where(MstOffices.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstOffices.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getOffices());
+
+        // insert potensi
+        count = bgRealm.where(MstPotensi.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstPotensi.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getPotensi());
+
+        // insert task type
+        count = bgRealm.where(MstTaskType.class).count();
+        if (count > 0) {
+            bgRealm.delete(MstTaskType.class);
+        }
+        bgRealm.copyToRealmOrUpdate(data.getTask());
+
+    }
+
 
     public static void retrieveMasterFromServerBackground(Realm realm, Context ctx) throws Exception {
 
@@ -160,61 +319,9 @@ public class DataUtil {
                             _realm.executeTransaction(new Realm.Transaction() {
                                 @Override
                                 public void execute(Realm bgRealm) {
-                                    // insert ldp classifications
-                                    long count = bgRealm.where(MstLDVClassifications.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstLDVClassifications.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getLdpClassifications());
 
-                                    // insert param
-                                    count = bgRealm.where(MstParam.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstParam.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getParams());
+                                    saveMastersToDB(bgRealm, respGetMasterData.getData());
 
-                                    // insert ldp status
-                                    count = bgRealm.where(MstLDVStatus.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstLDVStatus.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getLdpStatus());
-
-                                    // insert ldp parameter
-                                    count = bgRealm.where(MstLDVParameters.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstLDVParameters.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getLdpParameters());
-
-                                    // insert delq reasons
-                                    count = bgRealm.where(MstDelqReasons.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstDelqReasons.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getDelqReasons());
-
-                                    // insert office
-                                    count = bgRealm.where(MstOffices.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstOffices.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getOffices());
-
-                                    // insert potensi
-                                    count = bgRealm.where(MstPotensi.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstPotensi.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getPotensi());
-
-                                    // insert task type
-                                    count = bgRealm.where(MstTaskType.class).count();
-                                    if (count > 0) {
-                                        bgRealm.delete(MstTaskType.class);
-                                    }
-                                    bgRealm.copyToRealmOrUpdate(respGetMasterData.getData().getTask());
                                 }
                             });
 
@@ -258,6 +365,77 @@ public class DataUtil {
 
         return group;
 
+    }
+
+    /**
+     *
+     * @param data null to create, not null to update
+     * @param serverDate
+     * @param collCode
+     * @param officeCode
+     * @param ldvNo
+     * @param contractNo
+     * @param rvbNo
+     * @param paymentFlag
+     * @param platform
+     * @param danaSosial
+     * @param angsuranKe
+     * @param denda
+     * @param biayaTagih
+     * @param receivedAmount
+     * @param latitude
+     * @param longitude
+     * @param notes
+     * @return
+     */
+    public static TrnRVColl createTrnRVColl(TrnRVColl data, Date serverDate, String collCode, String officeCode, String ldvNo, String contractNo, String rvbNo, Long paymentFlag, String platform, Long danaSosial, Long angsuranKe, Long denda, Long biayaTagih, Long receivedAmount, String latitude, String longitude, String notes) {
+
+        if (data == null) {
+            TrnRVCollPK pk = new TrnRVCollPK();
+            pk.setRbvNo(rvbNo);
+            pk.setRvCollNo(DataUtil.generateRunningNumber(serverDate, collCode));
+
+            data = new TrnRVColl();
+            data.setPk(pk);
+            data.setCreatedBy(Utility.LAST_UPDATE_BY);
+            data.setCreatedTimestamp(new Date());
+        }
+
+        data.setStatusFlag("NW");
+        data.setFlagToEmrafin("N");
+        data.setCollId(collCode);
+        data.setOfficeCode(officeCode);
+        data.setFlagDone("Y");
+        data.setTransDate(serverDate);
+        data.setProcessDate(serverDate);
+        data.setDaysIntrAc(0L);
+
+        data.setPaymentFlag(paymentFlag);
+
+        // payment receive udah pasti denda, maka ambil dana sosial apa adanya dari detil
+        long lDanaSosial = danaSosial == null ? 0 : danaSosial.longValue();
+        data.setDanaSosial(lDanaSosial);
+
+        data.setPlatform(platform);
+
+        data.setInstNo(angsuranKe);
+
+        data.setPenaltyAc(denda);
+        data.setCollFeeAc(biayaTagih);
+
+        data.setLdvNo(ldvNo);
+        data.setContractNo(contractNo);
+
+        data.setLatitude(latitude);
+        data.setLongitude(longitude);
+
+        data.setReceivedAmount(receivedAmount);
+        data.setNotes(notes);
+
+        data.setLastupdateBy(Utility.LAST_UPDATE_BY);
+        data.setLastupdateTimestamp(new Date());
+
+        return data;
     }
 
 

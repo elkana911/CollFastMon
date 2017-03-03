@@ -420,7 +420,7 @@ public class MainChatActivity extends BasicActivity implements FragmentChatActiv
 
                             msg.setMessage(key_msg);
                             msg.setMessageType(ConstChat.MESSAGE_TYPE_COMMON);
-                            msg.setCreatedTimestamp(Utility.convertStringToDate(key_timestamp, "yyyyMMddHHmmss"));
+                            msg.setCreatedTimestamp(Utility.convertStringToDate(key_timestamp, "yyyyMMddHHmmssSSS"));
 
                         } else {
                         }

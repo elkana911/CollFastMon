@@ -2,6 +2,7 @@ package id.co.ppu.collfastmon.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,6 +39,7 @@ import id.co.ppu.collfastmon.BuildConfig;
 import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.exceptions.ExpiredException;
+import id.co.ppu.collfastmon.exceptions.NoConnectionException;
 import okhttp3.HttpUrl;
 
 public class Utility {
@@ -53,8 +55,8 @@ public class Utility {
 //            {"local-server", "10.212.0.71", "8090"}
 //            {"local-server", "192.168.10.109", "8090"}   // kelapa gading
 //            {"local-server", "192.168.43.125", "8090"}   // samsung mega
-            {"local-server", "192.168.1.107", "8090"}
-//            {"local-server", "192.168.0.8", "8090"}    // faraday
+//            {"local-server", "192.168.1.107", "8090"}
+            {"local-server", "192.168.0.8", "8090"}    // faraday
             ,{SERVER_DEV_NAME, SERVER_DEV_IP, SERVER_DEV_PORT}
             ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}
@@ -88,6 +90,12 @@ public class Utility {
 
     public static final int MAX_MONEY_DIGITS = 10;
     public static final int MAX_MONEY_LIMIT = 99999999;
+
+    public static final String ROLE_ADMIN = "ADMIN";
+    public static final String ROLE_DEMO = "DEMO";
+
+    public static final String FONT_SAMSUNG_BOLD = "SamsungSharpSans-Bold.ttf";
+    public static final String FONT_SAMSUNG = "SamsungSharpSans-Regular.ttf";
 
     public static String getServerName(int serverId) {
         String[] s = servers[serverId];
@@ -128,6 +136,10 @@ public class Utility {
     }
 
     public static void disableScreen(Activity act, boolean disable) {
+        // kumatiin per 22 feb 17, krn takutnya ngefek ke freeze dialog. please use loading bar instead
+        if (true)
+            return;
+
         if (disable) {
             act.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         } else {
@@ -151,9 +163,26 @@ public class Utility {
 
     }
 
-    public static void throwableHandler(Context ctx, Throwable throwable, boolean dialog) {
+    public static ProgressDialog createAndShowProgressDialog(Context ctx, String msg) {
+        ProgressDialog mProgressDialog = new ProgressDialog(ctx);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage(msg);
+
+        mProgressDialog.show();
+
+        return mProgressDialog;
+    }
+
+    public static void dismissDialog(ProgressDialog dialog) {
+        if (dialog.isShowing())
+            dialog.dismiss();
+    }
+
+
+    public static boolean throwableHandler(Context ctx, Throwable throwable, boolean dialog) {
         if (throwable == null)
-            return;
+            return true;
 
         throwable.printStackTrace();
 
@@ -177,13 +206,21 @@ public class Utility {
                 Utility.showDialog(ctx, ctx.getString(R.string.error_server_down), "Please contact administrator.\n" + throwable.getMessage());
             else
                 Toast.makeText(ctx, "Server Down", Toast.LENGTH_LONG).show();
+        } else if (throwable instanceof NoConnectionException) {
+            if (dialog)
+                Utility.showDialog(ctx, ctx.getString(R.string.title_no_connection), ctx.getString(R.string.error_online_required));
+            else
+                Toast.makeText(ctx, "Server Down", Toast.LENGTH_LONG).show();
         } else {
             if (dialog)
                 Utility.showDialog(ctx, "Server Problem", throwable.getMessage());
             else
                 Toast.makeText(ctx, throwable.getMessage(), Toast.LENGTH_LONG).show();
+
+            return false;
         }
 
+        return true;
     }
 
     public static void showSettingsDialog(Context mContext) {
@@ -515,6 +552,7 @@ public class Utility {
                 TelephonyManager mngr = (TelephonyManager)ctx.getSystemService(Context.TELEPHONY_SERVICE);
 
                 sb.append(",").append("imei=").append(mngr.getDeviceId());
+                sb.append(",").append("simSN=").append(mngr.getSimSerialNumber());
 
                 LocationManager lm = (LocationManager)ctx.getSystemService(Context.LOCATION_SERVICE);
                 boolean gps_enabled = false;
@@ -592,4 +630,7 @@ public class Utility {
         return firstTwoChars;
 
     }
+
+
+
 }

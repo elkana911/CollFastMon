@@ -8,6 +8,9 @@
     <string name="prompt_password">Kata Kunci</string>
     <string name="action_sign_in_short">Masuk</string>
 
+    <string name="remember_pwd">Ingat Kata Kunci</string>
     <string name="language">Bahasa</string>
+
+    <string name="message_please_wait">Sedang diproses...</string>
 
 </resources>

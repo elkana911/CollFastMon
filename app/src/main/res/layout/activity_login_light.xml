@@ -23,6 +23,81 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                >
+
+                <RelativeLayout
+                    android:id="@+id/rlRadana"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layoutAnimation="@anim/layout_radana">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_11" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_22" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_33" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_44" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_55" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_66" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rlLeaf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layoutAnimation="@anim/layout_radana_leaf">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_leaf1" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_leaf2" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rlFinance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layoutAnimation="@anim/layout_radana_finance">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/radana_finance" />
+                </RelativeLayout>
+            </RelativeLayout>
+
             <ImageView
                 android:id="@+id/imageLogo"
                 android:layout_width="match_parent"
@@ -30,7 +105,8 @@
                 android:adjustViewBounds="true"
                 android:padding="40dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/logo_mobile" />
+                android:src="@drawable/logo_mobile"
+                android:visibility="gone" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/tilUsername"
@@ -112,10 +188,10 @@
 
             <LinearLayout
                 android:id="@+id/llServerDev"
-                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <EditText
                     android:id="@+id/etServerDevIP"
@@ -140,12 +216,12 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/tvVersion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="end"
-                android:text="v1.1"
-                android:id="@+id/tvVersion"/>
+                android:text="v1.1" />
 
         </LinearLayout>
     </ScrollView>
