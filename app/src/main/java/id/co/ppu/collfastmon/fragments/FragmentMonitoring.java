@@ -191,6 +191,8 @@ public class FragmentMonitoring extends Fragment {
 
         setListVisibility(false);
 //        realm_recycler_view.setAdapter(null);
+        OnLKPListListener interfc = ((OnLKPListListener) getContext());
+
         if (listAdapter == null) {
             Realm r = Realm.getDefaultInstance();
 
@@ -198,7 +200,9 @@ public class FragmentMonitoring extends Fragment {
 
             try {
                 RealmResults<DisplayLDVDetails> rows =
-                        r.where(DisplayLDVDetails.class).findAll();
+                        r.where(DisplayLDVDetails.class)
+                        .equalTo("collId", interfc.getCollCode())
+                        .findAll();
 
                 listAdapter = new LKPListAdapter(getContext(), rows, true, true);
             } finally {
@@ -211,7 +215,6 @@ public class FragmentMonitoring extends Fragment {
 
         tvSeparator.setText("" + listAdapter.getItemCount() + " CONTRACTS");
 
-        OnLKPListListener interfc = ((OnLKPListListener) getContext());
         etCollectorName.setText(interfc.getCollName());
         etNoLKP.setText(interfc.getLDVNo());
         etTglLKP.setText(Utility.convertDateToString(interfc.getLKPDate(), Utility.DATE_DISPLAY_PATTERN));
@@ -389,8 +392,6 @@ public class FragmentMonitoring extends Fragment {
         final String collCode = ((OnLKPListListener) getContext()).getCollCode();
         final Date lkpDate = ((OnLKPListListener) getContext()).getLKPDate();
 
-        tvSeparator.setText("Please Wait...");
-
         RequestLKPByDate req = new RequestLKPByDate();
         req.setCollectorCode(collCode);
         req.setYyyyMMdd(Utility.convertDateToString(lkpDate, "yyyyMMdd"));
@@ -404,6 +405,10 @@ public class FragmentMonitoring extends Fragment {
                 if (getContext() instanceof OnLKPListListener) {
 //                    ((OnLKPListListener) getContext()).onEndRefresh();
                 }
+
+                // ga semua collector dapat data, hanya beberapa saja
+                if (!req.getCollectorCode().equals("21140598"))
+                    return;
 
                 final String createdBy = "JOB" + Utility.convertDateToString(lkpDate, "yyyyMMdd");
 //                final LKPData lkpData = DemoUtil.buildLKP(new Date(), currentUser.getUserId(), currentUser.getBranchId(), createdBy);
@@ -445,6 +450,8 @@ public class FragmentMonitoring extends Fragment {
 
             return;
         }
+
+        tvSeparator.setText("Please Wait...");
 
         ApiInterface fastService =
                 ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(getContext(), Storage.KEY_SERVER_ID, 0)));

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:interpolator="@android:anim/bounce_interpolator"
-    android:startOffset="4000">
+    android:interpolator="@android:anim/anticipate_overshoot_interpolator"
+    android:startOffset="3500">
     <translate
         android:duration="1000"
-        android:fromXDelta="-10%p"
-        android:toXDelta="0%p" />
+        android:fromYDelta="10%p"
+        android:toYDelta="0%p" />
     <alpha
-        android:duration="1000"
+        android:duration="1500"
         android:fromAlpha="0.0"
         android:toAlpha="1.0" />
 </set>

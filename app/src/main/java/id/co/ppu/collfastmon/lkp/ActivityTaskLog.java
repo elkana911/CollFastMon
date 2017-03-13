@@ -108,12 +108,6 @@ public class ActivityTaskLog extends BasicActivity {
     protected void onStart() {
         super.onStart();
 
-        final ProgressDialog mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setMessage("Getting log from server.\nPlease wait...");
-        mProgressDialog.show();
-
         RequestCollJobByDate req = new RequestCollJobByDate();
 
         fillRequest(Utility.ACTION_GET_COLL, req);
@@ -122,13 +116,14 @@ public class ActivityTaskLog extends BasicActivity {
 //        req.setLdvNo(this.ldvNo);
         req.setLkpDate(this.lkpDate);
 
+        final ProgressDialog mProgressDialog = Utility.createAndShowProgressDialog(this, "Getting log from server.\nPlease wait...");
+
         Call<ResponseGetTaskLog> call = getAPIService().getTaskLog(req);
         call.enqueue(new Callback<ResponseGetTaskLog>() {
             @Override
             public void onResponse(Call<ResponseGetTaskLog> call, Response<ResponseGetTaskLog> response) {
 
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
+                Utility.dismissDialog(mProgressDialog);
 
                 if (!response.isSuccessful()) {
 
@@ -186,8 +181,7 @@ public class ActivityTaskLog extends BasicActivity {
             public void onFailure(Call<ResponseGetTaskLog> call, Throwable t) {
                 Log.e("eric.onFailure", t.getMessage(), t);
 
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
+                Utility.dismissDialog(mProgressDialog);
 
                 Utility.showDialog(ActivityTaskLog.this, "Server Problem", t.getMessage());
             }
@@ -340,12 +334,6 @@ public class ActivityTaskLog extends BasicActivity {
 
         // call API
 
-        final ProgressDialog mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setMessage("Please wait...");
-        mProgressDialog.show();
-
         RequestReopenBatch req = new RequestReopenBatch();
 
         fillRequest(Utility.ACTION_REOPEN_BATCH, req);
@@ -357,12 +345,13 @@ public class ActivityTaskLog extends BasicActivity {
 
         req.setYyyyMMdd(Utility.convertDateToString(lkpDate, "yyyyMMdd"));
 
+        final ProgressDialog mProgressDialog = Utility.createAndShowProgressDialog(this, getString(R.string.message_please_wait));
+
         Call<ResponseBody> call = getAPIService().reopenBatch(req);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
+                Utility.dismissDialog(mProgressDialog);
 
                 if (!response.isSuccessful()) {
                     // handle exception from server
@@ -405,8 +394,7 @@ public class ActivityTaskLog extends BasicActivity {
             public void onFailure(Call<ResponseBody> call, Throwable throwable) {
                 Log.e("eric.onFailure", throwable.getMessage(), throwable);
 
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
+                Utility.dismissDialog(mProgressDialog);
 
                 Utility.throwableHandler(ActivityTaskLog.this, throwable, true);
             }
