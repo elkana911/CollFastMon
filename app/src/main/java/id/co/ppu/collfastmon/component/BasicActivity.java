@@ -3,23 +3,17 @@ package id.co.ppu.collfastmon.component;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.Date;
 import java.util.Locale;
@@ -30,10 +24,9 @@ import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.trn.TrnLDVComments;
 import id.co.ppu.collfastmon.pojo.trn.TrnRVColl;
 import id.co.ppu.collfastmon.pojo.trn.TrnRepo;
-import id.co.ppu.collfastmon.rest.ApiInterface;
-import id.co.ppu.collfastmon.rest.ServiceGenerator;
 import id.co.ppu.collfastmon.rest.request.RequestBasic;
-import id.co.ppu.collfastmon.settings.SettingsActivity;
+import id.co.ppu.collfastmon.screen.settings.SettingsActivity;
+import id.co.ppu.collfastmon.util.DataUtil;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Realm;
@@ -46,6 +39,10 @@ import io.realm.RealmQuery;
 public class BasicActivity extends AppCompatActivity {
 
     protected Realm realm;
+    protected Typeface fontArizon;
+    protected Typeface fontGoogle;
+    protected Typeface fontSamsungBold;
+    protected Typeface fontSamsung;
 
     protected void onRealmChangeListener() {
 
@@ -66,6 +63,15 @@ public class BasicActivity extends AppCompatActivity {
 
         changeLocale(Storage.getLanguageId(this));
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
+        }
+
+
+        fontArizon = Typeface.createFromAsset(getAssets(), Utility.FONT_ARIZON);
+        fontGoogle = Typeface.createFromAsset(getAssets(), Utility.FONT_GOOGLE);
+        fontSamsung = Typeface.createFromAsset(getAssets(), Utility.FONT_SAMSUNG);
+        fontSamsungBold = Typeface.createFromAsset(getAssets(), Utility.FONT_SAMSUNG_BOLD);
     }
 
     @Override
@@ -156,27 +162,23 @@ public class BasicActivity extends AppCompatActivity {
                 .equalTo("createdBy", Utility.LAST_UPDATE_BY);
     }
 
-    protected ApiInterface getAPIService() {
-        return Storage.getAPIService(this);
-    }
-
     protected UserData getCurrentUser() {
-        UserData currentUser = (UserData) Storage.getObjPreference(getApplicationContext(), Storage.KEY_USER, UserData.class);
+        UserData currentUser = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
 
         return currentUser;
     }
 
-    protected String getCurrentUserId() {
-        UserData currentUser = (UserData) Storage.getObjPreference(getApplicationContext(), Storage.KEY_USER, UserData.class);
-        if (currentUser == null)
-            return null;
-
-        return currentUser.getUserId();
-    }
+//    protected String getCurrentUserId() {
+//        UserData currentUser = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
+//        if (currentUser == null)
+//            return null;
+//
+//        return currentUser.getUserId();
+//    }
 
     protected void fillRequest(String actionName, RequestBasic req) {
         try {
-            double[] gps = id.co.ppu.collfastmon.location.Location.getGPS(this);
+            double[] gps = id.co.ppu.collfastmon.screen.location.Location.getGPS(this);
             String latitude = String.valueOf(gps[0]);
             String longitude = String.valueOf(gps[1]);
             req.setLatitude(latitude);
@@ -189,14 +191,14 @@ public class BasicActivity extends AppCompatActivity {
         }
 
         req.setActionName(actionName);
-        req.setUserId(getCurrentUserId());
+        req.setUserId(DataUtil.getCurrentUserId());
         req.setSysInfo(Utility.buildSysInfoAsCsv(this));
 
 
     }
 
     protected String getAndroidToken() {
-        return Storage.getAndroidToken(this);
+        return Storage.getAndroidToken();
     }
 
     //http://www.sureshjoshi.com/mobile/changing-android-locale-programmatically/

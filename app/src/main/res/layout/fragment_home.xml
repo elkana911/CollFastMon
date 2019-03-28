@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="id.co.ppu.collfastmon.fragments.FragmentHome">
+    tools:context=".screen.home.FragmentHome">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,6 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
+            android:hint="Cabang"
             android:textColorHint="@android:color/primary_text_dark">
 
             <EditText
@@ -29,7 +30,6 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:fontFamily="monospace"
-                android:hint="Cabang"
                 android:maxLines="1"
                 android:textColor="@android:color/primary_text_dark" />
 
@@ -40,6 +40,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
+            android:hint="Tgl Tagih"
             android:textColorHint="@android:color/primary_text_dark">
 
             <EditText
@@ -51,7 +52,6 @@
                 android:focusableInTouchMode="false"
                 android:fontFamily="monospace"
                 android:gravity="end"
-                android:hint="Tgl Tagih"
                 android:maxLines="1"
                 android:textColor="@android:color/primary_text_dark" />
 

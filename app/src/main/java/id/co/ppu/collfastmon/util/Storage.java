@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,9 +15,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 
-import id.co.ppu.collfastmon.rest.ApiInterface;
-import id.co.ppu.collfastmon.rest.ServiceGenerator;
+import id.co.ppu.collfastmon.pojo.LoginInfo;
+import io.realm.Realm;
 
 /**
  * Created by Eric on 16-Aug-16.
@@ -40,22 +40,13 @@ public class Storage {
     public static final String KEY_SERVER_DEV_IP = "server.dev.ip";
     public static final String KEY_SERVER_DEV_PORT = "server.dev.port";
 
+    /**
+     * @deprecated versi 1.3 always true
+     */
     public static final String KEY_PREF_GENERAL_SHOWALL_COLL = "collectors.all";
 
-    /*
-    public static String getPrefAsString(Context ctx, String key) {
-        SharedPreferences sp = ctx.getSharedPreferences("pref", Context.MODE_PRIVATE);
-        return sp.getString(key, null);
-    }
 
-    public static void setPrefAsString(Context ctx, String key, String value) {
-        SharedPreferences sp = ctx.getSharedPreferences("pref", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(key, value);
-        editor.commit();
-    }
-*/
-    public static void savePreference(Context ctx, String key, String value) {
+/*    public static void savePreference(Context ctx, String key, String value) {
         SharedPreferences objPrefs = ctx.getSharedPreferences(PREF_APP, 0); // 0 - for private mode
         SharedPreferences.Editor prefsEditor = objPrefs.edit();
         prefsEditor.putString(key, value);
@@ -122,7 +113,7 @@ public class Storage {
         return val;
     }
 
-    public static int getPreferenceAsInt(Context ctx, String key, int defaultValue) {
+    public static Integer getPrefAsInt(Context ctx, String key, int defaultValue) {
         int val;
 
         try {
@@ -142,6 +133,100 @@ public class Storage {
         prefsEditor.clear();
         prefsEditor.apply();
     }
+*/
+
+    /**
+     * H2U:
+     * <br>savePref("StringKey", string);
+     * <br>savePref("IntegerKey", String.valueOf(int));
+     * <br>savePref("BooleanKey", String.valueOf(boolean));
+     *
+     * @param key
+     * @param value
+     */
+    public static void savePref(final String key, final String value) {
+        if (key == null)
+            return;
+
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    realm.copyToRealmOrUpdate(new LoginInfo(key, value));
+                }
+            });
+
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    public static void savePrefAsDate(final String key, final Date value) {
+        savePref(key, value == null ? null : String.valueOf(value.getTime()));
+    }
+
+    public static void savePrefAsBoolean(final String key, final boolean value) {
+        savePref(key, String.valueOf(value));
+    }
+
+    public static void savePrefAsJson(final String key, final Object value) {
+//        String json = new Gson().toJson(value);
+        String json = Utility.convertObjectToJsonUsingGson(value);
+        savePref(key, json);
+    }
+
+
+    public static String getPref(final String key, final String defValue) {
+        if (key == null)
+            return null;
+
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            LoginInfo first = realm.where(LoginInfo.class)
+                    .equalTo("key", key).findFirst();
+
+            if (first == null) {
+                return defValue;
+            }
+
+            return first.getValue() == null ? defValue : first.getValue();
+
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    public static Integer getPrefAsInt(final String key, final int defValue) {
+        String ret = getPref(key, String.valueOf(defValue));
+
+        return ret == null ? defValue : new Integer(ret);
+    }
+
+    public static Date getPrefAsDate(final String key, final Date defValue) {
+        // must in long format
+        String ret = getPref(key, defValue == null ? null : String.valueOf(defValue.getTime()));
+
+        return ret == null ? defValue : new Date(Long.parseLong(ret));
+    }
+
+    public static boolean getPrefAsBoolean(final String key, final boolean defValue) {
+        String ret = getPref(key, String.valueOf(defValue));
+
+        return Boolean.parseBoolean(ret);
+
+    }
+
+    public static Object getPrefAsJson(final String key, Class cls, final String defValue) {
+        String ret = getPref(key, defValue);
+
+        return Utility.convertJsonBackToObjectUsingGson(ret, cls);
+//        return new Gson().fromJson(ret, cls);
+    }
 
     public static File getCompressedImage(Context context, File rawFile, String photoId) throws IOException {
         InputStream in = new FileInputStream(rawFile);
@@ -159,19 +244,18 @@ public class Storage {
         return outputFile;
     }
 
-    public static String getAndroidToken(Context ctx) {
-        String androidId =  Storage.getPreference(ctx.getApplicationContext(), Storage.KEY_ANDROID_ID);
-        String _androidId = FirebaseInstanceId.getInstance().getToken();
+    public static String getAndroidToken() {
+        String androidId = getPref(KEY_ANDROID_ID, null);
         if (TextUtils.isEmpty(androidId)) {
-            androidId = FirebaseInstanceId.getInstance().getToken();
+            try {
+                // may force close during disabling plugin com.google.gms.google-services
+                androidId = FirebaseInstanceId.getInstance().getToken();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return androidId;
-    }
-
-    public static ApiInterface getAPIService(Context ctx) {
-        return
-                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(ctx.getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
     }
 
     public static String getLanguageId(Context ctx) {
@@ -182,5 +266,17 @@ public class Storage {
 
     }
 
+    /**
+     * Will be used by Ion.
+     * @param relativePath without / on first character
+     * @return &lt;serverName&gt;/relativePath
+     */
+    public static String getUrlServer(String relativePath) {
+        return getUrlServer() + "/" + relativePath;
+    }
+
+    public static String getUrlServer() {
+        return Utility.buildUrlAsString(getPrefAsInt(KEY_SERVER_ID, 0));
+    }
 
 }

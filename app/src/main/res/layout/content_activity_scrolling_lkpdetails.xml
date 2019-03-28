@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="id.co.ppu.collfastmon.lkp.ActivityScrollingLKPDetails"
+    tools:context=".screen.lkp.ActivityScrollingLKPDetails"
     tools:showIn="@layout/activity_scrolling_lkpdetails">
 
     <LinearLayout
@@ -24,7 +24,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.7">
+                android:layout_weight="0.7"
+                android:hint="Contract No"
+                >
 
                 <AutoCompleteTextView
                     android:id="@+id/etContractNo"
@@ -33,7 +35,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Contract No"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -41,7 +42,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.3">
+                android:layout_weight="0.3"
+                android:hint="Platform"
+                >
 
                 <AutoCompleteTextView
                     android:id="@+id/etPlatform"
@@ -51,7 +54,6 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="end"
-                    android:hint="Platform"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -61,19 +63,21 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Customer Name"
             android:visibility="gone">
 
             <AutoCompleteTextView
                 android:id="@+id/etCustName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Customer Name"
                 android:maxLines="1" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="Phone No"
+            >
 
             <AutoCompleteTextView
                 android:id="@+id/etPhone"
@@ -82,7 +86,6 @@
                 android:autoLink="phone"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:hint="Phone No"
                 android:maxLines="1" />
         </android.support.design.widget.TextInputLayout>
 
@@ -94,7 +97,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.7">
+                android:layout_weight="0.7"
+                android:hint="Address"
+                >
 
                 <EditText
                     android:id="@+id/etAddress"
@@ -103,7 +108,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Address"
                     android:maxLines="3"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -140,7 +144,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Kelurahan"
+                >
 
                 <AutoCompleteTextView
                     android:id="@+id/etKelurahan"
@@ -149,7 +155,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Kelurahan"
                     android:maxLines="1"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                     android:textColor="@android:color/tertiary_text_dark" />
@@ -158,7 +163,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Kecamatan"
+                >
 
                 <AutoCompleteTextView
                     android:id="@+id/etKecamatan"
@@ -167,7 +174,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Kecamatan"
                     android:maxLines="1"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                     android:textColor="@android:color/tertiary_text_dark" />
@@ -177,7 +183,9 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="Tgl Terakhir Bayar"
+            >
 
             <EditText
                 android:id="@+id/etTglAkhirByr"
@@ -187,7 +195,6 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:gravity="right"
-                android:hint="Tgl Terakhir Bayar"
                 android:maxLines="1" />
         </android.support.design.widget.TextInputLayout>
 
@@ -199,7 +206,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="No Angsuran Terbayar"
+                >
 
                 <EditText
                     android:id="@+id/etNoAngsuranBayar"
@@ -208,7 +217,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="No Angsuran Terbayar"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -216,7 +224,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Lama Hari"
+                >
 
                 <EditText
                     android:id="@+id/etLamaHari"
@@ -226,7 +236,6 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="right"
-                    android:hint="Lama Hari"
                     android:inputType="number"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
@@ -242,7 +251,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Sisa Pokok"
+                >
 
                 <EditText
                     android:id="@+id/etSisaPokok"
@@ -251,7 +262,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Sisa Pokok"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -259,7 +269,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Angsuran"
+                >
 
                 <EditText
                     android:id="@+id/etAngsuran"
@@ -269,7 +281,6 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="right"
-                    android:hint="Angsuran"
                     android:inputType="number"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
@@ -278,7 +289,9 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="Target Tagih"
+            >
 
             <EditText
                 android:id="@+id/etTargetTagih"
@@ -288,7 +301,6 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:gravity="right"
-                android:hint="Target Tagih"
                 android:maxLines="1"
                 android:textStyle="bold" />
         </android.support.design.widget.TextInputLayout>
@@ -301,7 +313,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Denda"
+                >
 
                 <EditText
                     android:id="@+id/etDenda"
@@ -310,7 +324,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Denda"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -318,7 +331,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Denda Berjalan"
+                >
 
                 <EditText
                     android:id="@+id/etDendaBerjalan"
@@ -328,7 +343,6 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="right"
-                    android:hint="Denda Berjalan"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -343,7 +357,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Dana Sosial"
+                >
 
                 <EditText
                     android:id="@+id/etDanaSosial"
@@ -353,7 +369,6 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="end"
-                    android:hint="Dana Sosial"
                     android:inputType="number"
                     android:maxLines="1"
                     android:text="0"
@@ -363,7 +378,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5">
+                android:layout_weight="0.5"
+                android:hint="Biaya Tagih"
+                >
 
                 <EditText
                     android:id="@+id/etBiayaTagih"
@@ -373,7 +390,6 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="right"
-                    android:hint="Biaya Tagih"
                     android:inputType="number"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />

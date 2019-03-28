@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:id="@+id/activity_gps_log"
-    tools:context="id.co.ppu.collfastmon.lkp.ActivityGPSLog">
+    tools:context=".screen.lkp.ActivityGPSLog">
 
     <RelativeLayout
         android:id="@+id/rlHeader"
@@ -16,7 +16,7 @@
             android:id="@+id/llHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorRadanaBlue"
+            android:background="@color/colorPrimaryDark"
             android:orientation="vertical"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
@@ -26,6 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@android:color/primary_text_dark"
+                android:hint="No LKP"
                 android:visibility="gone">
 
                 <EditText
@@ -36,7 +37,6 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:gravity="end"
-                    android:hint="No LKP"
                     android:fontFamily="monospace"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />
@@ -52,6 +52,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
+                    android:hint="Interval"
                     android:textColorHint="@android:color/primary_text_dark">
 
                     <EditText
@@ -61,7 +62,6 @@
                         android:clickable="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
-                        android:hint="Interval"
                         android:maxLines="1"
                         android:fontFamily="monospace"
                         android:text="15 Min"
@@ -72,6 +72,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
+                    android:hint="Tgl LKP"
                     android:textColorHint="@android:color/primary_text_dark">
 
                     <EditText
@@ -82,7 +83,6 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:gravity="end"
-                        android:hint="Tgl LKP"
                         android:fontFamily="monospace"
                         android:maxLines="1"
                         android:textColor="@android:color/primary_text_dark" />
@@ -102,7 +102,7 @@
 
                 <Spinner
                     android:id="@+id/spHourStart"
-                    android:layout_width="80dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:entries="@array/hours_working" />
 
@@ -114,7 +114,7 @@
 
                 <Spinner
                     android:id="@+id/spHourEnd"
-                    android:layout_width="80dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:entries="@array/hours_working"
                     />

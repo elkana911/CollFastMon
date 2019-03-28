@@ -6,15 +6,25 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import java.io.IOException;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.Expose;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import id.co.ppu.collfastmon.pojo.CollJob;
+import id.co.ppu.collfastmon.pojo.UserData;
 import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
-import id.co.ppu.collfastmon.pojo.master.MasterData;
 import id.co.ppu.collfastmon.pojo.master.MasterMonData;
 import id.co.ppu.collfastmon.pojo.master.MstDelqReasons;
 import id.co.ppu.collfastmon.pojo.master.MstLDVClassifications;
@@ -26,16 +36,10 @@ import id.co.ppu.collfastmon.pojo.master.MstPotensi;
 import id.co.ppu.collfastmon.pojo.master.MstTaskType;
 import id.co.ppu.collfastmon.pojo.trn.TrnRVColl;
 import id.co.ppu.collfastmon.pojo.trn.TrnRVCollPK;
-import id.co.ppu.collfastmon.rest.ApiInterface;
-import id.co.ppu.collfastmon.rest.ServiceGenerator;
-import id.co.ppu.collfastmon.rest.response.ResponseGetMasterMonData;
+import id.co.ppu.collfastmon.rest.APIonBuilder;
 import io.realm.Realm;
 import io.realm.RealmModel;
 import io.realm.RealmQuery;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by Eric on 23-Sep-16.
@@ -159,7 +163,7 @@ public class DataUtil {
         }
 
         try {
-            retrieveMasterFromServerBackground(realm, ctx);
+            retrieveMasterFromServerBackground(ctx);
 
             return true;
         } catch (Exception e) {
@@ -295,56 +299,36 @@ public class DataUtil {
     }
 
 
-    public static void retrieveMasterFromServerBackground(Realm realm, Context ctx) throws Exception {
+    public static void retrieveMasterFromServerBackground(Context ctx){
 
-        ApiInterface fastService =
-                ServiceGenerator.createService(ApiInterface.class, Utility.buildUrl(Storage.getPreferenceAsInt(ctx, Storage.KEY_SERVER_ID, 0)));
+        APIonBuilder.getMasterMonData(ctx, (e, result) -> {
 
-        Call<ResponseGetMasterMonData> callMasterData = fastService.getMasterMonData();
-
-        // hrs async karena error networkonmainthreadexception
-        callMasterData.enqueue(new Callback<ResponseGetMasterMonData>() {
-            @Override
-            public void onResponse(Call<ResponseGetMasterMonData> call, Response<ResponseGetMasterMonData> response) {
-                if (response.isSuccessful()) {
-                    final ResponseGetMasterMonData respGetMasterData = response.body();
-
-                    if (respGetMasterData.getError() != null) {
-
-                    } else {
-                        // save db here, tp krn async disarankan buat instance baru
-                        Realm _realm = Realm.getDefaultInstance();
-                        // save db here
-                        try {
-                            _realm.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm bgRealm) {
-
-                                    saveMastersToDB(bgRealm, respGetMasterData.getData());
-
-                                }
-                            });
-
-                        } finally {
-                            if (_realm != null) {
-                                _realm.close();
-                            }
-                        }
-                    }
-                } else {
-                    // handle request errors yourself
-                    ResponseBody errorBody = response.errorBody();
-                    try {
-                        Log.e("eric.unSuccessful", errorBody.string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+            if (e != null) {
+                Log.e("eric.onFailure", e.getMessage(), e);
+                return;
             }
 
-            @Override
-            public void onFailure(Call<ResponseGetMasterMonData> call, Throwable t) {
-                Log.e("eric.onFailure", t.getMessage(), t);
+            if (result.getError() != null) {
+
+            } else {
+                // save db here, tp krn async disarankan buat instance baru
+                Realm _realm = Realm.getDefaultInstance();
+                // save db here
+                try {
+                    _realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm bgRealm) {
+
+                            saveMastersToDB(bgRealm, result.getData());
+
+                        }
+                    });
+
+                } finally {
+                    if (_realm != null) {
+                        _realm.close();
+                    }
+                }
             }
         });
 
@@ -439,4 +423,60 @@ public class DataUtil {
     }
 
 
+    /*
+    date pattern tolong disamakan dgn yg di server
+     */
+    public static Gson buildCustomDataFactory(){
+        Gson gson = new GsonBuilder()
+                .setDateFormat("dd-MM-yyyy HH:mm:ss")   //"yyyy-MM-dd'T'HH:mm:ssZ"
+//                .setDateFormat("yyyy-MM-dd HH:mm:ss")   //"yyyy-MM-dd'T'HH:mm:ssZ"
+                .addDeserializationExclusionStrategy(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        final Expose expose = f.getAnnotation(Expose.class);
+                        return expose != null && !expose.deserialize();
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                })
+                .addSerializationExclusionStrategy(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        final Expose expose = f.getAnnotation(Expose.class);
+                        return expose != null && !expose.serialize();
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                })
+                /*
+                .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                    @Override
+                    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                        return json == null ? null : new Date(json.getAsLong());
+                    }
+                })*/
+                .registerTypeAdapter(Date.class, new JsonSerializer<Date>() {
+                    @Override
+                    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+                        return src == null ? null : new JsonPrimitive(src.getTime());
+                    }
+                })
+                .create();
+
+        return gson;
+    }
+
+    public static String getCurrentUserId() {
+        UserData currentUser = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
+        if (currentUser == null)
+            return null;
+
+        return currentUser.getUserId();
+    }
 }

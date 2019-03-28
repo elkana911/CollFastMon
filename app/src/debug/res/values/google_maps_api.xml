@@ -7,7 +7,7 @@
     https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=3E:03:6B:07:EC:C9:C7:DC:84:B4:90:A1:41:C3:46:6D:41:5B:DA:16%3Bid.co.ppu.collfastmon.location
 
     You can also add your credentials to an existing key, using this line:
-    3E:03:6B:07:EC:C9:C7:DC:84:B4:90:A1:41:C3:46:6D:41:5B:DA:16;id.co.ppu.collfastmon.location
+    3E:03:6B:07:EC:C9:C7:DC:84:B4:90:A1:41:C3:46:6D:41:5B:DA:16;id.co.ppu.collfastmon.screen.location
 
     Alternatively, follow the directions here:
     https://developers.google.com/maps/documentation/android/start#get-key

@@ -5,7 +5,7 @@
     android:id="@+id/activity_repo_entri"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="id.co.ppu.collfastmon.lkp.ActivityRepoEntry">
+    tools:context=".screen.lkp.ActivityRepoEntry">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,6 +24,7 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="Contract No"
                 android:textColorHint="@android:color/primary_text_dark">
 
                 <EditText
@@ -33,7 +34,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Contract No"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -41,6 +41,7 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="PAL"
                 android:textColorHint="@android:color/primary_text_dark">
 
                 <EditText
@@ -50,7 +51,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="PAL"
                     android:maxLines="1"
                     android:singleLine="true"
                     android:textColor="@android:color/primary_text_dark" />
@@ -60,6 +60,7 @@
                 android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="Tgl Transaksi"
                 android:textColorHint="@android:color/primary_text_dark">
 
                 <EditText
@@ -69,7 +70,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Tgl Transaksi"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -84,7 +84,9 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="Kode Tarik"
+                >
 
                 <EditText
                     android:id="@+id/etKodeTarik"
@@ -93,7 +95,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Kode Tarik"
                     android:maxLines="1" />
             </android.support.design.widget.TextInputLayout>
 
@@ -125,13 +126,14 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="BASTK"
+                >
 
                 <EditText
                     android:id="@+id/etBASTK"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="BASTK"
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
@@ -141,16 +143,18 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="Komentar"
+                >
 
                 <EditText
                     android:id="@+id/etKomentar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Komentar"
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
+                    android:fontFamily="sans-serif-condensed"
                     android:maxLines="5" />
 
             </android.support.design.widget.TextInputLayout>

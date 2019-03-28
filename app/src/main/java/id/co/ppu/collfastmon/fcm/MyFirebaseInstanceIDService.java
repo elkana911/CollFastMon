@@ -25,7 +25,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
             //Displaying token on logcat
             Log.e(TAG, "Refreshed token: " + refreshedToken);
 
-            Storage.savePreference(getApplicationContext(), Storage.KEY_ANDROID_ID, refreshedToken);
+            Storage.savePref(Storage.KEY_ANDROID_ID, refreshedToken);
         } catch (Exception e) {
             e.printStackTrace();
         }

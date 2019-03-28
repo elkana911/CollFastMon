@@ -8,4 +8,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">140dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+
+    <dimen name="layout_login_form_margin_top">10dp</dimen>
+    <dimen name="layout_login_input_width">240dp</dimen>
+
 </resources>

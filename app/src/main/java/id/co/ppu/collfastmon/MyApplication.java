@@ -3,6 +3,9 @@ package id.co.ppu.collfastmon;
 import android.app.Application;
 import android.util.Log;
 
+import com.koushikdutta.ion.Ion;
+
+import id.co.ppu.collfastmon.util.DataUtil;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -15,11 +18,17 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        RealmConfiguration config = new RealmConfiguration.Builder(getApplicationContext())
+        Ion.getDefault(this).configure().setGson(DataUtil.buildCustomDataFactory());
+
+        initRealm();
+    }
+
+    private void initRealm(){
+        Realm.init(getApplicationContext());
+        RealmConfiguration config = new RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(config);
-
     }
 
     @Override

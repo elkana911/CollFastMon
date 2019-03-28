@@ -39,7 +39,7 @@ public class DemoUtil {
     }
 
     public static boolean isDemo(Context ctx) {
-        UserData currentUser = (UserData) Storage.getObjPreference(ctx.getApplicationContext(), Storage.KEY_USER, UserData.class);
+        UserData currentUser = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
 
         return isDemo(currentUser);
     }

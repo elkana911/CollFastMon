@@ -5,6 +5,7 @@
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_userid">User ID</string>
     <string name="prompt_quit">Are you sure to quit ?</string>
 
     <string name="action_sign_in">Sign in or register</string>
@@ -27,7 +28,7 @@
     <string name="remember_pwd">Remember Password</string>
     <string name="action_register">Register</string>
     <string name="error_online_required">This task require internet connection\nMake sure Flight mode is off.</string>
-    <string name="error_offline">Please check your Internet connection</string>
+    <string name="error_offline">Please check your Network Connection</string>
     <string name="error_invalid_login">User or Password is invalid</string>
     <string name="error_contact_admin">Please contact Administrator</string>
     <string name="title_activity_main">MainActivity</string>
@@ -239,6 +240,7 @@
     <string name="error_value_too_long">Value too long</string>
 
     <string name="message_please_wait">Please wait...</string>
+    <string name="action_help">Help</string>
 
     <string-array name="hours_working">
         <item>Monday</item>

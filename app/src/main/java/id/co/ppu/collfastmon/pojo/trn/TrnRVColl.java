@@ -98,6 +98,13 @@ public class TrnRVColl extends RealmObject implements Serializable {
     @SerializedName("lastupdateTimestamp")
     private Date lastupdateTimestamp;
 
+    // 17 oct 2017
+    @SerializedName("delqCode")
+    private String delqCode;
+
+    @SerializedName("classCode")
+    private String classCode;
+
     public TrnRVCollPK getPk() {
         return pk;
     }
@@ -330,6 +337,22 @@ public class TrnRVColl extends RealmObject implements Serializable {
         this.longitude = longitude;
     }
 
+    public String getDelqCode() {
+        return delqCode;
+    }
+
+    public void setDelqCode(String delqCode) {
+        this.delqCode = delqCode;
+    }
+
+    public String getClassCode() {
+        return classCode;
+    }
+
+    public void setClassCode(String classCode) {
+        this.classCode = classCode;
+    }
+
     @Override
     public String toString() {
         return "TrnRVColl{" +
@@ -362,6 +385,8 @@ public class TrnRVColl extends RealmObject implements Serializable {
                 ", createdBy='" + createdBy + '\'' +
                 ", lastupdateBy='" + lastupdateBy + '\'' +
                 ", lastupdateTimestamp=" + lastupdateTimestamp +
+                ", delqCode='" + delqCode + '\'' +
+                ", classCode='" + classCode + '\'' +
                 '}';
     }
 }

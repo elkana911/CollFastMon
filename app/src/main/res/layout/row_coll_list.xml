@@ -57,7 +57,7 @@
                 android:shadowDx="1"
                 android:shadowDy="1"
                 android:shadowColor="@android:color/black"
-                android:textSize="28sp"
+                android:textSize="20sp"
                 android:textColor="@android:color/white"
                 android:text="20/20"/>
 
@@ -107,6 +107,15 @@
                     android:textColor="@android:color/holo_red_dark" />
 
                 <TextView
+                    android:id="@+id/tvAbsen"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Belum Absen"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                    />
+
+                <TextView
                     android:id="@+id/tvLastLat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -153,22 +162,5 @@
             </RelativeLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="12dp"
-            android:paddingEnd="12dp"
-            android:background="@android:color/darker_gray"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:text="ELKANA"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-                android:textStyle="bold" />
-        </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

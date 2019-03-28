@@ -6,13 +6,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -23,6 +21,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -37,10 +38,9 @@ import java.util.concurrent.TimeUnit;
 
 import id.co.ppu.collfastmon.BuildConfig;
 import id.co.ppu.collfastmon.R;
-import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.exceptions.ExpiredException;
 import id.co.ppu.collfastmon.exceptions.NoConnectionException;
-import okhttp3.HttpUrl;
+import id.co.ppu.collfastmon.listener.OnApproveListener;
 
 public class Utility {
 
@@ -51,7 +51,7 @@ public class Utility {
     public final static String SERVER_DEV_IP = "202.51.118.70";
     public final static String SERVER_DEV_PORT = "7002";
 
-    public static String[][] servers = {
+    public static String[][] SERVERS = {
 //            {"local-server", "10.212.0.71", "8090"}
 //            {"local-server", "192.168.10.109", "8090"}   // kelapa gading
 //            {"local-server", "192.168.43.125", "8090"}   // samsung mega
@@ -62,12 +62,12 @@ public class Utility {
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}
     };
 
-    public final static int NETWORK_TIMEOUT_MINUTES = developerMode ? 1 : 2;
+    public final static int NETWORK_TIMEOUT_MINUTES = developerMode ? 2 : 5;    // 2 too short
 
     public final static int CYCLE_CHAT_STATUS_MILLISEC = (developerMode ? 3 : 15) * 60 * 1000;
     public final static int CYCLE_CHAT_QUEUE_MILLISEC = (developerMode ? 2 : 3) * 1000;
 
-    //    public final static String[][] servers = {{"local-server", "10.100.100.77", "8090"}
+    //    public final static String[][] SERVERS = {{"local-server", "10.100.100.77", "8090"}
 //            ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
 //    };
 //
@@ -96,43 +96,21 @@ public class Utility {
 
     public static final String FONT_SAMSUNG_BOLD = "SamsungSharpSans-Bold.ttf";
     public static final String FONT_SAMSUNG = "SamsungSharpSans-Regular.ttf";
+    public static final String FONT_GOOGLE = "ProductSansRegular.ttf";
+    public static final String FONT_ARIZON = "Arizon.otf";
 
     public static String getServerName(int serverId) {
-        String[] s = servers[serverId];
+        String[] s = SERVERS[serverId];
         return s[0];
     }
 
     public static int getServerID(String serverName) {
-        for (int i = 0; i < servers.length; i++) {
-            if (servers[i][0].equalsIgnoreCase(serverName)) {
+        for (int i = 0; i < SERVERS.length; i++) {
+            if (SERVERS[i][0].equalsIgnoreCase(serverName)) {
                 return i;
             }
         }
         return -1;
-    }
-
-    public static HttpUrl buildUrl(int serverChoice) {
-
-        if (serverChoice < 0)
-            serverChoice = 0;
-        if (serverChoice > servers.length-1)
-            serverChoice = servers.length-1;
-
-        String[] server = servers[serverChoice];   // just change this
-
-        HttpUrl.Builder url = new HttpUrl.Builder()
-                .scheme("http")
-                .host(server[1])
-                .port(Integer.parseInt(server[2]))
-                ;
-
-        String root = server[0];
-
-        if (!root.toLowerCase().startsWith("local")) {
-            url.addPathSegment(root);
-        }
-
-        return url.build();
     }
 
     public static void disableScreen(Activity act, boolean disable) {
@@ -146,6 +124,23 @@ public class Utility {
             act.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
     }
+
+    public static void confirmDialog(Context context, String title, String message, final OnApproveListener listener) {
+        android.support.v7.app.AlertDialog.Builder alertDialogBuilder = new android.support.v7.app.AlertDialog.Builder(context);
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(message);
+        //null should be your on click listener
+        alertDialogBuilder.setPositiveButton("Yes", (dialog, which) -> {
+            if (listener != null)
+                listener.onApprove();
+        });
+
+        alertDialogBuilder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+
+        alertDialogBuilder.show();
+
+    }
+
     public static void showDialog(Context ctx, String title, String msg){
 
 //        AlertDialog alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(ctx, R.style.AppTheme_Teal_Dialog))
@@ -546,7 +541,8 @@ public class Utility {
 
         try {
             if (ctx != null) {
-                sb.append(",").append("server=").append(Utility.buildUrl(Storage.getPreferenceAsInt(ctx.getApplicationContext(), Storage.KEY_SERVER_ID, 0)));
+                sb.append(",").append("server=").append(Utility.buildUrlAsString(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0)));
+//                sb.append(",").append("server=").append(Utility.buildUrl(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0)));
 
                 // single sim non dual
                 TelephonyManager mngr = (TelephonyManager)ctx.getSystemService(Context.TELEPHONY_SERVICE);
@@ -632,5 +628,53 @@ public class Utility {
     }
 
 
+    public static String includeTrailingPath(String path, char separator) {
+        if(path.charAt(path.length()-1) != separator){
+            path += separator;
+        }
+        return path;
+    }
+
+    public static String buildUrlAsString(int serverChoice) {
+
+        if (serverChoice < 0)
+            serverChoice = 0;
+        if (serverChoice > SERVERS.length - 1)
+            serverChoice = SERVERS.length - 1;
+
+        String[] server = SERVERS[serverChoice];   // just change this
+
+        StringBuilder sb = new StringBuilder(NetUtil.SERVER_SCHEME);
+        sb.append("://").append(server[1]).append(":").append(server[2]).append("/");
+
+        String moduleName = server[0];
+
+        if (!moduleName.toLowerCase().startsWith("local")) {
+            sb.append(moduleName);
+        }
+
+        return sb.toString();
+    }
+
+    public static String convertObjectToJsonUsingGson(Object object){
+
+        Gson gson = new GsonBuilder().setDateFormat("dd-MM-yyyy HH:mm:ss").create();
+
+        String json = gson.toJson(object);
+
+        return json;
+    }
+
+    public static Object convertJsonBackToObjectUsingGson(String json, Class cls){
+
+        Gson gson = new GsonBuilder().setDateFormat("dd-MM-yyyy HH:mm:ss").create();
+
+        return gson.fromJson(json, cls);
+
+    }
+
+    public static long convertMinutesToMillis(int minutes) {
+        return TimeUnit.MINUTES.toMillis(minutes);
+    }
 
 }

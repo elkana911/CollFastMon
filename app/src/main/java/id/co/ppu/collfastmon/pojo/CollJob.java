@@ -7,11 +7,14 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by Eric on 22-Nov-16.
  */
-
+@Getter
+@Setter
 public class CollJob extends RealmObject implements Serializable {
     @PrimaryKey
     @SerializedName("collCode")
@@ -35,6 +38,9 @@ public class CollJob extends RealmObject implements Serializable {
     @SerializedName("lkpDate")
     private Date lkpDate;
 
+    @SerializedName("absenDate")
+    private Date absenDate;
+
     @SerializedName("lastTask")
     private String lastTask;
 
@@ -46,93 +52,5 @@ public class CollJob extends RealmObject implements Serializable {
 
     @SerializedName("lastLongitude")
     private String lastLongitude;
-
-    public String getCollCode() {
-        return collCode;
-    }
-
-    public void setCollCode(String collCode) {
-        this.collCode = collCode;
-    }
-
-    public String getCollName() {
-        return collName;
-    }
-
-    public void setCollName(String collName) {
-        this.collName = collName;
-    }
-
-    public String getCollType() {
-        return collType;
-    }
-
-    public void setCollType(String collType) {
-        this.collType = collType;
-    }
-
-    public String getLdvNo() {
-        return ldvNo;
-    }
-
-    public void setLdvNo(String ldvNo) {
-        this.ldvNo = ldvNo;
-    }
-
-    public Long getCountVisited() {
-        return countVisited;
-    }
-
-    public void setCountVisited(Long countVisited) {
-        this.countVisited = countVisited;
-    }
-
-    public Long getCountLKP() {
-        return countLKP;
-    }
-
-    public void setCountLKP(Long countLKP) {
-        this.countLKP = countLKP;
-    }
-
-    public String getLastTask() {
-        return lastTask;
-    }
-
-    public void setLastTask(String lastTask) {
-        this.lastTask = lastTask;
-    }
-
-    public Date getLastTaskTime() {
-        return lastTaskTime;
-    }
-
-    public void setLastTaskTime(Date lastTaskTime) {
-        this.lastTaskTime = lastTaskTime;
-    }
-
-    public String getLastLatitude() {
-        return lastLatitude;
-    }
-
-    public void setLastLatitude(String lastLatitude) {
-        this.lastLatitude = lastLatitude;
-    }
-
-    public String getLastLongitude() {
-        return lastLongitude;
-    }
-
-    public void setLastLongitude(String lastLongitude) {
-        this.lastLongitude = lastLongitude;
-    }
-
-    public Date getLkpDate() {
-        return lkpDate;
-    }
-
-    public void setLkpDate(Date lkpDate) {
-        this.lkpDate = lkpDate;
-    }
 
 }

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="id.co.ppu.collfastmon.chat.MainChatActivity"
+    tools:context=".screen.chat.MainChatActivity"
     tools:showIn="@layout/activity_main_chat">
 
     <FrameLayout

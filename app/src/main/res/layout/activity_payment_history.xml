@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="id.co.ppu.collfastmon.lkp.ActivityPaymentHistory">
+    tools:context=".screen.lkp.ActivityPaymentHistory">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,6 +22,7 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="Contract No"
                 android:textColorHint="@android:color/primary_text_dark">
 
                 <EditText
@@ -31,7 +32,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Contract No"
                     android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark" />
             </android.support.design.widget.TextInputLayout>
@@ -45,6 +45,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.4"
+                    android:hint="Tenor / Bln"
                     android:textColorHint="@android:color/primary_text_dark">
 
                     <EditText
@@ -54,7 +55,6 @@
                         android:clickable="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
-                        android:hint="Tenor / Bln"
                         android:maxLines="1"
                         android:textColor="@android:color/primary_text_dark" />
                 </android.support.design.widget.TextInputLayout>
@@ -63,6 +63,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.6"
+                    android:hint="Angsuran"
                     android:textColorHint="@android:color/primary_text_dark">
 
                     <EditText
@@ -73,7 +74,6 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:gravity="right"
-                        android:hint="Angsuran"
                         android:maxLines="1"
                         android:textColor="@android:color/primary_text_dark"
                         android:textStyle="bold" />

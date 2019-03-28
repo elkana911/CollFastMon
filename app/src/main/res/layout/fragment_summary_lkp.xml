@@ -28,7 +28,9 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="No LKP"
+                >
 
                 <EditText
                     android:id="@+id/etNoLKP"
@@ -37,7 +39,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="No LKP"
                     android:fontFamily="monospace"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
@@ -45,7 +46,9 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="Tgl LKP"
+                >
 
                 <EditText
                     android:id="@+id/etTglLKP"
@@ -54,14 +57,16 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Tgl LKP"
+                    android:inputType="textNoSuggestions"
                     android:maxLines="1"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:hint="Cabang"
+                >
 
                 <EditText
                     android:id="@+id/etCabang"
@@ -70,14 +75,16 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Cabang"
                     android:maxLines="1"
+                    android:inputType="textNoSuggestions"
+                    android:fontFamily="sans-serif-condensed"
                     android:textColor="@android:color/tertiary_text_dark" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="AR Staff"
                 android:visibility="gone">
 
                 <EditText
@@ -87,7 +94,6 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="AR Staff"
                     android:maxLines="1" />
             </android.support.design.widget.TextInputLayout>
 
@@ -200,7 +206,9 @@
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.5"
+                    android:hint="Unit"
+                    >
 
                     <EditText
                         android:id="@+id/etNonLKPUnit"
@@ -209,14 +217,15 @@
                         android:clickable="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
-                        android:hint="Unit"
                         android:maxLines="1" />
                 </android.support.design.widget.TextInputLayout>
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.5"
+                    android:hint="Penerimaan"
+                    >
 
                     <EditText
                         android:id="@+id/etNonLKPPenerimaan"
@@ -226,7 +235,6 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:gravity="end"
-                        android:hint="Penerimaan"
                         android:maxLines="1"
                         android:textStyle="bold" />
                 </android.support.design.widget.TextInputLayout>
@@ -252,7 +260,9 @@
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
+                    android:layout_weight="0.5"
+                    android:hint="Total Tertagih"
+                    >
 
                     <EditText
                         android:id="@+id/etTotalTertagih"
@@ -262,7 +272,6 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:gravity="end"
-                        android:hint="Total Tertagih"
                         android:maxLines="1"
                         android:textStyle="bold" />
                 </android.support.design.widget.TextInputLayout>

@@ -3,51 +3,48 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardUseCompatPadding="true"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="3dp"
     app:cardPreventCornerOverlap="false"
-    app:cardCornerRadius="0dp"
-    app:cardElevation="3dp">
+    app:cardUseCompatPadding="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <LinearLayout
             android:id="@+id/llRowLKP"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="16dp"
-            android:paddingLeft="12dp"
-            android:paddingTop="8dp">
+            android:padding="8dp">
 
             <TextView
                 android:id="@+id/tvCustName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-                android:text="ELKANA" />
+                android:text="ELKANA"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
 
             <TextView
                 android:id="@+id/tvNoContract"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-                android:text="ELKANA" />
+                android:layout_gravity="end"
+                android:text="ELKANA"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
 
             <TextView
                 android:id="@+id/tvWorkStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:text="ELKANA" />
 
             <TextView
                 android:id="@+id/tvLKPFlag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:text="ELKANA" />
 
         </LinearLayout>

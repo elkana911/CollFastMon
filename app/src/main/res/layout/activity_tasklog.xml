@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="id.co.ppu.collfastmon.lkp.ActivityTaskLog">
+    tools:context=".screen.lkp.ActivityTaskLog">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +13,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorRadanaBlue"
+            android:background="@color/colorPrimaryDark"
             android:layoutAnimation="@anim/layout_slide_down"
             android:orientation="vertical"
             android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -23,16 +23,18 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="No LKP"
                 android:textColorHint="@android:color/primary_text_dark">
 
                 <EditText
                     android:id="@+id/etNoLKP"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:padding="8dp"
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="No LKP"
                     android:gravity="end"
                     android:fontFamily="monospace"
                     android:maxLines="1"
@@ -42,16 +44,18 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="Tgl LKP"
                 android:textColorHint="@android:color/primary_text_dark">
 
                 <EditText
                     android:id="@+id/etTglLKP"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:padding="8dp"
                     android:clickable="false"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:hint="Tgl LKP"
                     android:gravity="end"
                     android:fontFamily="monospace"
                     android:maxLines="1"

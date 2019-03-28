@@ -103,12 +103,15 @@ public class ActivityDeveloper extends BasicActivity {
                 displayRows(listOthers);
 
                 List<Pair<String, String>> listPref = new ArrayList<>();
+
+                /*
                 Map<String, ?> allEntries = Storage.getSharedPreferences(getApplicationContext()).getAll();
                 for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
                     Pair<String, String> p = Pair.create(entry.getKey(), "" + entry.getValue().toString());
 
                     listPref.add(p);
                 }
+                */
 
                 Pair<String, String> pScreenRes = Pair.create("screen.density", Utility.getDeviceResolution(ActivityDeveloper.this));
                 listPref.add(pScreenRes);
