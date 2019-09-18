@@ -44,11 +44,11 @@ import id.co.ppu.collfastmon.listener.OnApproveListener;
 
 public class Utility {
 
-    public final static boolean developerMode = true;
+    public final static boolean DEVELOPER_MODE = true;
 
-    public final static String DATE_EXPIRED_YYYYMMDD = developerMode ? "20171225" : "20421231"; // 20 years
+    public final static String DATE_EXPIRED_YYYYMMDD = DEVELOPER_MODE ? "20171225" : "20421231"; // 20 years
     public final static String SERVER_DEV_NAME = "dev-fast-mobile";
-    public final static String SERVER_DEV_IP = "202.51.118.70";
+    public final static String SERVER_DEV_IP = "202.59.166.133";
     public final static String SERVER_DEV_PORT = "7002";
 
     public static String[][] SERVERS = {
@@ -62,10 +62,10 @@ public class Utility {
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}
     };
 
-    public final static int NETWORK_TIMEOUT_MINUTES = developerMode ? 2 : 5;    // 2 too short
+    public final static int NETWORK_TIMEOUT_MINUTES = DEVELOPER_MODE ? 2 : 5;    // 2 too short
 
-    public final static int CYCLE_CHAT_STATUS_MILLISEC = (developerMode ? 3 : 15) * 60 * 1000;
-    public final static int CYCLE_CHAT_QUEUE_MILLISEC = (developerMode ? 2 : 3) * 1000;
+    public final static int CYCLE_CHAT_STATUS_MILLISEC = (DEVELOPER_MODE ? 3 : 15) * 60 * 1000;
+    public final static int CYCLE_CHAT_QUEUE_MILLISEC = (DEVELOPER_MODE ? 2 : 3) * 1000;
 
     //    public final static String[][] SERVERS = {{"local-server", "10.100.100.77", "8090"}
 //            ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
@@ -534,7 +534,7 @@ public class Utility {
         int versionCode = BuildConfig.VERSION_CODE;
         String versionName = BuildConfig.VERSION_NAME;
 
-        sb.append(",").append("dev=").append(developerMode);
+        sb.append(",").append("dev=").append(DEVELOPER_MODE);
         sb.append(",").append("versionCode=").append(versionCode);
         sb.append(",").append("versionName=").append(versionName);
         sb.append(",").append("versionAPI=").append(android.os.Build.VERSION.SDK_INT);

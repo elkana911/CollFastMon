@@ -280,20 +280,20 @@ public class FragmentLKPList extends BasicFragment {
         etNoLKP.setText(ldvNo);
         etTglLKP.setText(Utility.convertDateToString(lkpDate, Utility.DATE_DISPLAY_PATTERN));
 
-        if (!NetUtil.isConnected(getActivity())) {
+        if (DemoUtil.isDemo(getActivity())) {
 
-            if (DemoUtil.isDemo(getActivity())) {
-
-                final String createdBy = "JOB" + Utility.convertDateToString(lkpDate, "yyyyMMdd");
+            final String createdBy = "JOB" + Utility.convertDateToString(lkpDate, "yyyyMMdd");
 
 //                final LKPData lkpData = DemoUtil.buildLKP(new Date(), currentUser.getUserId(), currentUser.getBranchId(), createdBy);
-                final LKPDataMonitoring data = DemoUtil.buildLKPData(collCode, "26160192", "6200020170223026160192", lkpDate, createdBy);
+            final LKPDataMonitoring data = DemoUtil.buildLKPData(collCode, "26160192", "6200020170223026160192", lkpDate, createdBy);
 
-                dumpData(collCode, lkpDate, data);
+            dumpData(collCode, lkpDate, data);
 
-            }
+        }
 
-            loadListFromLocal();
+        loadListFromLocal();
+
+        if (!NetUtil.isConnected(getActivity())) {
 
             return;
         }

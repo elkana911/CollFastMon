@@ -47,6 +47,7 @@ import id.co.ppu.collfastmon.R;
 import id.co.ppu.collfastmon.component.BasicActivity;
 import id.co.ppu.collfastmon.pojo.trn.TrnCollPos;
 import id.co.ppu.collfastmon.rest.APIonBuilder;
+import id.co.ppu.collfastmon.util.DemoUtil;
 import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.RealmResults;
@@ -270,6 +271,12 @@ public class ActivityGPSLog extends BasicActivity implements OnMapReadyCallback 
     }
 
     public synchronized void loadListFromServer(final boolean showProgress) {
+
+        if (DemoUtil.isDemo(this)) {
+            loadListFromLocal();
+            return;
+        }
+
         if (!NetUtil.isConnected(this)) {
             loadListFromLocal();
             return;

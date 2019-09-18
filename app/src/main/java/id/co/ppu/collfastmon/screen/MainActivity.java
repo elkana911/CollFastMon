@@ -76,11 +76,9 @@ import id.co.ppu.collfastmon.util.ChatUtil;
 import id.co.ppu.collfastmon.util.ConstChat;
 import id.co.ppu.collfastmon.util.DataUtil;
 import id.co.ppu.collfastmon.util.DemoUtil;
-import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.NotificationUtils;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
-import io.realm.Realm;
 
 import static id.co.ppu.collfastmon.util.DataUtil.resetData;
 
@@ -307,17 +305,17 @@ public class MainActivity extends BasicActivity
         if (mn != null) {
             MenuItem miDeveloper = mn.findItem(R.id.nav_developer);
             if (miDeveloper != null) {
-                miDeveloper.setVisible(Utility.developerMode);
+                miDeveloper.setVisible(Utility.DEVELOPER_MODE);
             }
 
             MenuItem miChats = mn.findItem(R.id.nav_chats);
             if (miChats != null) {
-                miChats.setVisible(Utility.developerMode);
+                miChats.setVisible(Utility.DEVELOPER_MODE);
             }
 
             MenuItem miReset = mn.findItem(R.id.nav_reset);
             if (miReset != null) {
-//                miReset.setVisible(Utility.developerMode);
+//                miReset.setVisible(Utility.DEVELOPER_MODE);
             }
 
         }
@@ -329,11 +327,16 @@ public class MainActivity extends BasicActivity
         if (currentUser == null)
             backToLoginScreen();
 
-        TextView tvProfileName = ButterKnife.findById(v, R.id.tvProfileName);
-        tvProfileName.setText(currentUser.getFullName());
+        try {
+            TextView tvProfileName = ButterKnife.findById(v, R.id.tvProfileName);
+            tvProfileName.setText(currentUser.getFullName());
 
-        TextView tvProfileEmail = ButterKnife.findById(v, R.id.tvProfileEmail);
-        tvProfileEmail.setText(currentUser.getEmailAddr());
+            TextView tvProfileEmail = ButterKnife.findById(v, R.id.tvProfileEmail);
+            tvProfileEmail.setText(currentUser.getEmailAddr());
+        } catch (Exception e) {
+            e.printStackTrace();
+            backToLoginScreen();
+        }
 
         final ImageView imageView = ButterKnife.findById(v, R.id.imageView);
         imageView.setOnClickListener(new View.OnClickListener() {

@@ -37,6 +37,7 @@ import id.co.ppu.collfastmon.pojo.trn.TrnLDVDetails;
 import id.co.ppu.collfastmon.pojo.trn.TrnLDVHeader;
 import id.co.ppu.collfastmon.pojo.trn.TrnTaskLog;
 import id.co.ppu.collfastmon.rest.APIonBuilder;
+import id.co.ppu.collfastmon.util.DemoUtil;
 import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.Storage;
 import id.co.ppu.collfastmon.util.Utility;
@@ -114,6 +115,11 @@ public class ActivityTaskLog extends BasicActivity {
     }
 
     private void _getTaskLogFromServer() {
+
+        if (DemoUtil.isDemo(this)) {
+            return;
+        }
+
         if (!NetUtil.isConnectedUnlessToast(this)) {
             return;
         }

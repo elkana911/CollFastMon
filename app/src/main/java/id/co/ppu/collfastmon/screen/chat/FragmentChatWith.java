@@ -28,7 +28,6 @@ import id.co.ppu.collfastmon.pojo.chat.TrnChatMsg;
 import id.co.ppu.collfastmon.util.ChatUtil;
 import id.co.ppu.collfastmon.util.ConstChat;
 import id.co.ppu.collfastmon.util.DataUtil;
-import id.co.ppu.collfastmon.util.NetUtil;
 import id.co.ppu.collfastmon.util.Utility;
 import io.realm.Case;
 import io.realm.Realm;
@@ -303,7 +302,7 @@ public class FragmentChatWith extends Fragment {
 //                tvStatus.setText(detail.getMessageStatus());
                 tvStatus.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
 
-                if (Utility.developerMode && detail.getFromCollCode().equals(userCode1)) {
+                if (Utility.DEVELOPER_MODE && detail.getFromCollCode().equals(userCode1)) {
 
                     int idIcon;
                     if (detail.getMessageStatus().equals(ConstChat.MESSAGE_STATUS_UNOPENED_OR_FIRSTTIME)

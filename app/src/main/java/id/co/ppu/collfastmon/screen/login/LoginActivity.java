@@ -30,9 +30,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.JsonPrimitive;
-import com.koushikdutta.async.future.FutureCallback;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -132,7 +129,7 @@ public class LoginActivity extends BasicActivity {
         int versionCode = BuildConfig.VERSION_CODE;
         String versionName = BuildConfig.VERSION_NAME;
 
-        tvVersion.setText("v" + versionName + (Utility.developerMode ? "-dev" : ""));
+        tvVersion.setText("v" + versionName + (Utility.DEVELOPER_MODE ? "-dev" : ""));
 
         if (getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE) {
@@ -210,17 +207,39 @@ public class LoginActivity extends BasicActivity {
         etServerDevIP.setText(ipDev);
         etServerDevPort.setText(portDev);
 
+        refreshServerList();
+
+        int x = Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0);
+        Utility.setSpinnerAsString(spServers, Utility.getServerName(x));
+
+        if (Utility.DEVELOPER_MODE) {
+            btnGetLKPUser.setVisibility(View.VISIBLE);
+
+        }
+
+    }
+
+    private void refreshServerList(){
         List<String> servers = new ArrayList<>();
         for (int i = 0; i < Utility.SERVERS.length; i++) {
 
-            if (!Utility.developerMode) {
+            if (!Utility.DEVELOPER_MODE) {
                 if (Utility.SERVERS[i][0].startsWith("local")
                         || Utility.SERVERS[i][0].startsWith("dev-")
                 )
                     continue;
+                else
+                    servers.add(Utility.SERVERS[i][0]);
+            } else {
+                if (Utility.SERVERS[i][0].startsWith("local")
+                        || Utility.SERVERS[i][0].startsWith("dev-")
+                )
+                    servers.add(Utility.SERVERS[i][0]);
+                else
+                    continue;
             }
 
-            servers.add(Utility.SERVERS[i][0]);
+//            servers.add(Utility.SERVERS[i][0]);
         }
 
         ServerAdapter arrayAdapter = new ServerAdapter(this, android.R.layout.simple_spinner_item, servers);
@@ -242,14 +261,6 @@ public class LoginActivity extends BasicActivity {
 
             }
         });
-
-        int x = Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0);
-        Utility.setSpinnerAsString(spServers, Utility.getServerName(x));
-
-        if (Utility.developerMode) {
-            btnGetLKPUser.setVisibility(View.VISIBLE);
-
-        }
 
     }
 
@@ -449,11 +460,19 @@ public class LoginActivity extends BasicActivity {
         }
     }
 
+    private boolean isUserIsDemo() {
+        // Store values at the time of the login attempt.
+        final String username = mUserNameView.getText().toString().trim();
+        final String password = mPasswordView.getText().toString().trim();
+
+        return UserUtil.userIsDemo(username, password);
+    }
+
     /*
     ga wajib online
      */
     private void checkVersion(final OnSuccessError listener) {
-        if (!NetUtil.isConnected(this)) {
+        if (!NetUtil.isConnected(this) || isUserIsDemo()) {
 //            Toast.makeText(this, getString(R.string.error_online_required), Toast.LENGTH_LONG).show();
 
             if (listener != null) {
@@ -482,7 +501,7 @@ public class LoginActivity extends BasicActivity {
                 }
             } else {
 
-                if (!Utility.developerMode) {
+                if (!Utility.DEVELOPER_MODE) {
                     if (listener != null) {
                         listener.onFailure(new ExpiredException("Please update app to latest version"));
                     }
@@ -533,36 +552,29 @@ public class LoginActivity extends BasicActivity {
 
     private void loginOnline(final String username, final String password) {
 
-        boolean isOnline = NetUtil.isConnected(this);
+        if (UserUtil.userIsDemo(username, password)) {
+            final ServerInfo si = new ServerInfo();
+            si.setServerDate(new Date());
 
-        if (!isOnline) {
-            /*
-                hardcode, if user is "demo"
-                make sure to use demo, flightmode is activated
-                surely you can only see dummy data in offline mode.
-                */
-            if (UserUtil.userIsDemo(username, password)) {
-                final ServerInfo si = new ServerInfo();
-                si.setServerDate(new Date());
+            LoginActivity.this.realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    realm.delete(ServerInfo.class);
+                    realm.copyToRealm(si);
+                }
+            });
 
-                LoginActivity.this.realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        realm.delete(ServerInfo.class);
-                        realm.copyToRealm(si);
-                    }
-                });
+            Storage.savePrefAsJson(Storage.KEY_USER, DemoUtil.buildDemoUser());
 
-                Storage.savePrefAsJson(Storage.KEY_USER, DemoUtil.buildDemoUser());
+            // able to control nextday shpuld re-login to server
+            Storage.savePrefAsJson(Storage.KEY_USER_LAST_DAY, new Date());
 
-                // able to control nextday shpuld re-login to server
-                Storage.savePrefAsJson(Storage.KEY_USER_LAST_DAY, new Date());
+            // final check
+            startMainActivity();
+            return;
+        }
 
-                // final check
-                startMainActivity();
-            } else
-                Utility.showDialog(this, "Offline", getString(R.string.error_offline));
-
+        if (!NetUtil.isConnectedUnlessToast(this)) {
             return;
         }
 
