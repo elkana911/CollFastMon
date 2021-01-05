@@ -79,7 +79,8 @@ public class ActivityHelpWeb extends BasicActivity {
 
 //            String serverUrl = httpUrl.scheme() + "://" + httpUrl.host() + ":" + httpUrl.port() + "/";
 //            String serverUrl = Utility.includeTrailingPath(httpUrl.url().toString(), '/');
-            String serverUrl = Utility.buildUrlAsString(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0));
+            String serverUrl = Utility.includeTrailingPath(Storage.getSelectedRootUrlServer(), '/');// Utility.buildUrlAsString(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0));
+//            String serverUrl = Utility.includeTrailingPath(Storage.getSelectedUrlServer(), '/');// Utility.buildUrlAsString(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0));
 
             Log.e(TAG, "server:" + serverUrl);
             web.loadUrl(serverUrl + "docs/helpwebspv.html");

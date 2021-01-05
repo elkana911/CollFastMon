@@ -88,7 +88,7 @@ public class ActivityRepoEntry extends BasicActivity {
             throw new RuntimeException("collectorId / ldvNo / contractNo cannot null");
         }
 
-        TrnLDVDetails dtl = this.realm.where(TrnLDVDetails.class).equalTo("contractNo", contractNo).findFirst();
+        TrnLDVDetails dtl = getRealmInstance().where(TrnLDVDetails.class).equalTo("contractNo", contractNo).findFirst();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.title_activity_repo_entry);
@@ -102,9 +102,9 @@ public class ActivityRepoEntry extends BasicActivity {
 
 //        etTglTransaksi.setText(Utility.convertDateToString(serverDate, "dd-MMM-yyyy"));
 
-        TrnLDVHeader header = this.realm.where(TrnLDVHeader.class).findFirst();
+        TrnLDVHeader header = getRealmInstance().where(TrnLDVHeader.class).findFirst();
 
-        TrnRepo trnRepo = this.realm.where(TrnRepo.class)
+        TrnRepo trnRepo = getRealmInstance().where(TrnRepo.class)
                 .equalTo("contractNo", contractNo)
                 .equalTo("lastupdateBy", Utility.LAST_UPDATE_BY)
                 .findFirst();

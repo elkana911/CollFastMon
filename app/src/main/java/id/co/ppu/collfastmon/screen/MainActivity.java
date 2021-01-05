@@ -183,7 +183,8 @@ public class MainActivity extends BasicActivity
         ChatUtil.chatLogOn(this, DataUtil.getCurrentUserId(), null);
 
         // Start the initial runnable task by posting through the handler
-        handlerChatStatus.post(runnableCode);
+        // 26 nov 19 kumatiin sementara
+//        handlerChatStatus.post(runnableCode);
     }
 
     @Override
@@ -291,6 +292,9 @@ public class MainActivity extends BasicActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            toolbar.setElevation(0);
+        }
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -352,12 +356,12 @@ public class MainActivity extends BasicActivity
                         } else if (item == 1) {
                             // from gallery
                             Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                             startActivityForResult(pickPhoto, 55);//one can be replaced with any action code
                         } else if (item == 2) {
                             // delete
                             Drawable icon;
-                            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                                 icon = VectorDrawableCompat.create(getResources(), R.drawable.ic_add_a_photo_black_24dp, getTheme());
                             } else {
                                 icon = getResources().getDrawable(R.drawable.ic_add_a_photo_black_24dp, getTheme());
@@ -640,11 +644,12 @@ public class MainActivity extends BasicActivity
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(title);
-            UserData userData = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
-            getSupportActionBar().setSubtitle(userData.getFullName());
             getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
+
+            UserData userData = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
+            getSupportActionBar().setSubtitle(userData != null ? userData.getFullName() : "");
         }
 
         drawer.closeDrawer(GravityCompat.START);

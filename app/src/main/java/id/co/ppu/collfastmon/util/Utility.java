@@ -44,21 +44,28 @@ import id.co.ppu.collfastmon.listener.OnApproveListener;
 
 public class Utility {
 
-    public final static boolean DEVELOPER_MODE = true;
+    public final static boolean DEVELOPER_MODE = false;
 
     public final static String DATE_EXPIRED_YYYYMMDD = DEVELOPER_MODE ? "20171225" : "20421231"; // 20 years
     public final static String SERVER_DEV_NAME = "dev-fast-mobile";
-    public final static String SERVER_DEV_IP = "202.59.166.133";
+    public final static String SERVER_DEV_IP = "202.51.118.67";
     public final static String SERVER_DEV_PORT = "7002";
+    public final static String SERVER_DEFAULT_LOKAL_SERVER = "local-server";
+    public final static String SERVER_DEFAULT_LOKAL_SERVER_IP = "192.168.0.2";
+    public final static String SERVER_DEFAULT_LOKAL_SERVER_PORT = "8090";
+    public final static String SERVER_DEFAULT_PROD_SERVER = "fast-mobile";
+    public final static String SERVER_DEFAULT_PROD_SERVER_IP = "cmobile.radanafinance.co.id";
+    public final static String SERVER_DEFAULT_PROD_SERVER_PORT = "7001";
 
     public static String[][] SERVERS = {
 //            {"local-server", "10.212.0.71", "8090"}
 //            {"local-server", "192.168.10.109", "8090"}   // kelapa gading
 //            {"local-server", "192.168.43.125", "8090"}   // samsung mega
 //            {"local-server", "192.168.1.107", "8090"}
-            {"local-server", "192.168.0.8", "8090"}    // faraday
+            {SERVER_DEFAULT_LOKAL_SERVER, SERVER_DEFAULT_LOKAL_SERVER_IP, SERVER_DEFAULT_LOKAL_SERVER_PORT}
+//            {"local-server", "192.168.0.8", "8090"}    // faraday
             ,{SERVER_DEV_NAME, SERVER_DEV_IP, SERVER_DEV_PORT}
-            ,{"fast-mobile", "cmobile.radanafinance.co.id", "7001"}
+            , {SERVER_DEFAULT_PROD_SERVER, SERVER_DEFAULT_PROD_SERVER_IP, SERVER_DEFAULT_PROD_SERVER_PORT}
             ,{"fast-mobile2", "c1mobile.radanafinance.co.id", "7001"}
     };
 
@@ -98,12 +105,12 @@ public class Utility {
     public static final String FONT_SAMSUNG = "SamsungSharpSans-Regular.ttf";
     public static final String FONT_GOOGLE = "ProductSansRegular.ttf";
     public static final String FONT_ARIZON = "Arizon.otf";
-
+/*
     public static String getServerName(int serverId) {
         String[] s = SERVERS[serverId];
         return s[0];
     }
-
+*/
     public static int getServerID(String serverName) {
         for (int i = 0; i < SERVERS.length; i++) {
             if (SERVERS[i][0].equalsIgnoreCase(serverName)) {
@@ -541,7 +548,8 @@ public class Utility {
 
         try {
             if (ctx != null) {
-                sb.append(",").append("server=").append(Utility.buildUrlAsString(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0)));
+                sb.append(",").append("server=").append(Storage.getSelectedUrlServer());
+//                sb.append(",").append("server=").append(Utility.buildUrlAsString(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0)));
 //                sb.append(",").append("server=").append(Utility.buildUrl(Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0)));
 
                 // single sim non dual
@@ -635,12 +643,21 @@ public class Utility {
         return path;
     }
 
-    public static String buildUrlAsString(int serverChoice) {
+    public static String buildRootUrlAsString(String serverName) {
 
-        if (serverChoice < 0)
-            serverChoice = 0;
-        if (serverChoice > SERVERS.length - 1)
-            serverChoice = SERVERS.length - 1;
+        int serverChoice = getServerID(serverName);
+
+        String[] server = SERVERS[serverChoice];   // just change this
+
+        StringBuilder sb = new StringBuilder(NetUtil.SERVER_SCHEME);
+        sb.append("://").append(server[1]).append(":").append(server[2]).append("/");
+
+        return sb.toString();
+    }
+
+    public static String buildUrlAsString(String serverName) {
+
+        int serverChoice = getServerID(serverName);
 
         String[] server = SERVERS[serverChoice];   // just change this
 

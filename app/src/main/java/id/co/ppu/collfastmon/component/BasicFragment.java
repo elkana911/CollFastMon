@@ -15,7 +15,7 @@ import io.realm.Realm;
 public class BasicFragment extends Fragment {
 
     protected Realm realm;
-    protected Typeface fontArizon;
+    protected Typeface fontArizon;  //dont have number
     protected Typeface fontGoogle;
     protected Typeface fontSamsungBold;
     protected Typeface fontSamsung;

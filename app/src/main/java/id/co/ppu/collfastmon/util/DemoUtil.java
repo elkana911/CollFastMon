@@ -347,14 +347,14 @@ public class DemoUtil {
 
         Date lkpDate = new Date();
 
-        list.add(generateCollJob(lkpDate, "{\"collCode\":\"21160292\",\"collNa`me\":\"RIKI RISWANTO\",\"collType\":\"CRC\",\"ldvNo\":\"1211020170223021160292\",\"countVisited\":0,\"countLKP\":3,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
-        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
         list.add(generateCollJob(lkpDate, "{\"collCode\":\"21160292\",\"collName\":\"RIKI RISWANTO\",\"collType\":\"CRC\",\"ldvNo\":\"1211020170223021160292\",\"countVisited\":0,\"countLKP\":3,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
-        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
+        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collName\":\"MICHAEL GUN\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
+        list.add(generateCollJob(lkpDate, "{\"collCode\":\"21160292\",\"collName\":\"RIKI RISWANTO\",\"collType\":\"CRC\",\"ldvNo\":\"1211020170223021160292\",\"countVisited\":0,\"countLKP\":3,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
+        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collName\":\"MICHAEL GUN\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
         list.add(generateCollJob(lkpDate, "{\"collCode\":\"21150663\",\"collName\":\"MAHDUM JAUHANA\",\"collType\":\"CRC\",\"ldvNo\":\"1211020170223021150663\",\"countVisited\":0,\"countLKP\":4,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
         list.add(generateCollJob(lkpDate, "{\"collCode\":\"21140598\",\"collName\":\"NIECKO FRANA HERLANGGA\",\"collType\":\"CRC\",\"ldvNo\":\"1211020170223021140598\",\"countVisited\":2,\"countLKP\":4,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
-        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
-        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
+        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collName\":\"MICHAEL GUN\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
+        list.add(generateCollJob(lkpDate, "{\"collCode\":\"RDN0588\",\"collName\":\"MICHAEL GUN\",\"collType\":\"CRC\",\"ldvNo\":\"12110201702230RDN0588\",\"countVisited\":0,\"countLKP\":5,\"lkpDate\":\"23-02-2017 00:00:00\"}"));
 
         return list;
     }

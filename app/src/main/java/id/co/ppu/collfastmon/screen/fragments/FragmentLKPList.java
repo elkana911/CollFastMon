@@ -76,6 +76,13 @@ public class FragmentLKPList extends BasicFragment {
     public FragmentLKPList() {
     }
 
+    private Realm getRealmInstance() {
+        if (this.realm == null)
+            this.realm = Realm.getDefaultInstance();
+
+        return this.realm;
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -122,6 +129,10 @@ public class FragmentLKPList extends BasicFragment {
                     .deleteAllFromRealm();
 
             TrnLDVHeader trnLDVHeader = data.getHeader();
+
+            if (trnLDVHeader == null)
+                return;
+
             bgRealm.copyToRealmOrUpdate(trnLDVHeader);
 
             d = bgRealm.where(TrnLDVDetails.class)
@@ -222,32 +233,34 @@ public class FragmentLKPList extends BasicFragment {
                     .equalTo(Utility.COLUMN_CREATED_BY, createdBy)
                     .findFirst();
 
-            RealmResults<TrnLDVDetails> all = bgRealm.where(TrnLDVDetails.class)
-                    .equalTo("pk.ldvNo", header.getLdvNo())
-                    .equalTo("createdBy", createdBy)
-                    .findAll();
+            if (header != null) {
+                RealmResults<TrnLDVDetails> all = bgRealm.where(TrnLDVDetails.class)
+                        .equalTo("pk.ldvNo", header.getLdvNo())
+                        .equalTo("createdBy", createdBy)
+                        .findAll();
 
-            for (TrnLDVDetails obj : all) {
-                DisplayLDVDetails row = new DisplayLDVDetails();
+                for (TrnLDVDetails obj : all) {
+                    DisplayLDVDetails row = new DisplayLDVDetails();
 
 //                                        row.setLkpDate(Utility.convertStringToDate(etTglLKP.getText().toString(), Utility.DATE_DISPLAY_PATTERN));
 
-                row.setSeqNo(obj.getPk().getSeqNo());
-                row.setLdvNo(obj.getPk().getLdvNo());
-                row.setCollId(header.getCollCode());
-                row.setLkpDate(header.getLdvDate());
+                    row.setSeqNo(obj.getPk().getSeqNo());
+                    row.setLdvNo(obj.getPk().getLdvNo());
+                    row.setCollId(header.getCollCode());
+                    row.setLkpDate(header.getLdvDate());
 //                                        row.setCollId(collectorCode);
-                row.setContractNo(obj.getContractNo());
-                row.setCustName(obj.getCustName());
-                row.setCustNo(obj.getCustNo());
-                row.setCreatedBy(obj.getCreatedBy());
-                row.setFlagDone(obj.getFlagDone());
-                row.setLdvFlag(obj.getLdvFlag());
-                row.setWorkStatus(obj.getWorkStatus());
+                    row.setContractNo(obj.getContractNo());
+                    row.setCustName(obj.getCustName());
+                    row.setCustNo(obj.getCustNo());
+                    row.setCreatedBy(obj.getCreatedBy());
+                    row.setFlagDone(obj.getFlagDone());
+                    row.setLdvFlag(obj.getLdvFlag());
+                    row.setWorkStatus(obj.getWorkStatus());
 
-                bgRealm.copyToRealmOrUpdate(row);
+                    bgRealm.copyToRealmOrUpdate(row);
+                }
+
             }
-
             bgRealm.commitTransaction();
 
         } finally {
@@ -258,7 +271,7 @@ public class FragmentLKPList extends BasicFragment {
         // due to the limitations of realmsearchview, searchable column has been disabled
         // because when sort by seqNo, i cant search by custname
         listAdapter = new LKPListAdapter(
-                this.realm.where(DisplayLDVDetails.class)
+                getRealmInstance().where(DisplayLDVDetails.class)
                         .sort("seqNo")
 //                        .sort("rangeFCOMeters")
                         .findAll()

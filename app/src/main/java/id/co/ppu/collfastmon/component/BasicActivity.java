@@ -99,6 +99,13 @@ public class BasicActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    protected Realm getRealmInstance() {
+        if (this.realm == null)
+            this.realm = Realm.getDefaultInstance();
+
+        return this.realm;
+    }
+
     protected Date getServerDate(Realm realm) {
         return realm.where(ServerInfo.class)
                 .findFirst()

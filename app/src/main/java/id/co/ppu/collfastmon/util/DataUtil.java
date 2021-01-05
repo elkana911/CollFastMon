@@ -147,14 +147,11 @@ public class DataUtil {
         if (!NetUtil.isConnected(ctx)) {
             if (DemoUtil.isDemo(ctx)) {
 
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
+                realm.executeTransaction(realm1 -> {
 
-                        MasterMonData data = DemoUtil.buildMasterData();
+                    MasterMonData data = DemoUtil.buildMasterData();
 
-                        saveMastersToDB(realm, data);
-                    }
+                    saveMastersToDB(realm1, data);
                 });
 
                 return true;
@@ -236,6 +233,15 @@ public class DataUtil {
             bgRealm.copyToRealmOrUpdate(z);
         }
 
+    }
+
+    public static void saveMaster2DB(MasterMonData data) {
+        Realm r = Realm.getDefaultInstance();
+        try{
+            saveMastersToDB(r, data);
+        }finally {
+            r.close();
+        }
     }
 
     // store db without commit/rollback. you need to prepare it first

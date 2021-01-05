@@ -123,7 +123,7 @@ public class ActivityVisitResult extends BasicActivity {
             throw new RuntimeException("collectorId / ldvNo / contractNo cannot null");
         }
 
-        TrnLDVDetails dtl = this.realm.where(TrnLDVDetails.class).equalTo("contractNo", contractNo).findFirst();
+        TrnLDVDetails dtl = getRealmInstance().where(TrnLDVDetails.class).equalTo("contractNo", contractNo).findFirst();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.title_activity_visit_result);

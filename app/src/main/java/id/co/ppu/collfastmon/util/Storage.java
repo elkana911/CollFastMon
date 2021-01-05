@@ -26,7 +26,9 @@ import io.realm.Realm;
 public class Storage {
     public static final String PREF_APP = "RealmPref";
 
-    public static final String KEY_SERVER_ID = "serverID";
+//    public static final String KEY_SERVER_ID = "serverID";
+    // 5 nov 2019
+    public static final String KEY_SERVER_NAME_ID = "serverNameID";
 //    public static final String KEY_SERVER_DATE = "server.date";
     public static final String KEY_USER = "user";
     public static final String KEY_USER_LAST_DAY = "user.lastMorning";
@@ -192,7 +194,7 @@ public class Storage {
                 return defValue;
             }
 
-            return first.getValue() == null ? defValue : first.getValue();
+            return TextUtils.isEmpty(first.getValue()) ? defValue : first.getValue();
 
         } finally {
             if (realm != null) {
@@ -259,9 +261,13 @@ public class Storage {
     }
 
     public static String getLanguageId(Context ctx) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-        String langId = sharedPrefs.getString("language", "x"); //id / en
-
+        String langId = "en";
+        try {
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+            langId = sharedPrefs.getString("language", "id"); //id / en
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return langId;
 
     }
@@ -271,12 +277,21 @@ public class Storage {
      * @param relativePath without / on first character
      * @return &lt;serverName&gt;/relativePath
      */
-    public static String getUrlServer(String relativePath) {
-        return getUrlServer() + "/" + relativePath;
+    public static String getSelectedUrlServer(String relativePath) {
+        return getSelectedUrlServer() + "/" + relativePath;
     }
 
-    public static String getUrlServer() {
-        return Utility.buildUrlAsString(getPrefAsInt(KEY_SERVER_ID, 0));
+    public static String getSelectedServerName() {
+        return getPref(KEY_SERVER_NAME_ID, Utility.DEVELOPER_MODE ? Utility.SERVER_DEFAULT_LOKAL_SERVER : Utility.SERVER_DEFAULT_PROD_SERVER);
     }
+
+    public static String getSelectedUrlServer() {
+        return Utility.buildUrlAsString(getSelectedServerName());
+    }
+
+    public static String getSelectedRootUrlServer() {
+        return Utility.buildRootUrlAsString(getSelectedServerName());
+    }
+
 
 }

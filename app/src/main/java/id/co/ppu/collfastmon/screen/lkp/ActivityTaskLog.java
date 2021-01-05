@@ -143,7 +143,7 @@ public class ActivityTaskLog extends BasicActivity {
             }
 
             // save db
-            realm.executeTransactionAsync(realm -> {
+            getRealmInstance().executeTransactionAsync(realm -> {
                 boolean d = realm.where(TrnTaskLog.class)
                         .findAll()
                         .deleteAllFromRealm();
@@ -217,7 +217,7 @@ public class ActivityTaskLog extends BasicActivity {
 
         tableLayout.addView(row_header);
 
-        RealmResults<TrnTaskLog> list = realm.where(TrnTaskLog.class)
+        RealmResults<TrnTaskLog> list = getRealmInstance().where(TrnTaskLog.class)
                 .equalTo("pk.userCode", collCode)
                 .findAll().sort("createdTimestamp");
 //                .findAllSorted("pk.taskCode", Sort.ASCENDING, "pk.seqNo", Sort.ASCENDING);
@@ -240,10 +240,10 @@ public class ActivityTaskLog extends BasicActivity {
             if (adaDiRowNewList > -1) {
                 // cek by seqNo
                 if (list.get(i).getPk().getSeqNo() > newList.get(adaDiRowNewList).getPk().getSeqNo()) {
-                    newList.set(adaDiRowNewList, realm.copyFromRealm(list.get(i)));
+                    newList.set(adaDiRowNewList, getRealmInstance().copyFromRealm(list.get(i)));
                 }
             } else {
-                newList.add(realm.copyFromRealm(list.get(i)));
+                newList.add(getRealmInstance().copyFromRealm(list.get(i)));
             }
         }
 
@@ -260,7 +260,7 @@ public class ActivityTaskLog extends BasicActivity {
             ((TextView) row.findViewById(R.id.attrib_no)).setText(String.valueOf(i + 1) + ".");
             ((TextView) row.findViewById(R.id.attrib_no)).setTypeface(fontGoogle);
 
-            MstTaskType code = realm.where(MstTaskType.class)
+            MstTaskType code = getRealmInstance().where(MstTaskType.class)
                     .equalTo("taskCode", obj.getPk().getTaskCode())
                     .findFirst();
 
@@ -310,7 +310,7 @@ public class ActivityTaskLog extends BasicActivity {
     }
 
     private boolean anyTransactions(String ldvNo, String createdBy) {
-        long count = this.realm.where(TrnLDVDetails.class)
+        long count = getRealmInstance().where(TrnLDVDetails.class)
                 .equalTo("pk.ldvNo", ldvNo)
                 .equalTo("workStatus", "V")
                 .equalTo("createdBy", createdBy)
@@ -325,7 +325,7 @@ public class ActivityTaskLog extends BasicActivity {
         final String createdBy = "JOB" + Utility.convertDateToString(this.lkpDate, "yyyyMMdd");
 
         // cek dulu apa layak di cancel
-        TrnLDVHeader header = realm.where(TrnLDVHeader.class)
+        TrnLDVHeader header = getRealmInstance().where(TrnLDVHeader.class)
                 .equalTo("collCode", this.collCode)
                 .equalTo("createdBy", createdBy)
                 .findFirst();

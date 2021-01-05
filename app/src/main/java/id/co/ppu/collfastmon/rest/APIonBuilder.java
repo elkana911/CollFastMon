@@ -74,7 +74,7 @@ import id.co.ppu.collfastmon.util.Utility;
 public class APIonBuilder {
 
 //    private APIonBuilder(){
-//        serverUrl = Storage.getUrlServer();
+//        serverUrl = Storage.getSelectedUrlServer();
 //    }
 
 //    /**
@@ -92,8 +92,8 @@ public class APIonBuilder {
 //        return self;
 //    }
 
-    private static String _constructUrl(int serverID, String subServiceJson) {
-        StringBuilder sb = new StringBuilder(Utility.buildUrlAsString(serverID));
+    private static String _constructUrl(String serverName, String subServiceJson) {
+        StringBuilder sb = new StringBuilder(Utility.buildUrlAsString(serverName));
         sb.append("/").append(subServiceJson);
 
         return sb.toString();
@@ -101,7 +101,7 @@ public class APIonBuilder {
 
     private static <T> void _buildIonGET(Context context, String url, ContentValues cvAsParam, Class<T> clazz, FutureCallback<T> callback) {
 
-//        String url = serverUrl + "/" + subServiceJson;// Storage.getUrlServer(subServiceJson);
+//        String url = serverUrl + "/" + subServiceJson;// Storage.getSelectedUrlServer(subServiceJson);
 
         Uri.Builder b = Uri.parse(url).buildUpon();
 
@@ -123,10 +123,10 @@ public class APIonBuilder {
 
     private static <T> void _buildIonPOST(Context context, String url, ContentValues cvAsParam, Object postRequest, Class<T> clazzResponse, FutureCallback<T> callback) {
 
-//        String url = serverUrl + "/" + subServiceJson; //Storage.getUrlServer(subServiceJson);
+//        String url = serverUrl + "/" + subServiceJson; //Storage.getSelectedUrlServer(subServiceJson);
         // it's possible to self fix
         if (url == null || !url.startsWith("http")) {
-            url = Storage.getUrlServer(url);
+            url = Storage.getSelectedUrlServer(url);
         }
 
         Uri.Builder b = Uri.parse(url).buildUpon();
@@ -179,7 +179,7 @@ public class APIonBuilder {
 
     }
 
-    public static void login(Context ctx, int serverID, String username, String password, FutureCallback<ResponseLogin> callback){
+    public static void login(Context ctx, String serverName, String username, String password, FutureCallback<ResponseLogin> callback){
 
         RequestLogin req = new RequestLogin();
 
@@ -188,15 +188,15 @@ public class APIonBuilder {
         req.setId(username);
         req.setPwd(password);
 
-       _buildIonPOST(ctx, _constructUrl(serverID,"fastmon/login.json"), null, req, ResponseLogin.class, callback);
+       _buildIonPOST(ctx, _constructUrl(serverName,"fastmon/login.json"), null, req, ResponseLogin.class, callback);
     }
 
-    public static void getServerInfo(Context ctx, int serverID, FutureCallback<ResponseServerInfo> callback){
-        _buildIonPOST(ctx, _constructUrl(serverID, "fast/server_info.json"), null, null, ResponseServerInfo.class, callback);
+    public static void getServerInfo(Context ctx, String serverName, FutureCallback<ResponseServerInfo> callback){
+        _buildIonPOST(ctx, _constructUrl(serverName, "fast/server_info.json"), null, null, ResponseServerInfo.class, callback);
     }
 
     public static void getServerInfo(Context ctx, FutureCallback<ResponseServerInfo> callback){
-        getServerInfo(ctx, Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0), callback);
+        getServerInfo(ctx, Storage.getSelectedServerName(), callback);
 //        _buildIonPOST(ctx, "fast/server_info.json", null, null, ResponseServerInfo.class, callback);
     }
 
@@ -209,17 +209,17 @@ public class APIonBuilder {
         _buildIonPOST(ctx, "fastmon/get_lkp.json", null, req, ResponseGetLKPMonitoring.class, callback);
     }
 
-    public static void getAppVersion(Context ctx, int serverID, FutureCallback<JsonPrimitive> callback){
+    public static void getAppVersion(Context ctx, String serverName, FutureCallback<JsonPrimitive> callback){
         final String versionName = BuildConfig.VERSION_NAME;
 
         ContentValues cv = new ContentValues();
         cv.put("version", versionName);
 
-        _buildIonGET(ctx,  _constructUrl(serverID, "fastmon/get_app_version.json"), cv, JsonPrimitive.class, callback);
+        _buildIonGET(ctx,  _constructUrl(serverName, "fastmon/get_app_version.json"), cv, JsonPrimitive.class, callback);
     }
 
-    public static void getAnyUser(Context ctx, int serverID, FutureCallback<ResponseUserPwd> callback){
-        _buildIonPOST(ctx, _constructUrl(serverID,"fastmon/get_any_user.json") , null, null, ResponseUserPwd.class, callback);
+    public static void getAnyUser(Context ctx, String serverName, FutureCallback<ResponseUserPwd> callback){
+        _buildIonPOST(ctx, _constructUrl(serverName,"fastmon/get_any_user.json") , null, null, ResponseUserPwd.class, callback);
     }
 
     public static void getCollectorsJobEx(Context ctx, Date lkpDate, FutureCallback<ResponseGetCollJobList> callback){

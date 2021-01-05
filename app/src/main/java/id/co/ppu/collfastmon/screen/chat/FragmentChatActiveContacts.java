@@ -141,6 +141,9 @@ public class FragmentChatActiveContacts extends Fragment {
         if (caller == null)
             return;
 
+        if (true)
+            return;
+
         caller.isOffline(etChatCollCode.getText().toString(), new OnSuccessError() {
             @Override
             public void onSuccess(String msg) {

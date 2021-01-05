@@ -171,7 +171,9 @@ public class FragmentHomeSpv extends BasicFragment {
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
 
-            new DatePickerDialog(getContext(), listenerDateTglLKP, year, month, day).show();
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), listenerDateTglLKP, year, month, day);
+            datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+            datePickerDialog.show();
         });
 
 //        realm_recycler_view.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
@@ -334,11 +336,13 @@ public class FragmentHomeSpv extends BasicFragment {
                     holder.tvTotVisit.setBackgroundColor(Color.parseColor("#808080"));
                 }
 
+                String collName = TextUtils.isEmpty(detail.getCollName()) ? detail.getCollCode() : detail.getCollName();
                 TextView tvCollName = holder.tvCollName;
+
                 if (Build.VERSION.SDK_INT >= 24) {
-                    tvCollName.setText(Html.fromHtml("<strong>" + detail.getCollName() + "</strong>", Html.FROM_HTML_MODE_LEGACY));
+                    tvCollName.setText(Html.fromHtml("<b>" + collName + "</b>", Html.FROM_HTML_MODE_LEGACY));
                 } else {
-                    tvCollName.setText(Html.fromHtml("<strong>" + detail.getCollName() + "</strong>"));
+                    tvCollName.setText(Html.fromHtml("<b>" + collName + "</b>"));
                 }
 
                 TextView tvCollCode = holder.tvCollCode;
@@ -464,7 +468,7 @@ public class FragmentHomeSpv extends BasicFragment {
                 tvCollCode.setTypeface(fontGoogle);
                 tvLastTask.setTypeface(fontGoogle);
                 tvAbsen.setTypeface(fontGoogle);
-                tvCollName.setTypeface(fontArizon);
+                tvCollName.setTypeface(fontGoogle);
             }
         }
 

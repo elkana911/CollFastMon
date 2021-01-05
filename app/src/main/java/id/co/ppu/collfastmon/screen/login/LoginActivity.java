@@ -98,6 +98,11 @@ public class LoginActivity extends BasicActivity {
     @BindView(R.id.tvVersion)
     TextView tvVersion;
 
+    private String getSelectedServer() {
+        return spServers.getSelectedItem().toString();
+//        return Utility.getServerName(spServers.getSelectedItemPosition());
+    }
+
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -107,7 +112,8 @@ public class LoginActivity extends BasicActivity {
         if (!TextUtils.isEmpty(loginDate)) {
             UserData prevUserData = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
 
-            loginOffline(prevUserData.getUserId(), prevUserData.getUserPwd());
+            if (prevUserData != null)
+                loginOffline(prevUserData.getUserId(), prevUserData.getUserPwd());
         }
 
 //        Animation animZoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in);
@@ -136,9 +142,12 @@ public class LoginActivity extends BasicActivity {
             imageLogo.setVisibility(View.GONE);
         }
 
-        getSupportActionBar().setTitle(getString(R.string.app_name));
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.app_name));
 //        getSupportActionBar().setIcon(new ColorDrawable(Color.TRANSPARENT));
-        centerActionBarTitle();
+            centerActionBarTitle();
+        }
+
 
         //  Declare a new thread to do a preference check
         Thread t = new Thread(new Runnable() {
@@ -209,8 +218,11 @@ public class LoginActivity extends BasicActivity {
 
         refreshServerList();
 
-        int x = Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0);
-        Utility.setSpinnerAsString(spServers, Utility.getServerName(x));
+        String lastServer = Storage.getSelectedServerName();
+        Utility.setSpinnerAsString(spServers, lastServer);
+
+//        int x = Storage.getPrefAsInt(Storage.KEY_SERVER_ID, 0);
+//        Utility.setSpinnerAsString(spServers, Utility.getServerName(x));
 
         if (Utility.DEVELOPER_MODE) {
             btnGetLKPUser.setVisibility(View.VISIBLE);
@@ -280,7 +292,7 @@ public class LoginActivity extends BasicActivity {
             }
             */
 
-            String selectedServer = Utility.getServerName(spServers.getSelectedItemPosition());
+            String selectedServer = getSelectedServer(); // Utility.getServerName(spServers.getSelectedItemPosition());
             if (selectedServer.startsWith("dev")) {
                 int id = Utility.getServerID(selectedServer);
                 Utility.SERVERS[id][1] = etServerDevIP.getText().toString();
@@ -399,9 +411,6 @@ public class LoginActivity extends BasicActivity {
             return;
         }
 
-        Storage.savePref(Storage.KEY_SERVER_ID, String.valueOf(Utility.getServerID(spServers.getSelectedItem().toString())));
-//        Storage.savePreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, Utility.getServerID(spServers.getSelectedItem().toString()));
-
         UserData prevUserData = (UserData) Storage.getPrefAsJson(Storage.KEY_USER, UserData.class, null);
 
         if (prevUserData == null) {
@@ -485,7 +494,7 @@ public class LoginActivity extends BasicActivity {
         int versionCode = BuildConfig.VERSION_CODE;
         final String versionName = BuildConfig.VERSION_NAME;
 
-        APIonBuilder.getAppVersion(this, Utility.getServerID(spServers.getSelectedItem().toString()), (e, result) -> {
+        APIonBuilder.getAppVersion(this, getSelectedServer(), (e, result) -> {
             if (e != null) {
                 Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, e.getMessage(), e);
@@ -506,7 +515,11 @@ public class LoginActivity extends BasicActivity {
                         listener.onFailure(new ExpiredException("Please update app to latest version"));
                     }
 
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(result.getAsString())));
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(result.getAsString())));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
 
                 } else {
                     if (listener != null) {
@@ -525,7 +538,7 @@ public class LoginActivity extends BasicActivity {
 
     private void retrieveServerInfo(final OnPostRetrieveServerInfo listener) {
 
-        APIonBuilder.getServerInfo(this, Utility.getServerID(spServers.getSelectedItem().toString()), (e, result) -> {
+        APIonBuilder.getServerInfo(this, getSelectedServer(), (e, result) -> {
             Utility.disableScreen(LoginActivity.this, false);
 
             if (e != null) {
@@ -556,12 +569,9 @@ public class LoginActivity extends BasicActivity {
             final ServerInfo si = new ServerInfo();
             si.setServerDate(new Date());
 
-            LoginActivity.this.realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    realm.delete(ServerInfo.class);
-                    realm.copyToRealm(si);
-                }
+            LoginActivity.this.realm.executeTransaction(realm -> {
+                realm.delete(ServerInfo.class);
+                realm.copyToRealm(si);
             });
 
             Storage.savePrefAsJson(Storage.KEY_USER, DemoUtil.buildDemoUser());
@@ -587,7 +597,7 @@ public class LoginActivity extends BasicActivity {
                 @Override
                 public void onSuccess(ServerInfo serverInfo) {
 
-                    APIonBuilder.login(LoginActivity.this, Utility.getServerID(spServers.getSelectedItem().toString()), username, password, (e, result) -> {
+                    APIonBuilder.login(LoginActivity.this, getSelectedServer(), username, password, (e, result) -> {
                         Utility.dismissDialog(mProgressDialog);
 
                         if (e != null) {
@@ -640,6 +650,12 @@ public class LoginActivity extends BasicActivity {
         Storage.savePref(Storage.KEY_SERVER_DEV_IP, ipDev);
         Storage.savePref(Storage.KEY_SERVER_DEV_PORT, portDev);
 
+//        Storage.savePref(Storage.KEY_SERVER_ID, String.valueOf(Utility.getServerID(spServers.getSelectedItem().toString())));
+//        Storage.savePreferenceAsInt(getApplicationContext(), Storage.KEY_SERVER_ID, Utility.getServerID(spServers.getSelectedItem().toString()));
+
+        String selectedServer = spServers.getSelectedItem().toString();
+        Storage.savePref(Storage.KEY_SERVER_NAME_ID, selectedServer);
+
         if (cbRememberPwd.isChecked()) {
             final String password = mPasswordView.getText().toString();
 
@@ -685,7 +701,7 @@ public class LoginActivity extends BasicActivity {
 
         final ProgressDialog mProgressDialog = Utility.createAndShowProgressDialog(this, "Get Any LKP User...");
 
-        APIonBuilder.getAnyUser(this, Utility.getServerID(spServers.getSelectedItem().toString()), (e, result) -> {
+        APIonBuilder.getAnyUser(this, getSelectedServer(), (e, result) -> {
             Utility.dismissDialog(mProgressDialog);
 
             if (e != null) {
